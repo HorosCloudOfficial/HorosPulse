@@ -1,0 +1,11 @@
+<UserControl x:Class="WindowsPerformance.App.Views.MonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <Border Style="{StaticResource CardBorderStyle}">
+        <StackPanel>
+            <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+    </Border>
+</UserControl>

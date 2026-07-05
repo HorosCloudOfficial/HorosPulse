@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" --noprofile --norc .cursor/hooks/guard-shell.sh",
+        "failClosed": false
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" --noprofile --norc .cursor/hooks/post-edit-lint.sh"
+      }
+    ]
+  }
+}

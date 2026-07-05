@@ -1,0 +1,23 @@
+---
+description: Handle /idee prompts consistently in Ideen-Sammlung
+globs: Ideen-Sammlung/**
+alwaysApply: false
+---
+
+# /idee Flow For Ideen-Sammlung
+
+- Treat any user message that starts with `/idee` as a direct idea drop for the ideas collection, not as normal chat.
+- Apply this sorting logic:
+  - short spontaneous thought -> `Ideen-Sammlung/verstreut/`
+  - big directional question -> `Ideen-Sammlung/offene-fragen/`
+  - fundamental vision -> `Ideen-Sammlung/00-vision/`
+  - technical or structural thought -> `Ideen-Sammlung/architektur/`
+  - later expansion or future phase -> `Ideen-Sammlung/spaeter/`
+  - comparison with other projects or experiments -> `Ideen-Sammlung/vergleiche/`
+- When the best location is ambiguous, prefer `verstreut/` over inventing a forced structure.
+- Preserve the user's tone and intent, but rewrite into clean German with proper umlauts and readable phrasing.
+- When adding a new `/idee`, either extend an existing fitting note or create a new note if the thought deserves its own space.
+- If the `/idee` only extends an existing note, do not create a new file or manifest entry.
+- After creating a new markdown file, register it in `Ideen-Sammlung/manifest.json` in the same turn (or run `python sync-manifest.py --add-missing`, then refine label/summary/tags immediately). The Kommandozentrale (`index.html`) loads the catalog from `manifest.json` at startup.
+- For new manifest entries, always fill at least: `path`, `label`, `emoji`, `summary`.
+- Prefer adding at least one meaningful `tag`, and add `links` when there is an obvious related note.

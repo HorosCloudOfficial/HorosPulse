@@ -1,0 +1,71 @@
+---
+description: Keep custom agent mode conventions in Cursor context
+alwaysApply: true
+---
+
+# Custom Agent Context Modes
+
+Use these workspace conventions when the user references agent modes or parameters.
+
+## Loaded Agent Sources
+
+- **Fix · Debug · GUI · Performance Elite Team (steering):** `D:\Cloud\.github\agents\FIX-DEBUG-GUI-PERFORMANCE-ELITE-TEAM.agent.md`
+- Combined Deep + Critical (steering): `D:\Cloud\.github\agents\deep-critical-team.agent.md`
+- Deep analysis team: `D:\Cloud\.github\agents\deep-analysis-team.agent.md`
+- Critical thinking: `D:\Cloud\.github\agents\critical-thinking.chatmode.md`
+- Claude code system: `D:\Cloud\.github\agents\claude-code-system.chatmode.md`
+- GitHub Actions CI/CD practices: `D:\Cloud\.github\agents\github-actions-ci-cd-best-practices.instructions.md`
+
+If a requested source is missing, state that clearly and continue with the available sources.
+
+## Parameters
+
+### Session toggle
+
+- `/on`: enable the **Fix · Debug · GUI · Performance Elite Team** plus Deep + Critical context for the current task and follow-up work.
+- `/off`: disable the combined context until re-enabled.
+
+### Deep + Critical (from `deep-critical-team.agent.md`)
+
+- `/next`: skip the critical reviewer's clarifying question and proceed directly with the default split (50/50).
+- `/deep`: lead with the Deep Analysis Team perspective.
+- `/critical`: lead with the critical-thinking / Advocatus-Diaboli perspective.
+- `-percent <deep>/<critical>`: contribution weights, e.g. `/deep -percent 70/30` = 70% Deep, 30% Critical. `100/0` = Deep only, `0/100` = Critical only.
+
+Deep percentage sets how many of the 10 Deep specialists are active; critical percentage sets question depth (5 levels). Output uses `🔬 DEEP ANALYSIS [X%] / 🤔 CRITICAL THINKING [Y%] / 📊 SYNTHESE` when Deep/Critical are active.
+
+### Fix · Debug · GUI · Performance (from `FIX-DEBUG-GUI-PERFORMANCE-ELITE-TEAM.agent.md`)
+
+- `/fix`: quick targeted bug fix (minimal diff, verify immediately).
+- `/debug`: full 4-phase debug workflow (Assessment → Investigation → Resolution → QA).
+- `/gui`: GUI/UX overhaul (layout, states, a11y, interaction).
+- `/perf`: performance pass (measure → bottleneck → optimize → regression guard).
+- `/refactor`: structure improvement without behavior change.
+- `/stack react|dotnet|cpp|full`: stack focus (default `full` for HorosCloud).
+- `/quick`: 30–60 min triage fix path; `/standard` or `/deep-work` for full 7-phase workflow.
+
+Examples: `/fix /stack react …`, `/debug /gui /perf …`, `/debug /deep -percent 70/30 …`
+
+Activation: `/agent FIX-DEBUG-GUI-PERFORMANCE-ELITE-TEAM` or parameters inline in the message.
+
+Default to the combined context being enabled for this workspace unless the user says `/off`.
+
+### Tokenverbrauch (Lean Mode)
+
+- `/lean`: **Minimaler Tokenverbrauch** für die aktuelle Aufgabe und Follow-ups aktivieren.
+- Aliase: `/tokens:min`, `/minimal` (gleiches Verhalten wie `/lean`).
+- `/lean:off`: Lean Mode deaktivieren (zurück zum normalen Antwort- und Orchestrator-Verhalten).
+
+**Wenn Lean Mode aktiv ist** (explizit per Parameter oder inline, z. B. `/lean /fix …`):
+
+| Bereich | Verhalten |
+|---------|-----------|
+| **Antworten** | Knapp und sachlich; kein Preamble, keine Wiederholung der Aufgabe, keine Abschluss-Zusammenfassung wenn das Ergebnis schon klar ist. |
+| **Exploration** | Nur lesen/suchen, was für den nächsten Schritt nötig ist; bekannte Dateien aus dem Thread nicht erneut laden. |
+| **Tools** | Parallele Tool-Calls batchen; keine explorativen Reads „zur Sicherheit“. |
+| **Diffs** | Kleinster sinnvoller Patch; kein Refactoring nebenbei. |
+| **Verifikation** | Lint/Build/Test weiterhin ausführen, aber ohne ausführliche Protokoll-Narration — nur Ergebnis oder Fehler kurz melden. |
+| **Orchestrator** | Siehe `orchestrator.mdc` → Lean Mode (weniger Subagents, kürzere Delegation). |
+| **Konflikt** | Lean Mode **senkt** Ausführlichkeit, ersetzt aber nicht Sicherheits- oder Qualitäts-Mindestanforderungen (kein Commit ohne Anfrage, keine Type-Suppression). |
+
+Examples: `/lean fixe den Login-Bug`, `/tokens:min /stack react …`, `/minimal deploy nur lokal`
