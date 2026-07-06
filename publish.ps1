@@ -2,11 +2,15 @@
 <#
 .SYNOPSIS
     Publishes HorosPulse as a portable win-x64 ZIP distribution.
+.DESCRIPTION
+    Builds and publishes HorosPulse.App, bundles HorosPulse.Elevation.exe, and creates a ZIP.
+    Use -Velopack to also run `vpk pack` when the Velopack CLI is installed.
 #>
 param(
     [string]$Configuration = "Release",
     [string]$Runtime = "win-x64",
-    [switch]$SelfContained
+    [switch]$SelfContained,
+    [switch]$Velopack
 )
 
 $ErrorActionPreference = "Stop"
@@ -21,6 +25,7 @@ if ([string]::IsNullOrWhiteSpace($version)) {
 $artifactsDir = Join-Path $repoRoot "artifacts"
 $stagingDir = Join-Path $artifactsDir "HorosPulse-$version-$Runtime"
 $zipPath = Join-Path $artifactsDir "HorosPulse-$version-$Runtime.zip"
+$velopackOutDir = Join-Path $artifactsDir "velopack"
 
 Write-Host "Building solution ($Configuration)..."
 dotnet build HorosPulse.sln -c $Configuration --no-restore 2>$null | Out-Null
@@ -66,7 +71,36 @@ Compress-Archive -Path (Join-Path $stagingDir '*') -DestinationPath $zipPath -Fo
 
 Write-Host "Done: $zipPath"
 Write-Host ""
-Write-Host "Installer (Velopack):"
-Write-Host "  dotnet tool install -g vpk"
-Write-Host "  vpk pack -p $stagingDir -o $artifactsDir --packId HorosPulse --packVersion $version"
-Write-Host "  See docs/architecture.md for auto-update and uninstall rollback opt-in."
+Write-Host "Portable folder: $stagingDir"
+Write-Host "Velopack feed URL (appsettings.json): https://github.com/HorosCloudOfficial/HorosPulse"
+Write-Host ""
+
+if ($Velopack) {
+    $vpk = Get-Command vpk -ErrorAction SilentlyContinue
+    if (-not $vpk) {
+        Write-Warning "Velopack CLI (vpk) not found. Install with: dotnet tool install -g vpk"
+    }
+    else {
+        if (Test-Path $velopackOutDir) {
+            Remove-Item $velopackOutDir -Recurse -Force
+        }
+        New-Item -ItemType Directory -Path $velopackOutDir -Force | Out-Null
+
+        Write-Host "Packaging Velopack installer to $velopackOutDir ..."
+        vpk pack `
+            -p $stagingDir `
+            -o $velopackOutDir `
+            --packId HorosPulse `
+            --packVersion $version `
+            --packTitle "HorosPulse" `
+            --mainExe HorosPulse.App.exe
+
+        Write-Host "Velopack output: $velopackOutDir"
+        Write-Host "Upload releases.*.json and assets to GitHub Releases for auto-update."
+    }
+}
+else {
+    Write-Host "Installer (Velopack):"
+    Write-Host "  dotnet tool install -g vpk"
+    Write-Host "  .\publish.ps1 -Velopack"
+}

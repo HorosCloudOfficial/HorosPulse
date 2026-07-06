@@ -29,7 +29,7 @@ public sealed class MemoryOptimizerService : IMemoryOptimizerService
     public async Task<OptimizationResult> PurgeStandbyListAsync(CancellationToken cancellationToken = default)
     {
         if (!_elevationService.IsHelperAvailable)
-            return OptimizationResult.Fail("ElevationHelper nicht verfügbar.");
+            return OptimizationResult.Fail("HorosPulse.Elevation.exe nicht verfügbar.");
 
         var result = await _elevationService.PurgeStandbyListAsync(cancellationToken);
         if (result.Success)

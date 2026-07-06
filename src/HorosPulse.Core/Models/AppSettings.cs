@@ -14,7 +14,7 @@ public sealed class AppSettings
     public int SnapshotRetentionLimit { get; set; } = 50;
     public int MetricsPollingIntervalMs { get; set; } = 2000;
 
-    /// <summary>UI-Theme: "Dark" oder "TokyoNight".</summary>
+    /// <summary>UI-Theme: Dark, TokyoNight oder Light.</summary>
     public string Theme { get; set; } = "TokyoNight";
 
     /// <summary>Serilog-Minimum-Level: Verbose, Debug, Information, Warning, Error.</summary>
@@ -26,7 +26,7 @@ public sealed class AppSettings
     /// <summary>PowerShell-Standard-Timeout in Sekunden.</summary>
     public int PowerShellTimeoutSeconds { get; set; } = 30;
 
-    /// <summary>Light-Mode-Voreinstellung (Skeleton — Theme bleibt Tokyo Night bis implementiert).</summary>
+    /// <summary>Legacy-Flag; wird mit Theme=Light synchron gehalten.</summary>
     public bool UseLightMode { get; set; }
 
     /// <summary>Fensterbreite beim letzten Schließen.</summary>

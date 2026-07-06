@@ -23,7 +23,11 @@ public static class AppSettingsApplicator
 
         if (themeService is not null)
         {
-            var theme = Enum.TryParse<AppTheme>(settings.Theme, ignoreCase: true, out var parsed)
+            var themeName = settings.UseLightMode && !settings.Theme.Equals(nameof(AppTheme.Light), StringComparison.OrdinalIgnoreCase)
+                ? nameof(AppTheme.Light)
+                : settings.Theme;
+
+            var theme = Enum.TryParse<AppTheme>(themeName, ignoreCase: true, out var parsed)
                 ? parsed
                 : AppTheme.TokyoNight;
             themeService.ApplyTheme(theme);

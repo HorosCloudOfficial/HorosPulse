@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Changed
+
+- Rebrand cleanup: removed stale `WindowsPerformance.*` tree; migrated PowerShell module to `HorosPulse.PowerShell`
+- Light theme (`Resources/Themes/Light.xaml`) with working Theme ComboBox (Dark / Tokyo Night / Light)
+- Velopack `UpdateManager` wired for non-blocking startup check and manual update in Einstellungen
+- `publish.ps1` supports `-Velopack` for `vpk pack` output under `artifacts/velopack/`
+- User-facing elevation messages use `HorosPulse.Elevation.exe`; CHANGELOG URLs point to HorosCloudOfficial/HorosPulse
+
+### Added (prior)
 
 - MVP P2: Fenster-Geometrie-Persistenz, Light-Mode-Skeleton, Ultimate Performance Plan
 - MVP P2: Monitor-Refresh/Cursor-Filter, Defender-Pfadvalidierung, Indexer WSearch-Restart (Opt-in)
@@ -26,8 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Initiale HorosPulse-App mit Tokyo Night UI
-- Cursor Dev Mode Preset, Snapshot/Rollback, ElevationHelper
+- Cursor Dev Mode Preset, Snapshot/Rollback, HorosPulse.Elevation.exe
 - Phase-2-Module: Dienste, Startup, Visuell, Speicher, Netzwerk, Trends, Prozesse
 
-[Unreleased]: https://github.com/example/HorosPulse/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/example/HorosPulse/releases/tag/v0.1.0
+[Unreleased]: https://github.com/HorosCloudOfficial/HorosPulse/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/HorosCloudOfficial/HorosPulse/releases/tag/v0.1.0

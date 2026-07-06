@@ -26,7 +26,7 @@ public sealed class ThemeService : IThemeService
         var themePath = theme switch
         {
             AppTheme.Dark => "Resources/Themes/Dark.xaml",
-            AppTheme.Light => "Resources/Themes/TokyoNight.xaml",
+            AppTheme.Light => "Resources/Themes/Light.xaml",
             _ => "Resources/Themes/TokyoNight.xaml",
         };
 

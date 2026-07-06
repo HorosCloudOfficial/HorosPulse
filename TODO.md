@@ -1,7 +1,7 @@
 # HorosPulse — Master Task List
 
 > **Projekt:** WPF .NET 9 Desktop-App zur Windows-Systemoptimierung für Cursor IDE Programmier-Workflows
-> **Stand:** 2026-07-06 · MVP + Phase 2–3 abgeschlossen · Workspace: `D:\HorosPulse`
+> **Stand:** 2026-07-06 · MVP + Phase 2–3 abgeschlossen · Workspace: `D:\WindowsPerformance`
 
 ---
 
@@ -82,7 +82,7 @@ HorosPulse.sln
 
 - [x] **P0** Git-Repository initialisieren (`git init`) und initialer Commit nach Solution-Setup *(ergänzt)* - Repo auf `main`; initialer Bulk-Commit `f36a228` (MVP + Phase 3, 221 Dateien)
 - [x] **P0** Branch-Strategie festlegen: `main` (stable), Feature-Branches `feature/<name>`, Squash-Merge in `main` *(ergänzt)*
-- [x] **P0** `dotnet new sln -n HorosPulse` in `D:\HorosPulse` ausführen
+- [x] **P0** `dotnet new sln -n HorosPulse` in `D:\WindowsPerformance` ausführen
 - [x] **P0** Projektordner `src/` und `tests/` anlegen
 - [x] **P0** `HorosPulse.App` (WPF, .NET 9) erstellen: `dotnet new wpf -n HorosPulse.App -o src/HorosPulse.App`
 - [x] **P0** `HorosPulse.Core` (classlib) erstellen

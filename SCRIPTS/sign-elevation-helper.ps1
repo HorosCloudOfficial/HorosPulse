@@ -4,7 +4,8 @@
     Signs HorosPulse.Elevation.exe with a dev self-signed Authenticode certificate.
 .DESCRIPTION
     Creates a code-signing certificate in CurrentUser\My when none exists, then signs
-    the ElevationHelper binary. Safe for local development; CI skips when SKIP_SIGNING=1.
+    HorosPulse.Elevation.exe with a self-signed Authenticode certificate for local development.
+    CI skips signing when SKIP_SIGNING=1.
 #>
 param(
     [string]$Configuration = "Debug",
@@ -23,12 +24,12 @@ $projectPath = Join-Path $repoRoot "src\HorosPulse.Elevation\HorosPulse.Elevatio
 $exePath = Join-Path $repoRoot "src\HorosPulse.Elevation\bin\$Configuration\net9.0\HorosPulse.Elevation.exe"
 
 if (-not (Test-Path $exePath)) {
-    Write-Host "Building ElevationHelper ($Configuration)..."
+    Write-Host "Building HorosPulse.Elevation ($Configuration)..."
     dotnet build $projectPath -c $Configuration
 }
 
 if (-not (Test-Path $exePath)) {
-    throw "ElevationHelper not found at: $exePath"
+    throw "HorosPulse.Elevation.exe not found at: $exePath"
 }
 
 $cert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert |

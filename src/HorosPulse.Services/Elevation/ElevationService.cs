@@ -36,7 +36,7 @@ public sealed class ElevationService : IElevationService
 
         var helperPath = ElevationHelperPathResolver.GetExpectedPath();
         if (!File.Exists(helperPath))
-            return PowerShellResult.Failed($"ElevationHelper nicht gefunden: {helperPath}");
+            return PowerShellResult.Failed($"HorosPulse.Elevation.exe nicht gefunden: {helperPath}");
 
         var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(30);
         await EnsureHelperServerRunningAsync(helperPath, cancellationToken);
@@ -67,11 +67,11 @@ public sealed class ElevationService : IElevationService
 
             var responseLine = await reader.ReadLineAsync(cancellationToken);
             if (string.IsNullOrWhiteSpace(responseLine))
-                return PowerShellResult.Failed("Leere Antwort vom ElevationHelper.");
+                return PowerShellResult.Failed("Leere Antwort von HorosPulse.Elevation.exe.");
 
             var response = JsonSerializer.Deserialize<ElevationResponse>(responseLine, JsonOptions);
             if (response is null)
-                return PowerShellResult.Failed("Ungültige JSON-Antwort vom ElevationHelper.");
+                return PowerShellResult.Failed("Ungültige JSON-Antwort von HorosPulse.Elevation.exe.");
 
             return new PowerShellResult(
                 response.ExitCode,
@@ -81,7 +81,7 @@ public sealed class ElevationService : IElevationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "ElevationHelper-Aufruf fehlgeschlagen");
+            _logger.LogError(ex, "HorosPulse.Elevation.exe-Aufruf fehlgeschlagen");
             return PowerShellResult.Failed(ex.Message);
         }
     }
@@ -90,7 +90,7 @@ public sealed class ElevationService : IElevationService
     {
         var helperPath = ElevationHelperPathResolver.GetExpectedPath();
         if (!File.Exists(helperPath))
-            return OptimizationResult.Fail($"ElevationHelper nicht gefunden: {helperPath}");
+            return OptimizationResult.Fail($"HorosPulse.Elevation.exe nicht gefunden: {helperPath}");
 
         try
         {
@@ -113,11 +113,11 @@ public sealed class ElevationService : IElevationService
 
             var responseLine = await reader.ReadLineAsync(cancellationToken);
             if (string.IsNullOrWhiteSpace(responseLine))
-                return OptimizationResult.Fail("Leere Antwort vom ElevationHelper.");
+                return OptimizationResult.Fail("Leere Antwort von HorosPulse.Elevation.exe.");
 
             var response = JsonSerializer.Deserialize<ElevationResponse>(responseLine, JsonOptions);
             if (response is null)
-                return OptimizationResult.Fail("Ungültige JSON-Antwort vom ElevationHelper.");
+                return OptimizationResult.Fail("Ungültige JSON-Antwort von HorosPulse.Elevation.exe.");
 
             return response.Success
                 ? OptimizationResult.Ok(response.Stdout ?? "Standby-Liste geleert")
@@ -154,7 +154,7 @@ public sealed class ElevationService : IElevationService
             await Task.Delay(1500, cancellationToken);
 
             if (!await TryPingHelperAsync(cancellationToken))
-                throw new InvalidOperationException("ElevationHelper konnte nicht gestartet werden (UAC abgebrochen?).");
+                throw new InvalidOperationException("HorosPulse.Elevation.exe konnte nicht gestartet werden (UAC abgebrochen?).");
         }
         finally
         {

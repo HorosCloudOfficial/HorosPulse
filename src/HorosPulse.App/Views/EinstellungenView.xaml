@@ -44,10 +44,6 @@
                             <TextBox Text="{Binding PowerShellTimeoutSeconds, UpdateSourceTrigger=PropertyChanged}"
                                      Margin="0,0,0,12" />
 
-                            <CheckBox Content="Light Mode (Skeleton — speichert Voreinstellung, UI folgt)"
-                                      IsChecked="{Binding UseLightMode}"
-                                      Margin="0,0,0,12" />
-
                             <TextBlock Text="Monitor: Refresh-Intervall (ms)" Margin="0,0,0,4" />
                             <TextBox Text="{Binding ProcessMonitorRefreshIntervalMs, UpdateSourceTrigger=PropertyChanged}"
                                      Margin="0,0,0,12" />
@@ -117,7 +113,10 @@
                             <TextBlock Text="Windows-Optimierung für Cursor IDE Entwicklungsworkflows."
                                        Foreground="{StaticResource TextMutedBrush}"
                                        TextWrapping="Wrap"
-                                       Margin="0,12,0,0" />
+                                       Margin="0,12,0,16" />
+                            <Button Content="Nach Updates suchen"
+                                    Command="{Binding CheckForUpdatesCommand}"
+                                    HorizontalAlignment="Left" />
                         </StackPanel>
                     </Border>
                 </TabItem>

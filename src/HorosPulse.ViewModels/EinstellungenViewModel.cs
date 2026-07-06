@@ -14,24 +14,27 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
     private readonly IAuditRepository _auditRepository;
     private readonly IStartupRegistrationService _startupRegistration;
     private readonly ISettingsApplyService _settingsApplyService;
+    private readonly IVelopackUpdateService _velopackUpdateService;
 
     public EinstellungenViewModel(
         IAppSettingsService appSettingsService,
         IAuditRepository auditRepository,
         IStartupRegistrationService startupRegistration,
-        ISettingsApplyService settingsApplyService)
+        ISettingsApplyService settingsApplyService,
+        IVelopackUpdateService velopackUpdateService)
     {
         _appSettingsService = appSettingsService;
         _auditRepository = auditRepository;
         _startupRegistration = startupRegistration;
         _settingsApplyService = settingsApplyService;
+        _velopackUpdateService = velopackUpdateService;
         AppVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.1.0";
         _ = LoadAsync();
     }
 
     public string Title => "Einstellungen";
 
-    public IReadOnlyList<string> AvailableThemes { get; } = ["Tokyo Night", "Dark", "Light (Skeleton)"];
+    public IReadOnlyList<string> AvailableThemes { get; } = ["Tokyo Night", "Dark", "Light"];
 
     public IReadOnlyList<string> AvailableLogLevels { get; } =
         ["Verbose", "Debug", "Information", "Warning", "Error"];
@@ -56,9 +59,6 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
 
     [ObservableProperty]
     private int _powerShellTimeoutSeconds = 30;
-
-    [ObservableProperty]
-    private bool _useLightMode;
 
     [ObservableProperty]
     private int _processMonitorRefreshIntervalMs = 5000;
@@ -91,10 +91,9 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
         DefenderOptIn = current.DefenderOptIn;
         SnapshotRetentionLimit = current.SnapshotRetentionLimit;
         DefaultDevFoldersText = string.Join(", ", current.DefaultDevFolders);
-        SelectedTheme = ThemeToDisplay(current.Theme);
+        SelectedTheme = ThemeToDisplay(current.Theme, current.UseLightMode);
         SelectedLogLevel = current.MinimumLogLevel;
         PowerShellTimeoutSeconds = current.PowerShellTimeoutSeconds;
-        UseLightMode = current.UseLightMode;
         ProcessMonitorRefreshIntervalMs = current.ProcessMonitorRefreshIntervalMs;
         ProcessMonitorCursorFilterOnly = current.ProcessMonitorCursorFilterOnly;
         RestartSearchServiceAfterIndexerChange = current.RestartSearchServiceAfterIndexerChange;
@@ -116,15 +115,12 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
         current.Theme = DisplayToTheme(SelectedTheme);
         current.MinimumLogLevel = SelectedLogLevel;
         current.PowerShellTimeoutSeconds = Math.Clamp(PowerShellTimeoutSeconds, 5, 600);
-        current.UseLightMode = UseLightMode;
+        current.UseLightMode = current.Theme.Equals(nameof(AppTheme.Light), StringComparison.OrdinalIgnoreCase);
         current.ProcessMonitorRefreshIntervalMs = Math.Clamp(ProcessMonitorRefreshIntervalMs, 1000, 60000);
         current.ProcessMonitorCursorFilterOnly = ProcessMonitorCursorFilterOnly;
         current.RestartSearchServiceAfterIndexerChange = RestartSearchServiceAfterIndexerChange;
         current.ReapplyCursorPrioritiesOnRestart = ReapplyCursorPrioritiesOnRestart;
         current.AutoStartWithWindows = AutoStartWithWindows;
-
-        if (UseLightMode)
-            current.Theme = nameof(AppTheme.Light);
 
         await _appSettingsService.SaveAsync();
         _settingsApplyService.ApplyCurrent();
@@ -141,6 +137,21 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
             _startupRegistration.Unregister();
             StatusMessage = "Einstellungen gespeichert.";
         }
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        StatusMessage = "Suche nach Updates…";
+        var result = await _velopackUpdateService.CheckForUpdatesAsync(downloadIfAvailable: true);
+
+        StatusMessage = result switch
+        {
+            { IsSkipped: true } => "Auto-Update ist nur für Velopack-Installationen verfügbar.",
+            { IsUpToDate: true } => "HorosPulse ist auf dem neuesten Stand.",
+            { AvailableVersion: not null } => $"Update {result.AvailableVersion} heruntergeladen. App neu starten zum Anwenden.",
+            _ => $"Update-Prüfung fehlgeschlagen: {result.ErrorMessage ?? "Unbekannter Fehler"}",
+        };
     }
 
     [RelayCommand]
@@ -163,10 +174,15 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
         StatusMessage = $"Audit-CSV exportiert: {path}";
     }
 
-    private static string ThemeToDisplay(string theme) =>
-        theme.Equals("Dark", StringComparison.OrdinalIgnoreCase) ? "Dark"
-            : theme.Equals("Light", StringComparison.OrdinalIgnoreCase) ? "Light (Skeleton)"
+    private static string ThemeToDisplay(string theme, bool useLightMode)
+    {
+        if (useLightMode && !theme.Equals(nameof(AppTheme.Light), StringComparison.OrdinalIgnoreCase))
+            return "Light";
+
+        return theme.Equals(nameof(AppTheme.Dark), StringComparison.OrdinalIgnoreCase) ? "Dark"
+            : theme.Equals(nameof(AppTheme.Light), StringComparison.OrdinalIgnoreCase) ? "Light"
             : "Tokyo Night";
+    }
 
     private static string DisplayToTheme(string display) =>
         display.Equals("Dark", StringComparison.OrdinalIgnoreCase)

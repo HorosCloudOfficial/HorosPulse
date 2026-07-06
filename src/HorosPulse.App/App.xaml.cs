@@ -10,12 +10,12 @@ using Serilog;
 using Serilog.Core;
 using Velopack;
 using HorosPulse.App.Services;
+using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
 using HorosPulse.Data;
 using HorosPulse.Services;
 using HorosPulse.Services.PowerShell;
 using HorosPulse.Services.Settings;
-using HorosPulse.Core.Interfaces;
 using HorosPulse.ViewModels;
 
 namespace HorosPulse.App;
@@ -51,6 +51,29 @@ public partial class App : Application
 
         var cursorWatch = _host.Services.GetRequiredService<ICursorProcessWatchService>();
         cursorWatch.Start();
+
+        ScheduleStartupUpdateCheck(_host);
+    }
+
+    private static void ScheduleStartupUpdateCheck(IHost host)
+    {
+        var options = host.Services.GetRequiredService<IOptions<VelopackUpdateOptions>>().Value;
+        if (!options.CheckOnStartup)
+            return;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var updateService = host.Services.GetRequiredService<IVelopackUpdateService>();
+                await updateService.CheckForUpdatesAsync(downloadIfAvailable: false);
+            }
+            catch (Exception ex)
+            {
+                var logger = host.Services.GetRequiredService<ILogger<App>>();
+                logger.LogDebug(ex, "Background update check failed.");
+            }
+        });
     }
 
     private static void RestoreWindowGeometry(Window window, AppSettings settings)
@@ -120,10 +143,12 @@ public partial class App : Application
             {
                 services.AddSingleton(LogLevelSwitch);
                 services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
+                services.Configure<VelopackUpdateOptions>(context.Configuration.GetSection("Velopack"));
                 services.AddHorosPulseData();
                 services.AddHorosPulseServices();
                 services.AddHorosPulseViewModels();
                 services.AddSingleton<IThemeService, ThemeService>();
+                services.AddSingleton<IVelopackUpdateService, VelopackUpdateService>();
                 services.AddSingleton<ILoggingLevelService, LoggingLevelService>();
                 services.AddSingleton<ISettingsApplyService, SettingsApplyService>();
                 services.AddSingleton<INavigationService, Services.NavigationService>();

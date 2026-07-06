@@ -35,9 +35,15 @@ starter.bat Release
 ```powershell
 .\publish.ps1                    # framework-dependent win-x64 ZIP
 .\publish.ps1 -SelfContained     # self-contained win-x64 ZIP
+.\publish.ps1 -Velopack          # ZIP + Velopack installer (requires `vpk` CLI)
 ```
 
-Output: `artifacts/HorosPulse-<version>-win-x64.zip` (App + ElevationHelper + README).
+Output:
+- **ZIP:** `artifacts/HorosPulse-<version>-win-x64.zip`
+- **Portable folder:** `artifacts/HorosPulse-<version>-win-x64/` (App + HorosPulse.Elevation.exe + README)
+- **Velopack installer:** `artifacts/velopack/` (with `-Velopack`)
+
+Auto-update feed URL is configured in `src/HorosPulse.App/appsettings.json` (`Velopack:UpdateFeedUrl`, default `https://github.com/HorosCloudOfficial/HorosPulse`). The app checks for updates on startup (non-blocking) and via **Einstellungen → Über → Nach Updates suchen**.
 
 ## Elevation helper code signing (Dev)
 
