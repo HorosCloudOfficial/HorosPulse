@@ -1,7 +1,7 @@
 # Henry++ Referenz-Bibliothek — Übersicht
 
 > **Diataxis: Erklärung** · Stand: 2026-07-06  
-> Was die 19 Henry++-Repos sind, warum sie lokal geklont wurden und wie sie sich zu WindowsPerformance verhalten.
+> Was die 19 Henry++-Repos sind, warum sie lokal geklont wurden und wie sie sich zu HorosPulse verhalten.
 
 ---
 
@@ -19,7 +19,7 @@ Alle 19 Repos teilen:
 
 ## Warum lokal geklont?
 
-WindowsPerformance (WPF .NET 9) plant in **Phase 2** mehrere Module, die dieselben undokumentierten NT-API-Aufrufe benötigen wie Henry++-Projekte:
+HorosPulse (WPF .NET 9) plant in **Phase 2** mehrere Module, die dieselben undokumentierten NT-API-Aufrufe benötigen wie Henry++-Projekte:
 
 | TODO-Item | Geplantes Modul | Relevantes Henry++-Repo |
 |-----------|----------------|------------------------|
@@ -34,15 +34,15 @@ Der Klon dient ausschließlich als **Lese-Referenz**: Wie ruft man `NtSetSystemI
 
 ## Abgrenzung: Referenz ≠ Integration
 
-| Merkmal | Henry++-Repos | WindowsPerformance |
+| Merkmal | Henry++-Repos | HorosPulse |
 |---------|-------------|---------------------|
 | Sprache | C (Win32 Native API) | C# / .NET 9 / WPF |
 | API-Ebene | Direkte NT-API (`ntdll.dll`) | P/Invoke via `Vanara.PInvoke.NtDll` (NuGet) |
 | Build | MSVC + NSIS | `dotnet build` / MSBuild |
-| Integration | Nicht in `WindowsPerformance.sln` enthalten | Kein `external/` Verweis in Projektdateien |
+| Integration | Nicht in `HorosPulse.sln` enthalten | Kein `external/` Verweis in Projektdateien |
 | .gitignore | `external/henrypp/` ist ausgeschlossen | Repos werden nie committed |
 
-WindowsPerformance **vendort keinen C-Code** aus diesen Repos. Die Interop-Implementierung erfolgt stattdessen über das NuGet-Paket `Vanara.PInvoke.NtDll`, das dieselben API-Signaturen typsicher als .NET-Bindings bereitstellt.
+HorosPulse **vendort keinen C-Code** aus diesen Repos. Die Interop-Implementierung erfolgt stattdessen über das NuGet-Paket `Vanara.PInvoke.NtDll`, das dieselben API-Signaturen typsicher als .NET-Bindings bereitstellt.
 
 > Vergleich: Warum NuGet statt C-Code? → [planning-todo-scan-externe-repos: §5.4-Empfehlung](../planning-todo-scan-externe-repos/05-api-datenmodell.md)
 
@@ -61,7 +61,7 @@ Der Pfad `external/henrypp/` steht in `.gitignore` (Zeile 84):
 external/henrypp/
 ```
 
-Das bedeutet: Nach einem frischen `git clone` von `WindowsPerformance` müssen die Henry++-Repos separat geklont werden (→ [02-benutzer-anleitung.md](02-benutzer-anleitung.md)).
+Das bedeutet: Nach einem frischen `git clone` von `HorosPulse` müssen die Henry++-Repos separat geklont werden (→ [02-benutzer-anleitung.md](02-benutzer-anleitung.md)).
 
 ---
 
@@ -87,7 +87,7 @@ Früher bekannt als Process Hacker, jetzt „System Informer" (gehostet bei [win
 
 ## Die übrigen 15 Repos im Schnellüberblick
 
-| Repo | Beschreibung | Relevanz für WindowsPerformance |
+| Repo | Beschreibung | Relevanz für HorosPulse |
 |------|-------------|--------------------------------|
 | `autoruns2` | Autorun-Manager (Registry + Startup-Ordner) | Referenz §5.2 Startup-Programme |
 | `builder` | Python-Buildskripte (7-Zip, GPG, NSIS) | Build-Muster; kein direkter Code-Bezug |

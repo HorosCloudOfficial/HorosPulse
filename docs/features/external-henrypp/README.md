@@ -1,17 +1,17 @@
 # Henry++ Referenz-Bibliothek
 
 > **Planungsartefakt / Entwickler-Referenz** · Stand: 2026-07-06  
-> 19 lokale Shallow Clones von [github.com/henrypp](https://github.com/henrypp) als Code-Referenz für undokumentierte Windows-Native-APIs — Grundlage für Phase-2-Module in WindowsPerformance.
+> 19 lokale Shallow Clones von [github.com/henrypp](https://github.com/henrypp) als Code-Referenz für undokumentierte Windows-Native-APIs — Grundlage für Phase-2-Module in HorosPulse.
 
 ---
 
 ## Auf einen Blick
 
-`external/henrypp/` enthält 19 freie Windows-Systemprogramme in purem C von Entwickler Henry++. Sie sind **nicht** in die Solution eingebunden — sie dienen ausschließlich als Lese-Referenz für NT-API-Aufrufe, die WindowsPerformance ab Phase 2 über `Vanara.PInvoke.NtDll` (NuGet) selbst implementiert.
+`external/henrypp/` enthält 19 freie Windows-Systemprogramme in purem C von Entwickler Henry++. Sie sind **nicht** in die Solution eingebunden — sie dienen ausschließlich als Lese-Referenz für NT-API-Aufrufe, die HorosPulse ab Phase 2 über `Vanara.PInvoke.NtDll` (NuGet) selbst implementiert.
 
 ### Vier Schlüssel-Repos
 
-| Repo | Pfad | Relevanz für WindowsPerformance |
+| Repo | Pfad | Relevanz für HorosPulse |
 |------|------|--------------------------------|
 | `memreduct` | `external/henrypp/memreduct/` | **§5.4** Memory Optimizer — `NtSetSystemInformation` + Standby-Liste |
 | `routine` | `external/henrypp/routine/` | **Gemeinsames C-SDK** — `ntapi.h` mit allen NT-Typdefinitionen |
@@ -59,9 +59,9 @@ ElevationHelper   →  UAC-Brücke für NT-Calls     →  Teil der Solution
 ## Wichtige Hinweise
 
 - `external/henrypp/` ist in `.gitignore` Zeile 84 ausgeschlossen
-- WindowsPerformance compiliert **keinen** C-Code aus diesen Repos
+- HorosPulse compiliert **keinen** C-Code aus diesen Repos
 - `simplewall` ist **GPL-3.0** — kein Code kopieren; alle anderen Schlüssel-Repos sind MIT
-- NT-API-Aufrufe erfordern `SeProfileSingleProcessPrivilege` → läuft via `WindowsPerformance.Elevation.exe`
+- NT-API-Aufrufe erfordern `SeProfileSingleProcessPrivilege` → läuft via `HorosPulse.Elevation.exe`
 
 ---
 

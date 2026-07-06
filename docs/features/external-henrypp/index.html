@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Henry++ Referenz-Bibliothek · WindowsPerformance</title>
+  <title>Henry++ Referenz-Bibliothek · HorosPulse</title>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <style>
     /* ── Reset ───────────────────────────────────────────── */
@@ -389,7 +389,7 @@
 <!-- ══ SIDEBAR ════════════════════════════════════════════ -->
 <nav id="sidebar">
   <div class="sidebar-header">
-    <div class="app-name">WindowsPerformance</div>
+    <div class="app-name">HorosPulse</div>
     <h2>Henry++ Referenz-Bibliothek</h2>
   </div>
 
@@ -433,7 +433,7 @@
     <p class="subtitle">
       19 lokale Shallow Clones von <a href="https://github.com/henrypp" style="color:var(--accent)">github.com/henrypp</a> —
       Windows-Systemprogramme in purem C als Code-Referenz für undokumentierte NT-APIs.
-      Grundlage für Phase-2-Module in WindowsPerformance.
+      Grundlage für Phase-2-Module in HorosPulse.
     </p>
 
     <div class="info-row">
@@ -461,22 +461,22 @@
 
     <div class="callout">
       <p><strong>Kernprinzip:</strong> Henry++-Repos sind <em>Lese-Referenz</em>, kein vendored Code.
-      WindowsPerformance übernimmt die Algorithmen als .NET-Implementierung via
-      <code>Vanara.PInvoke.NtDll</code> und <code>WindowsPerformance.Elevation.exe</code> — kein MSVC, keine native DLL.</p>
+      HorosPulse übernimmt die Algorithmen als .NET-Implementierung via
+      <code>Vanara.PInvoke.NtDll</code> und <code>HorosPulse.Elevation.exe</code> — kein MSVC, keine native DLL.</p>
     </div>
 
     <h2>Abgrenzung</h2>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Ebene</th><th>Henry++-Repos</th><th>WindowsPerformance</th></tr>
+          <tr><th>Ebene</th><th>Henry++-Repos</th><th>HorosPulse</th></tr>
         </thead>
         <tbody>
           <tr><td>Sprache</td><td>C (Win32 / NT Native)</td><td>C# / .NET 9 / WPF</td></tr>
           <tr><td>API-Zugriff</td><td>Direkt via <code>ntdll.dll</code></td><td>P/Invoke via <code>Vanara.PInvoke.NtDll</code></td></tr>
-          <tr><td>Elevation</td><td><code>requireAdministrator</code> Manifest</td><td>Nur <code>WindowsPerformance.Elevation.exe</code> hat Admin-Manifest</td></tr>
+          <tr><td>Elevation</td><td><code>requireAdministrator</code> Manifest</td><td>Nur <code>HorosPulse.Elevation.exe</code> hat Admin-Manifest</td></tr>
           <tr><td>Build</td><td>MSVC + NSIS + Python</td><td><code>dotnet build</code> / MSBuild</td></tr>
-          <tr><td>In Solution?</td><td><strong>Nein</strong> — gitignored</td><td>7 .NET-Projekte in <code>WindowsPerformance.sln</code></td></tr>
+          <tr><td>In Solution?</td><td><strong>Nein</strong> — gitignored</td><td>7 .NET-Projekte in <code>HorosPulse.sln</code></td></tr>
         </tbody>
       </table>
     </div>
@@ -485,7 +485,7 @@
   <!-- Schlüssel-Repos -->
   <section id="schluessel-repos">
     <h2>Vier Schlüssel-Repos</h2>
-    <p>Diese vier Repos haben direkten Bezug zu Phase-2-Modulen in WindowsPerformance:</p>
+    <p>Diese vier Repos haben direkten Bezug zu Phase-2-Modulen in HorosPulse:</p>
 
     <div class="card-grid">
       <div class="card">
@@ -585,7 +585,7 @@ graph TD
         ROUTINE --"submodule"--> SIMPLEWALL
     end
 
-    subgraph wp["WindowsPerformance (.NET 9)"]
+    subgraph wp["HorosPulse (.NET 9)"]
         VANARA["Vanara.PInvoke.NtDll\n(NuGet)"]
         MEMOPT["IMemoryOptimizerService\n(TODO §5.4)"]
         NETOPT["INetworkOptimizerService\n(TODO §5.5)"]
@@ -607,7 +607,7 @@ sequenceDiagram
     participant User as Benutzer
     participant VM as MemoryViewModel
     participant Svc as MemoryOptimizerService
-    participant Elev as WindowsPerformance.Elevation.exe
+    participant Elev as HorosPulse.Elevation.exe
     participant Vanara as Vanara.PInvoke.NtDll
     participant NT as ntdll.dll
 
@@ -633,7 +633,7 @@ sequenceDiagram
   <!-- API-Mapping -->
   <section id="api-mapping">
     <h2>API-Mapping — Phase 2</h2>
-    <p>Abbildung der geplanten WindowsPerformance-Module auf NT-API-Aufrufe aus Henry++-Repos:</p>
+    <p>Abbildung der geplanten HorosPulse-Module auf NT-API-Aufrufe aus Henry++-Repos:</p>
 
     <div class="table-wrap">
       <table>
@@ -733,24 +733,24 @@ sequenceDiagram
           <tr>
             <td><code>SeProfileSingleProcessPrivilege</code></td>
             <td>Memory-Flush via <code>SystemMemoryListInformation</code></td>
-            <td><code>WindowsPerformance.Elevation.exe</code> (UAC on-demand)</td>
+            <td><code>HorosPulse.Elevation.exe</code> (UAC on-demand)</td>
           </tr>
           <tr>
             <td><code>SeIncreaseQuotaPrivilege</code></td>
             <td><code>SystemFileCacheInformationEx</code></td>
-            <td><code>WindowsPerformance.Elevation.exe</code></td>
+            <td><code>HorosPulse.Elevation.exe</code></td>
           </tr>
           <tr>
             <td>Administrator-Rechte</td>
             <td>Registry HKLM-Schreibzugriff</td>
-            <td><code>WindowsPerformance.Elevation.exe</code></td>
+            <td><code>HorosPulse.Elevation.exe</code></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="callout warn">
-      <p><strong>Wichtig:</strong> Alle Aufrufe die erhöhte Rechte erfordern werden ausschließlich über <code>WindowsPerformance.Elevation.exe</code> (separates Prozess mit <code>requireAdministrator</code>) ausgeführt. <code>WindowsPerformance.App.exe</code> läuft niemals als Administrator.</p>
+      <p><strong>Wichtig:</strong> Alle Aufrufe die erhöhte Rechte erfordern werden ausschließlich über <code>HorosPulse.Elevation.exe</code> (separates Prozess mit <code>requireAdministrator</code>) ausgeführt. <code>HorosPulse.App.exe</code> läuft niemals als Administrator.</p>
     </div>
   </section>
 
@@ -758,7 +758,7 @@ sequenceDiagram
   <section id="lizenz">
     <h2>Lizenzen</h2>
     <div class="callout warn">
-      <p><strong>simplewall ist GPL-3.0</strong> — kein Code aus diesem Repo in WindowsPerformance übernehmen. Alle anderen Schlüssel-Repos sind MIT-lizenziert.</p>
+      <p><strong>simplewall ist GPL-3.0</strong> — kein Code aus diesem Repo in HorosPulse übernehmen. Alle anderen Schlüssel-Repos sind MIT-lizenziert.</p>
     </div>
 
     <div class="table-wrap">

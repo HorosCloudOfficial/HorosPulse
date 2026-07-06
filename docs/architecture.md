@@ -3,17 +3,17 @@
 ## Solution-Struktur
 
 ```
-WindowsPerformance.sln
+HorosPulse.sln
 ├── src/
-│   ├── WindowsPerformance.App          # WPF-Shell, DI-Host, Navigation, Themes
-│   ├── WindowsPerformance.ViewModels   # MVVM ViewModels
-│   ├── WindowsPerformance.Services     # Domänenlogik, IOptimizationModule-Implementierungen
-│   ├── WindowsPerformance.Core         # Interfaces, Modelle, Skript-Bibliothek
-│   ├── WindowsPerformance.Data         # SQLite (Microsoft.Data.Sqlite), Repositories
-│   └── WindowsPerformance.Elevation    # WindowsPerformance.Elevation.exe (requireAdministrator)
+│   ├── HorosPulse.App          # WPF-Shell, DI-Host, Navigation, Themes
+│   ├── HorosPulse.ViewModels   # MVVM ViewModels
+│   ├── HorosPulse.Services     # Domänenlogik, IOptimizationModule-Implementierungen
+│   ├── HorosPulse.Core         # Interfaces, Modelle, Skript-Bibliothek
+│   ├── HorosPulse.Data         # SQLite (Microsoft.Data.Sqlite), Repositories
+│   └── HorosPulse.Elevation    # HorosPulse.Elevation.exe (requireAdministrator)
 └── tests/
-    ├── WindowsPerformance.Tests.Unit
-    └── WindowsPerformance.Tests.Integration
+    ├── HorosPulse.Tests.Unit
+    └── HorosPulse.Tests.Integration
 ```
 
 ## Datenfluss
@@ -24,7 +24,7 @@ flowchart LR
     VM --> SVC[Services]
     SVC --> DATA[SQLite Repositories]
     SVC --> PS[PowerShellBridge / powercfg]
-    SVC --> EL[WindowsPerformance.Elevation.exe]
+    SVC --> EL[HorosPulse.Elevation.exe]
     METRICS[PerformanceCounterService] --> DATA
     METRICS --> DASH[Dashboard LiveCharts]
 ```
@@ -32,25 +32,25 @@ flowchart LR
 1. **UI** bindet an ViewModels (CommunityToolkit.Mvvm).
 2. **ViewModels** rufen Service-Interfaces auf — keine direkte Registry/PowerShell-Logik in der UI-Schicht.
 3. **Services** orchestrieren Module (`IOptimizationModule`), Snapshots und Audit-Logging.
-4. **Data** persistiert Snapshots, Audit-Einträge (append-only) und Metrik-Zeitreihen unter `%LOCALAPPDATA%\WindowsPerformance\`.
+4. **Data** persistiert Snapshots, Audit-Einträge (append-only) und Metrik-Zeitreihen unter `%LOCALAPPDATA%\HorosPulse\`.
 
 
 ## Elevation-Binary (Namenskonvention)
 
 | Bezeichnung | Bedeutung |
 |-------------|-----------|
-| **WindowsPerformance.Elevation.exe** | Tatsächlicher Build- und Publish-Dateiname (Projekt WindowsPerformance.Elevation) |
+| **HorosPulse.Elevation.exe** | Tatsächlicher Build- und Publish-Dateiname (Projekt HorosPulse.Elevation) |
 | **Elevation helper** / ElevationHelper* in Code | Konzept bzw. Typen wie ElevationHelperPathResolver — **nicht** der Dateiname auf der Festplatte |
 
-Frühere Docs nannten die EXE fälschlich WindowsPerformance.Elevation.exe; Build (CopyElevationHelper-Target), publish.ps1 und ElevationHelperPathResolver.HelperFileName verwenden durchgängig WindowsPerformance.Elevation.exe.
+Frühere Docs nannten die EXE fälschlich HorosPulse.Elevation.exe; Build (CopyElevationHelper-Target), publish.ps1 und ElevationHelperPathResolver.HelperFileName verwenden durchgängig HorosPulse.Elevation.exe.
 
 ## Elevation-Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as WindowsPerformance.App
+    participant App as HorosPulse.App
     participant Bridge as PowerShellBridge
-    participant Helper as WindowsPerformance.Elevation.exe
+    participant Helper as HorosPulse.Elevation.exe
     participant PS as pwsh.exe
 
     App->>Bridge: RunAsync(script, elevated: true)
@@ -63,14 +63,14 @@ sequenceDiagram
 ```
 
 - Die Haupt-App läuft **niemals** als Administrator (`asInvoker`).
-- Nur `WindowsPerformance.Elevation.exe` fordert UAC an und führt whitelisted Skripte aus.
+- Nur `HorosPulse.Elevation.exe` fordert UAC an und führt whitelisted Skripte aus.
 - Defender-, Indexer- und WSearch-Operationen nutzen diesen Pfad.
 
 ## Installer / Updates
 
 - **Portable ZIP:** `publish.ps1` (MVP-Distribution)
 - **Velopack (Phase 3):** `VelopackApp.Build().Run()` in `App.xaml.cs` — Auto-Update gegen Release-Server via `vpk pack` (siehe `publish.ps1` Kommentare)
-- **Deinstallation:** App-Daten in `%LOCALAPPDATA%\WindowsPerformance\` — Rollback aller Optimierungen optional vor Löschen (Einstellungen-Dokumentation)
+- **Deinstallation:** App-Daten in `%LOCALAPPDATA%\HorosPulse\` — Rollback aller Optimierungen optional vor Löschen (Einstellungen-Dokumentation)
 
 ## ML-Pipeline (lokal)
 

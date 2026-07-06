@@ -1,13 +1,13 @@
 # TODO-Scan → Externe Repos
 
 > **Planungsartefakt** · Stand: 2026-07-06  
-> Analysiert welche externen NuGet-Pakete und GitHub-Repos für WindowsPerformance sinnvoll sind — abgeleitet aus dem Master-TODO (`TODO.md`), phasenweise priorisiert.
+> Analysiert welche externen NuGet-Pakete und GitHub-Repos für HorosPulse sinnvoll sind — abgeleitet aus dem Master-TODO (`TODO.md`), phasenweise priorisiert.
 
 ---
 
 ## Auf einen Blick
 
-WindowsPerformance ist eine WPF .NET 9 App für Windows-Systemoptimierung im Cursor-IDE-Workflow. Die TODO-Analyse ergab **acht empfehlenswerte externe Abhängigkeiten** in drei Phasen sowie **fünf bewusste Ablehnungen (SKIP)**.
+HorosPulse ist eine WPF .NET 9 App für Windows-Systemoptimierung im Cursor-IDE-Workflow. Die TODO-Analyse ergab **acht empfehlenswerte externe Abhängigkeiten** in drei Phasen sowie **fünf bewusste Ablehnungen (SKIP)**.
 
 ### Top-5 Shortlist
 

@@ -1,7 +1,7 @@
 # Henry++ Referenz-Bibliothek — Architektur & Integration
 
 > **Diataxis: Erklärung** · Stand: 2026-07-06  
-> Wie die Henry++-Repos intern aufgebaut sind, wie sie zueinander stehen und wie ihre Konzepte nach WindowsPerformance übertragen werden.
+> Wie die Henry++-Repos intern aufgebaut sind, wie sie zueinander stehen und wie ihre Konzepte nach HorosPulse übertragen werden.
 
 ---
 
@@ -22,7 +22,7 @@ graph TD
         ROUTINE --"submodule"--> OTHER
     end
 
-    subgraph "WindowsPerformance (WPF .NET 9)"
+    subgraph "HorosPulse (WPF .NET 9)"
         VANARANT["Vanara.PInvoke.NtDll\n(NuGet)"]
         MEMOPT["IMemoryOptimizerService\n(TODO §5.4 · Phase 2)"]
         NETOPT["INetworkOptimizerService\n(TODO §5.5 · Phase 2)"]
@@ -66,15 +66,15 @@ graph LR
 
 ---
 
-## Übertragung nach WindowsPerformance
+## Übertragung nach HorosPulse
 
 ### Das Prinzip: Gleiche NT-API, andere Sprache
 
-Henry++-Code ruft `NtSetSystemInformation` direkt aus C auf. WindowsPerformance nutzt dasselbe API über `Vanara.PInvoke.NtDll`:
+Henry++-Code ruft `NtSetSystemInformation` direkt aus C auf. HorosPulse nutzt dasselbe API über `Vanara.PInvoke.NtDll`:
 
 ```mermaid
 sequenceDiagram
-    participant App as WindowsPerformance.Services
+    participant App as HorosPulse.Services
     participant Vanara as Vanara.PInvoke.NtDll
     participant NT as ntdll.dll (Kernel)
 
@@ -84,18 +84,18 @@ sequenceDiagram
     Vanara-->>App: NTStatus (Success/Error)
 ```
 
-**Wichtig:** `NtSetSystemInformation` mit `SystemMemoryListInformation` erfordert das Privilege `SeProfileSingleProcessPrivilege`. In WindowsPerformance wird dies über `WindowsPerformance.Elevation.exe` (UAC on-demand) gehandhabt, nicht durch dauerhaftes `requireAdministrator`.
+**Wichtig:** `NtSetSystemInformation` mit `SystemMemoryListInformation` erfordert das Privilege `SeProfileSingleProcessPrivilege`. In HorosPulse wird dies über `HorosPulse.Elevation.exe` (UAC on-demand) gehandhabt, nicht durch dauerhaftes `requireAdministrator`.
 
 ---
 
-## Integration in WindowsPerformance — Datenfluss
+## Integration in HorosPulse — Datenfluss
 
 ```mermaid
 graph TD
     USER["Benutzer\n(klickt 'Speicher leeren')"]
-    VM["MemoryViewModel\n(WindowsPerformance.ViewModels)"]
-    SVC["MemoryOptimizerService\n(WindowsPerformance.Services)"]
-    ELEV["WindowsPerformance.Elevation.exe\n(separates Prozess, requireAdministrator)"]
+    VM["MemoryViewModel\n(HorosPulse.ViewModels)"]
+    SVC["MemoryOptimizerService\n(HorosPulse.Services)"]
+    ELEV["HorosPulse.Elevation.exe\n(separates Prozess, requireAdministrator)"]
     VANARA["Vanara.PInvoke.NtDll"]
     KERNEL["ntdll.dll → NT Kernel"]
 
@@ -113,11 +113,11 @@ graph TD
 
 ---
 
-## Kontrast: Henry++ UAC vs. WindowsPerformance UAC
+## Kontrast: Henry++ UAC vs. HorosPulse UAC
 
-| Aspekt | Henry++ (z.B. memreduct) | WindowsPerformance |
+| Aspekt | Henry++ (z.B. memreduct) | HorosPulse |
 |--------|--------------------------|-------------------|
-| Elevation-Strategie | App startet mit `requireAdministrator`-Manifest — immer als Admin | `app.manifest`: `asInvoker`; nur `WindowsPerformance.Elevation.exe` hat Admin-Manifest |
+| Elevation-Strategie | App startet mit `requireAdministrator`-Manifest — immer als Admin | `app.manifest`: `asInvoker`; nur `HorosPulse.Elevation.exe` hat Admin-Manifest |
 | Laufzeit | Dauerhaft als Admin | Admin nur für die Dauer der Operation |
 | Security-Prinzip | Vereinfachte Entwicklung; für Desktop-Tools akzeptabel | Principle of Least Privilege; keine dauerhaft erhöhten Rechte |
 
@@ -142,10 +142,10 @@ Die folgenden Integrationsmuster existieren **nicht** und sind **nicht geplant**
 
 | Was | Warum nicht |
 |-----|------------|
-| C-Code von `routine` in WindowsPerformance kompilieren | .NET 9 hat keinen C-Kompilierungsschritt; P/Invoke via Vanara ist der richtige Weg |
+| C-Code von `routine` in HorosPulse kompilieren | .NET 9 hat keinen C-Kompilierungsschritt; P/Invoke via Vanara ist der richtige Weg |
 | Henry++-DLLs als Runtime-Dependency | Unnötige Deployment-Komplexität; Vanara deckt alles ab |
 | `memreduct.exe` oder `simplewall.exe` als Child-Process starten | Keine Kontrolle über externe Prozesse; eigene Service-Implementierung ist sicherer |
-| `external/henrypp/` in `WindowsPerformance.sln` einbinden | Die Repos sind C/MSVC-Projekte; inkompatibel mit `dotnet`/MSBuild-Projektformat |
+| `external/henrypp/` in `HorosPulse.sln` einbinden | Die Repos sind C/MSVC-Projekte; inkompatibel mit `dotnet`/MSBuild-Projektformat |
 
 ---
 
@@ -154,4 +154,4 @@ Die folgenden Integrationsmuster existieren **nicht** und sind **nicht geplant**
 - NT-API-Typen und Signaturen: [05-api-datenmodell.md](05-api-datenmodell.md)
 - Klonreihenfolge und Submodule: [02-benutzer-anleitung.md](02-benutzer-anleitung.md)
 - Repo-Inventar: [03-einstellungen.md](03-einstellungen.md)
-- Elevation-Architektur in WindowsPerformance: [`TODO.md §2.3`](../../TODO.md)
+- Elevation-Architektur in HorosPulse: [`TODO.md §2.3`](../../TODO.md)

@@ -6,8 +6,8 @@
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Version>0.1.0</Version>
-    <Authors>WindowsPerformance</Authors>
-    <Company>WindowsPerformance</Company>
-    <Product>WindowsPerformance</Product>
+    <Authors>HorosCode</Authors>
+    <Company>HorosCode</Company>
+    <Product>HorosPulse</Product>
   </PropertyGroup>
 </Project>

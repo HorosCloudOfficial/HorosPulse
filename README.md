@@ -1,4 +1,4 @@
-# WindowsPerformance
+# HorosPulse
 
 ![CI](../../actions/workflows/ci.yml/badge.svg)
 
@@ -11,15 +11,15 @@ WPF desktop application for optimizing Windows system settings for Cursor IDE de
 - **DI:** Microsoft.Extensions.Hosting
 - **Theme:** Tokyo Night custom palette
 - **Persistence:** Microsoft.Data.Sqlite (Sprint 2+)
-- **Elevation:** Separate `WindowsPerformance.Elevation` console helper (UAC on-demand)
+- **Elevation:** Separate `HorosPulse.Elevation` console helper (UAC on-demand)
 
-Built executable: **WindowsPerformance.Elevation.exe** (not ElevationHelper.exe; see [docs/architecture.md](docs/architecture.md#elevation-binary-namenskonvention)).
+Built executable: **HorosPulse.Elevation.exe** (not ElevationHelper.exe; see [docs/architecture.md](docs/architecture.md#elevation-binary-namenskonvention)).
 
 ## Build & Run
 
 ```bash
 dotnet build
-dotnet run --project src/WindowsPerformance.App
+dotnet run --project src/HorosPulse.App
 dotnet test
 ```
 
@@ -37,18 +37,18 @@ starter.bat Release
 .\publish.ps1 -SelfContained     # self-contained win-x64 ZIP
 ```
 
-Output: `artifacts/WindowsPerformance-<version>-win-x64.zip` (App + ElevationHelper + README).
+Output: `artifacts/HorosPulse-<version>-win-x64.zip` (App + ElevationHelper + README).
 
 ## Elevation helper code signing (Dev)
 
-For local development, sign `WindowsPerformance.Elevation.exe` with a self-signed Authenticode certificate:
+For local development, sign `HorosPulse.Elevation.exe` with a self-signed Authenticode certificate:
 
 ```powershell
 .\scripts\sign-elevation-helper.ps1              # Debug build
 .\scripts\sign-elevation-helper.ps1 -Configuration Release
 ```
 
-The script creates a `CN=WindowsPerformance Dev Code Signing` certificate in `CurrentUser\My` when none exists, then signs the binary with SHA-256. CI skips signing when `SKIP_SIGNING=1` (set automatically in GitHub Actions).
+The script creates a `CN=HorosPulse Dev Code Signing` certificate in `CurrentUser\My` when none exists, then signs the binary with SHA-256. CI skips signing when `SKIP_SIGNING=1` (set automatically in GitHub Actions).
 
 Production releases require a trusted code-signing certificate from a CA.
 
@@ -56,16 +56,16 @@ Production releases require a trusted code-signing certificate from a CA.
 
 ```
 src/
-  WindowsPerformance.App          WPF entry point
-  WindowsPerformance.Core         Domain models & interfaces
-  WindowsPerformance.ViewModels   MVVM view models
-  WindowsPerformance.Services     Business logic & OS interaction
-  WindowsPerformance.Data           SQLite & JSON persistence
-  WindowsPerformance.Elevation    Elevation helper executable
-  WindowsPerformance.PowerShell   pwsh.exe scripts (placeholder)
+  HorosPulse.App          WPF entry point
+  HorosPulse.Core         Domain models & interfaces
+  HorosPulse.ViewModels   MVVM view models
+  HorosPulse.Services     Business logic & OS interaction
+  HorosPulse.Data           SQLite & JSON persistence
+  HorosPulse.Elevation    Elevation helper executable
+  HorosPulse.PowerShell   pwsh.exe scripts (placeholder)
 tests/
-  WindowsPerformance.Tests.Unit
-  WindowsPerformance.Tests.Integration
+  HorosPulse.Tests.Unit
+  HorosPulse.Tests.Integration
 ```
 
 ## Branching

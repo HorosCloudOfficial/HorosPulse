@@ -8,7 +8,7 @@
 ## Voraussetzungen
 
 - .NET 9 SDK installiert
-- Solution unter `D:\WindowsPerformance` lauffähig (`dotnet build` grün)
+- Solution unter `D:\HorosPulse` lauffähig (`dotnet build` grün)
 - `Directory.Packages.props` angelegt (TODO 1.1 P1 — Central Package Management)
 - PowerShell 7 (`pwsh.exe`) verfügbar
 
@@ -26,7 +26,7 @@
 ```
 
 ```xml
-<!-- src/WindowsPerformance.App/WindowsPerformance.App.csproj -->
+<!-- src/HorosPulse.App/HorosPulse.App.csproj -->
 <PackageReference Include="H.NotifyIcon.Wpf" />
 ```
 
@@ -35,7 +35,7 @@
 ```xml
 <tb:TaskbarIcon x:Key="TrayIcon"
                 IconSource="/Resources/tray.ico"
-                ToolTipText="WindowsPerformance"
+                ToolTipText="HorosPulse"
                 DoubleClickCommand="{Binding ShowWindowCommand}" />
 ```
 
@@ -50,7 +50,7 @@ protected override void OnStateChanged(EventArgs e)
 }
 ```
 
-> Icon-Datei unter `src/WindowsPerformance.App/Resources/tray.ico` ablegen; Build-Action `Resource`.
+> Icon-Datei unter `src/HorosPulse.App/Resources/tray.ico` ablegen; Build-Action `Resource`.
 
 ---
 
@@ -64,7 +64,7 @@ protected override void OnStateChanged(EventArgs e)
 ```
 
 ```xml
-<!-- src/WindowsPerformance.App/WindowsPerformance.App.csproj -->
+<!-- src/HorosPulse.App/HorosPulse.App.csproj -->
 <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" />
 ```
 
@@ -105,7 +105,7 @@ public ISeries[] CpuSeries { get; } = [
 ```
 
 ```xml
-<!-- tests/WindowsPerformance.Tests.Unit/WindowsPerformance.Tests.Unit.csproj -->
+<!-- tests/HorosPulse.Tests.Unit/HorosPulse.Tests.Unit.csproj -->
 <PackageReference Include="coverlet.collector">
     <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     <PrivateAssets>all</PrivateAssets>
@@ -145,7 +145,7 @@ dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
 ```
 
 ```xml
-<!-- src/WindowsPerformance.Services/WindowsPerformance.Services.csproj -->
+<!-- src/HorosPulse.Services/HorosPulse.Services.csproj -->
 <PackageReference Include="Vanara.PInvoke.NtDll" />
 ```
 
@@ -166,7 +166,7 @@ public async Task PurgeStandbyListAsync()
 }
 ```
 
-> Diese Operation **muss** durch den `WindowsPerformance.Elevation.exe`-Prozess ausgeführt werden (SE_INCREASE_QUOTA_PRIVILEGE erforderlich).
+> Diese Operation **muss** durch den `HorosPulse.Elevation.exe`-Prozess ausgeführt werden (SE_INCREASE_QUOTA_PRIVILEGE erforderlich).
 
 ---
 
@@ -206,7 +206,7 @@ CsWin32 generiert daraus typsichere P/Invoke-Wrapper zur Kompilierzeit. Kein man
 ```
 
 ```xml
-<!-- src/WindowsPerformance.Services/WindowsPerformance.Services.csproj -->
+<!-- src/HorosPulse.Services/HorosPulse.Services.csproj -->
 <PackageReference Include="TaskScheduler" />
 ```
 
@@ -221,7 +221,7 @@ task.Definition.Settings.Enabled = false;
 task.RegisterChanges();
 ```
 
-> Snapshot vor dem Deaktivieren: aktuellen `Enabled`-Status pro Task speichern (JSON in `%LOCALAPPDATA%\WindowsPerformance\task-scheduler-state.json`).
+> Snapshot vor dem Deaktivieren: aktuellen `Enabled`-Status pro Task speichern (JSON in `%LOCALAPPDATA%\HorosPulse\task-scheduler-state.json`).
 
 ---
 
@@ -245,7 +245,7 @@ VelopackApp.Build().Run();
 **Update-Check beim Start:**
 
 ```csharp
-var mgr = new UpdateManager("https://releases.example.com/windowsperformance/");
+var mgr = new UpdateManager("https://releases.example.com/HorosPulse/");
 var newVersion = await mgr.CheckForUpdatesAsync();
 if (newVersion != null)
     await mgr.DownloadUpdatesAsync(newVersion);

@@ -1,7 +1,7 @@
 # Übersicht: TODO-Scan → Externe Repos
 
 > **Typ:** Erklärung (Diataxis)  
-> **Zielgruppe:** Entwickler und Maintainer von WindowsPerformance
+> **Zielgruppe:** Entwickler und Maintainer von HorosPulse
 
 ---
 

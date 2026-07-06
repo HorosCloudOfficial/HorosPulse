@@ -54,7 +54,7 @@ Dateiformat (`ProfileDefinition`):
 }
 ```
 
-Gespeichert unter `%LOCALAPPDATA%\WindowsPerformance\profiles\`.
+Gespeichert unter `%LOCALAPPDATA%\HorosPulse\profiles\`.
 
 ## Task Scheduler Preset (Phase 3)
 

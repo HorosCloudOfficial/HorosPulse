@@ -1,0 +1,27 @@
+<UserControl x:Class="HorosPulse.App.Views.RegistryTunerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Border Style="{StaticResource CardBorderStyle}">
+            <StackPanel>
+                <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
+                <TextBlock Text="Opt-in Registry-Tweaks mit dokumentierten Effekten. Jeder Tweak wird einzeln gesichert." Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                <ListBox ItemsSource="{Binding Tweaks}" SelectedItem="{Binding SelectedTweak}" MinHeight="160" Margin="0,0,0,12">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="4">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Tweak anwenden" Command="{Binding ApplyTweakCommand}" Margin="0,0,8,0" />
+                    <Button Content="Alle zurücksetzen" Command="{Binding RollbackCommand}" />
+                </StackPanel>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AccentOrangeBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</UserControl>

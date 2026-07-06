@@ -27,7 +27,7 @@
 |---|---|
 | **Windows Performance Toolkit SDK** (wpt.msi) | Systemweites Diagnose-SDK für ETW-Profiling. Kein NuGet-Paket; Installation erfordert Windows ADK. Weit über den Scope einer User-Facing Optimization-App hinaus. |
 | **MSO-Scripts** (Microsoft Office Skripte) | Office-Automation. Kein Bezug zu Windows-System-Performance im Cursor-IDE-Kontext. |
-| **ETW / Microsoft.Diagnostics.Tracing.TraceEvent** | Event Tracing for Windows für tiefen OS-Kernel-Tracing. `System.Diagnostics.PerformanceCounter` deckt alle Metriken ab, die WindowsPerformance benötigt (CPU, RAM, Disk). TraceEvent würde Elevated-Kernel-Sessions erfordern und die Komplexität unnötig erhöhen. |
+| **ETW / Microsoft.Diagnostics.Tracing.TraceEvent** | Event Tracing for Windows für tiefen OS-Kernel-Tracing. `System.Diagnostics.PerformanceCounter` deckt alle Metriken ab, die HorosPulse benötigt (CPU, RAM, Disk). TraceEvent würde Elevated-Kernel-Sessions erfordern und die Komplexität unnötig erhöhen. |
 | **MaterialDesignInXamlToolkit** | In `TODO.md` als optionale Alternative erwähnt. Tokyo-Night-Custom-Styles sind im MVP bereits vollständig implementiert (`/Themes/TokyoNight.xaml`). Nachträgliche Einführung von Material Design würde Theme-Konflikte, Paket-Overhead (~15 MB) und API-Brüche verursachen. |
 | **Squirrel.Windows** | In `TODO.md` als Installer-Option genannt. Das Projekt ist seit 2021 praktisch inaktiv. **Velopack** (Verdict: NEED) ist der direkte, aktiv gewartete Nachfolger des ursprünglichen Squirrel-Teams. |
 

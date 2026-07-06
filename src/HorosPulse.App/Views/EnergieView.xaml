@@ -1,0 +1,40 @@
+<UserControl x:Class="HorosPulse.App.Views.EnergieView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+                    <ListBox ItemsSource="{Binding Plans}"
+                             SelectedItem="{Binding SelectedPlan}"
+                             DisplayMemberPath="Name"
+                             MinHeight="120"
+                             Margin="0,0,0,16" />
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Plan anwenden"
+                                Command="{Binding ApplyPlanCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="High Performance"
+                                Command="{Binding ApplyHighPerformanceCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="Ultimate Performance"
+                                Command="{Binding ApplyUltimatePerformanceCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="Aktualisieren"
+                                Command="{Binding LoadPlansCommand}" />
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Foreground="{StaticResource AccentOrangeBrush}"
+                               Margin="0,12,0,0"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

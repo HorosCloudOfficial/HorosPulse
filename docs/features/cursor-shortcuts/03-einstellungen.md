@@ -123,4 +123,4 @@ Nicht direkt ein Shortcut, aber Einstellungs-relevant: Cursor liest `.cursor/rul
 
 **Öffnen:** `Ctrl+Shift+P` → _„Cursor: Open Rules"_
 
-Für dieses Projekt relevant: `D:\WindowsPerformance\.cursor\rules\`
+Für dieses Projekt relevant: `D:\HorosPulse\.cursor\rules\`

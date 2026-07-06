@@ -1,14 +1,14 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Signs WindowsPerformance.Elevation.exe with a dev self-signed Authenticode certificate.
+    Signs HorosPulse.Elevation.exe with a dev self-signed Authenticode certificate.
 .DESCRIPTION
     Creates a code-signing certificate in CurrentUser\My when none exists, then signs
     the ElevationHelper binary. Safe for local development; CI skips when SKIP_SIGNING=1.
 #>
 param(
     [string]$Configuration = "Debug",
-    [string]$CertSubject = "CN=WindowsPerformance Dev Code Signing"
+    [string]$CertSubject = "CN=HorosPulse Dev Code Signing"
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,8 +19,8 @@ if ($env:SKIP_SIGNING -eq "1") {
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$projectPath = Join-Path $repoRoot "src\WindowsPerformance.Elevation\WindowsPerformance.Elevation.csproj"
-$exePath = Join-Path $repoRoot "src\WindowsPerformance.Elevation\bin\$Configuration\net9.0\WindowsPerformance.Elevation.exe"
+$projectPath = Join-Path $repoRoot "src\HorosPulse.Elevation\HorosPulse.Elevation.csproj"
+$exePath = Join-Path $repoRoot "src\HorosPulse.Elevation\bin\$Configuration\net9.0\HorosPulse.Elevation.exe"
 
 if (-not (Test-Path $exePath)) {
     Write-Host "Building ElevationHelper ($Configuration)..."

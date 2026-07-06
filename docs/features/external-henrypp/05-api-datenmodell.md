@@ -1,7 +1,7 @@
 # Henry++ Referenz-Bibliothek — Native APIs & Datenmodell
 
 > **Diataxis: Referenz** · Stand: 2026-07-06  
-> Vollständige Abbildung der NT-API-Aufrufe aus Henry++-Repos auf die geplanten WindowsPerformance-Module (TODO.md Phase 2). Typdefinitionen aus `external/henrypp/routine/src/ntapi.h`.
+> Vollständige Abbildung der NT-API-Aufrufe aus Henry++-Repos auf die geplanten HorosPulse-Module (TODO.md Phase 2). Typdefinitionen aus `external/henrypp/routine/src/ntapi.h`.
 
 ---
 
@@ -76,7 +76,7 @@ Zum Leeren: `MinimumWorkingSet = MAXSIZE_T; MaximumWorkingSet = MAXSIZE_T;`
 
 ```csharp
 // Entspricht memreduct/src/main.c Zeilen 419–425
-// Voraussetzung: wird via WindowsPerformance.Elevation.exe ausgeführt
+// Voraussetzung: wird via HorosPulse.Elevation.exe ausgeführt
 
 using Vanara.PInvoke;
 
@@ -111,7 +111,7 @@ typedef struct _MEMORY_COMBINE_INFORMATION_EX
 
 ### Nagle-Algorithmus deaktivieren (TCP NoDelay)
 
-WindowsPerformance plant Registry-basierte Konfiguration. simplewall ist hierfür nur periphere Referenz; die Hauptreferenz ist die Windows-Dokumentation:
+HorosPulse plant Registry-basierte Konfiguration. simplewall ist hierfür nur periphere Referenz; die Hauptreferenz ist die Windows-Dokumentation:
 
 ```
 HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{GUID}\
@@ -214,7 +214,7 @@ typedef struct _SYSTEM_PROCESS_INFORMATION
 
 ### .NET-Alternative (ohne phnt)
 
-WindowsPerformance nutzt für Phase 2 primär `System.Diagnostics.Process` und `System.Diagnostics.PerformanceCounter`. Die phnt-basierten NT-Aufrufe sind nur nötig, wenn Handle-Count und Thread-Count aus NT-Sicht benötigt werden:
+HorosPulse nutzt für Phase 2 primär `System.Diagnostics.Process` und `System.Diagnostics.PerformanceCounter`. Die phnt-basierten NT-Aufrufe sind nur nötig, wenn Handle-Count und Thread-Count aus NT-Sicht benötigt werden:
 
 ```csharp
 // Über System.Diagnostics (kein P/Invoke nötig für Basis-Infos)
@@ -230,10 +230,10 @@ var threadCount = process.Threads.Count;
 
 | Privilege | Benötigt für | Wie erhalten |
 |-----------|-------------|-------------|
-| `SeProfileSingleProcessPrivilege` | `NtSetSystemInformation` Memory-Flush | `WindowsPerformance.Elevation.exe` (UAC on-demand) |
-| `SeIncreaseQuotaPrivilege` | `SystemFileCacheInformationEx` | `WindowsPerformance.Elevation.exe` |
+| `SeProfileSingleProcessPrivilege` | `NtSetSystemInformation` Memory-Flush | `HorosPulse.Elevation.exe` (UAC on-demand) |
+| `SeIncreaseQuotaPrivilege` | `SystemFileCacheInformationEx` | `HorosPulse.Elevation.exe` |
 | `SeDebugPrivilege` | Prozess-Handles anderer Benutzer | Nur für Process Inspector (optional) |
-| Administrator-Rechte | Registry HKLM-Schreibzugriff | `WindowsPerformance.Elevation.exe` |
+| Administrator-Rechte | Registry HKLM-Schreibzugriff | `HorosPulse.Elevation.exe` |
 
 ---
 

@@ -19,12 +19,12 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set "PROJECT=src\WindowsPerformance.App\WindowsPerformance.App.csproj"
-set "EXE=src\WindowsPerformance.App\bin\%CONFIG%\net9.0-windows\WindowsPerformance.App.exe"
-set "PUBLISHED=artifacts\WindowsPerformance-0.1.0-win-x64\WindowsPerformance.App.exe"
+set "PROJECT=src\HorosPulse.App\HorosPulse.App.csproj"
+set "EXE=src\HorosPulse.App\bin\%CONFIG%\net9.0-windows\HorosPulse.App.exe"
+set "PUBLISHED=artifacts\HorosPulse-0.1.0-win-x64\HorosPulse.App.exe"
 
 echo.
-echo WindowsPerformance (%CONFIG%)
+echo HorosPulse (%CONFIG%)
 echo.
 
 if exist "%EXE%" (
@@ -44,7 +44,7 @@ echo.
 dotnet run --project "%PROJECT%" -c %CONFIG%
 if errorlevel 1 (
     echo.
-    echo [ERROR] Failed to start WindowsPerformance.
+    echo [ERROR] Failed to start HorosPulse.
     pause
     exit /b 1
 )

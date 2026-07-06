@@ -1,4 +1,4 @@
-# WindowsPerformance — Dokumentation
+# HorosPulse — Dokumentation
 
 > Projekt-Dokumentations-Index · WPF .NET 9 Desktop-App
 

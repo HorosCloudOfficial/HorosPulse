@@ -1,7 +1,7 @@
 # Henry++ Referenz-Bibliothek — Entwickler-Anleitung
 
 > **Diataxis: How-to** · Stand: 2026-07-06  
-> Wie man die 19 Henry++-Repos klont, lokal einrichtet und als Code-Referenz für WindowsPerformance nutzt. Zielgruppe: Entwickler des WindowsPerformance-Projekts.
+> Wie man die 19 Henry++-Repos klont, lokal einrichtet und als Code-Referenz für HorosPulse nutzt. Zielgruppe: Entwickler des HorosPulse-Projekts.
 
 ---
 
@@ -14,7 +14,7 @@
 | Python 3.13+ | nur bei Build | `builder`-Skripte ausführen |
 | MSVC (Visual Studio C++) | nur bei Build | Henry++-Repos kompilieren |
 
-> WindowsPerformance selbst wird mit `dotnet build` gebaut — kein MSVC nötig.
+> HorosPulse selbst wird mit `dotnet build` gebaut — kein MSVC nötig.
 
 ---
 
@@ -23,7 +23,7 @@
 Das `external/henrypp/`-Verzeichnis existiert bereits im Workspace. Wenn es fehlt:
 
 ```powershell
-New-Item -ItemType Directory -Path "D:\WindowsPerformance\external\henrypp" -Force
+New-Item -ItemType Directory -Path "D:\HorosPulse\external\henrypp" -Force
 ```
 
 ---
@@ -33,7 +33,7 @@ New-Item -ItemType Directory -Path "D:\WindowsPerformance\external\henrypp" -For
 ### Alle vier Schlüssel-Repos (empfohlen)
 
 ```powershell
-Set-Location "D:\WindowsPerformance\external\henrypp"
+Set-Location "D:\HorosPulse\external\henrypp"
 
 # Shared SDK (wird als Submodul von memreduct/simplewall benötigt)
 git clone --depth=1 https://github.com/henrypp/routine.git
@@ -66,7 +66,7 @@ $repos = @(
     "timevertor", "uninstmgr"
 )
 
-Set-Location "D:\WindowsPerformance\external\henrypp"
+Set-Location "D:\HorosPulse\external\henrypp"
 
 foreach ($repo in $repos) {
     git clone --depth=1 "https://github.com/henrypp/$repo.git"
@@ -83,7 +83,7 @@ git clone --depth=1 https://github.com/winsiderss/systeminformer.git processhack
 `memreduct` und `simplewall` binden `routine` als Submodul ein. Wurde mit `--recurse-submodules` geklont, ist dies bereits erledigt. Sonst:
 
 ```powershell
-Set-Location "D:\WindowsPerformance\external\henrypp\memreduct"
+Set-Location "D:\HorosPulse\external\henrypp\memreduct"
 git submodule update --init --recursive
 ```
 
@@ -122,7 +122,7 @@ Dort werden nacheinander aufgerufen:
 
 ## Schritt 5: Als Referenz im Code nutzen
 
-Die C-Implementierung in `memreduct` dient als **Blaupause**, nicht als eingebundener Code. Die entsprechende .NET-Implementierung in WindowsPerformance nutzt `Vanara.PInvoke.NtDll`:
+Die C-Implementierung in `memreduct` dient als **Blaupause**, nicht als eingebundener Code. Die entsprechende .NET-Implementierung in HorosPulse nutzt `Vanara.PInvoke.NtDll`:
 
 ```csharp
 // Analoges .NET-Pattern zu memreduct/src/main.c Zeile 419–425
@@ -145,13 +145,13 @@ if (status.IsSuccess)
 
 ## Schritt 6: Repos aktualisieren
 
-Da die Repos gitignored sind, werden sie nicht automatisch mit `git pull` auf dem WindowsPerformance-Repo aktualisiert. Manuelles Update:
+Da die Repos gitignored sind, werden sie nicht automatisch mit `git pull` auf dem HorosPulse-Repo aktualisiert. Manuelles Update:
 
 ```powershell
-Set-Location "D:\WindowsPerformance\external\henrypp\memreduct"
+Set-Location "D:\HorosPulse\external\henrypp\memreduct"
 git pull origin master
 
-Set-Location "D:\WindowsPerformance\external\henrypp\routine"
+Set-Location "D:\HorosPulse\external\henrypp\routine"
 git pull origin master
 ```
 
@@ -170,12 +170,12 @@ Das Bauen der C-Projekte ist für Lesezwecke nicht erforderlich. Falls dennoch b
 
 ```powershell
 # Beispiel: memreduct bauen
-Set-Location "D:\WindowsPerformance\external\henrypp\memreduct"
+Set-Location "D:\HorosPulse\external\henrypp\memreduct"
 # Visual Studio Solution öffnen oder:
 msbuild memreduct.sln /p:Configuration=Release /p:Platform=x64
 ```
 
-> WindowsPerformance-CI baut die Henry++-Repos **nicht**. Diese Schritte sind rein informativ.
+> HorosPulse-CI baut die Henry++-Repos **nicht**. Diese Schritte sind rein informativ.
 
 ---
 

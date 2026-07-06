@@ -148,7 +148,7 @@ Gleiche Kontextlogik wie `Ctrl+N`: `Ctrl+R` öffnet Recent Chats nur wenn der Fo
 
 **Ursache B:** Privacy Mode ist aktiviert — sendet keinen Code an externe Server.
 
-**Lösung:** Nur deaktivieren, wenn der Anwendungsfall es erlaubt. Bei sensiblen Projekten (wie `WindowsPerformance`) ist Privacy Mode empfohlen.
+**Lösung:** Nur deaktivieren, wenn der Anwendungsfall es erlaubt. Bei sensiblen Projekten (wie `HorosPulse`) ist Privacy Mode empfohlen.
 
 ---
 

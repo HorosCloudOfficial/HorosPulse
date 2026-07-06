@@ -20,15 +20,15 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Restore
-        run: dotnet restore WindowsPerformance.sln
+        run: dotnet restore HorosPulse.sln
 
       - name: Build
-        run: dotnet build WindowsPerformance.sln --no-restore -c Release
+        run: dotnet build HorosPulse.sln --no-restore -c Release
         env:
           SKIP_SIGNING: "1"
 
       - name: Test with coverage
-        run: dotnet test WindowsPerformance.sln --no-build -c Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+        run: dotnet test HorosPulse.sln --no-build -c Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
         env:
           SKIP_SIGNING: "1"
 

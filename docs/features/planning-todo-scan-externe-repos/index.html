@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TODO-Scan → Externe Repos · WindowsPerformance</title>
+  <title>TODO-Scan → Externe Repos · HorosPulse</title>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <style>
     /* ── Reset ───────────────────────────────────────────── */
@@ -365,7 +365,7 @@
 <!-- ── Sidebar ──────────────────────────────────────────── -->
 <nav id="sidebar">
   <div class="sidebar-header">
-    <div class="app-name">WindowsPerformance</div>
+    <div class="app-name">HorosPulse</div>
     <h2>TODO-Scan<br>Externe Repos</h2>
   </div>
 
@@ -400,7 +400,7 @@
   <section id="header">
     <h1>TODO-Scan → Externe Repos <span class="tag">Planung</span></h1>
     <p class="subtitle">
-      Phasenweise Analyse empfohlener NuGet-Pakete und GitHub-Repos für WindowsPerformance —
+      Phasenweise Analyse empfohlener NuGet-Pakete und GitHub-Repos für HorosPulse —
       abgeleitet aus <code>TODO.md</code>. 8 Empfehlungen, 5 bewusste Ablehnungen.
     </p>
   </section>
@@ -607,7 +607,7 @@
     <p><strong>TODO 4.3 P2</strong> — XPlat Code Coverage für <code>dotnet test</code>. Ausgabe Cobertura XML. Dev-Only (<code>PrivateAssets="all"</code>). Kompatibel mit GitHub Actions Artifact Upload.</p>
 
     <h3>Komurasoft Elevation Pattern</h3>
-    <p><strong>TODO 2.3 P0</strong> — Referenzarchitektur für UAC-Elevation in WPF: Hauptprozess ohne Admin-Rechte, Elevation via separatem <code>WindowsPerformance.Elevation.exe</code> (Named Pipe IPC). <strong>Bereits vollständig implementiert</strong> in <code>WindowsPerformance.Elevation</code>. Dieser Eintrag dient als Qualitäts-Benchmark.</p>
+    <p><strong>TODO 2.3 P0</strong> — Referenzarchitektur für UAC-Elevation in WPF: Hauptprozess ohne Admin-Rechte, Elevation via separatem <code>HorosPulse.Elevation.exe</code> (Named Pipe IPC). <strong>Bereits vollständig implementiert</strong> in <code>HorosPulse.Elevation</code>. Dieser Eintrag dient als Qualitäts-Benchmark.</p>
   </section>
 
   <!-- ── Phase 2 ── -->
@@ -615,7 +615,7 @@
     <h2>⚡ Phase 2 — W7–14</h2>
 
     <h3>Vanara.PInvoke.NtDll</h3>
-    <p><strong>TODO 5.4</strong> — Memory Optimizer: Standby-Liste leeren via <code>NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)</code>. Erfordert <code>SE_INCREASE_QUOTA_PRIVILEGE</code> → läuft durch <code>WindowsPerformance.Elevation.exe</code>. Vanara liefert typsichere Wrapper ohne manuelles <code>[DllImport]</code>.</p>
+    <p><strong>TODO 5.4</strong> — Memory Optimizer: Standby-Liste leeren via <code>NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)</code>. Erfordert <code>SE_INCREASE_QUOTA_PRIVILEGE</code> → läuft durch <code>HorosPulse.Elevation.exe</code>. Vanara liefert typsichere Wrapper ohne manuelles <code>[DllImport]</code>.</p>
 
     <h3>Microsoft.Windows.CsWin32</h3>
     <p><strong>TODO 5.3, 5.5</strong> — Roslyn Source-Generator für Windows-API-Bindings. <code>NativeMethods.txt</code> deklariert benötigte APIs; zur Kompilierzeit werden typsichere C#-Stubs generiert. Kein Runtime-Overhead.</p>
@@ -699,20 +699,20 @@ flowchart TD
     <div class="mermaid-wrap">
       <div class="mermaid">
 flowchart LR
-    subgraph App["WindowsPerformance.App"]
+    subgraph App["HorosPulse.App"]
         HNI2["H.NotifyIcon.Wpf"]
         LVC2["LiveChartsCore.WPF"]
         VLP2["Velopack"]
     end
 
-    subgraph Svc["WindowsPerformance.Services"]
+    subgraph Svc["HorosPulse.Services"]
         VAN2["Vanara.PInvoke.NtDll"]
         CSW2["CsWin32"]
         TSL2["TaskScheduler"]
         MML2["Microsoft.ML"]
     end
 
-    subgraph Elev["WindowsPerformance.Elevation"]
+    subgraph Elev["HorosPulse.Elevation"]
         CSW3["CsWin32\nNativeMethods.txt"]
         VAN3["Vanara (elevated ops)"]
     end
@@ -795,7 +795,7 @@ flowchart LR
       Zurück zur Projekt-Dokumentation:
       <a href="../../README.md" style="color:var(--accent);">docs/README.md</a> ·
       <a href="../../../TODO.md" style="color:var(--accent);">TODO.md</a> ·
-      <a href="../../../README.md" style="color:var(--accent);">WindowsPerformance README</a>
+      <a href="../../../README.md" style="color:var(--accent);">HorosPulse README</a>
     </p>
   </section>
 

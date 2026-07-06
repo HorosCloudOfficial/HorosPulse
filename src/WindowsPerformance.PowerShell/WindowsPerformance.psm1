@@ -1,8 +1,8 @@
-# WindowsPerformance PowerShell Module (placeholder)
+# HorosPulse PowerShell Module (placeholder)
 # Sprint 2+: pwsh.exe wrapper scripts
 
-function Get-WindowsPerformanceVersion {
+function Get-HorosPulseVersion {
     '0.1.0'
 }
 
-Export-ModuleMember -Function Get-WindowsPerformanceVersion
+Export-ModuleMember -Function Get-HorosPulseVersion

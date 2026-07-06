@@ -71,7 +71,7 @@ Migration von Squirrel zu Velopack: [velopack.io/docs/migrating](https://velopac
 
 ### Warum kein ETW / TraceEvent?
 
-ETW (Event Tracing for Windows) via `Microsoft.Diagnostics.Tracing.TraceEvent` ermöglicht Kernel-Level-Tracing, was weit über die Anforderungen von WindowsPerformance hinausgeht:
+ETW (Event Tracing for Windows) via `Microsoft.Diagnostics.Tracing.TraceEvent` ermöglicht Kernel-Level-Tracing, was weit über die Anforderungen von HorosPulse hinausgeht:
 
 - `System.Diagnostics.PerformanceCounter` liefert CPU%, RAM, Disk% mit ausreichender Granularität (2s-Polling).
 - ETW-Sessions erfordern Admin-Rechte und sind komplex einzurichten.
@@ -88,7 +88,7 @@ Das WPT-SDK (Teil des Windows Assessment and Deployment Kit) ist ein Diagnose-Fr
 - Kein NuGet-Paket — erfordert ADK-Installation auf dem Zielrechner
 - Kein API-Einstiegspunkt für eingebettete Desktop-Apps
 - Scope: Offline-Analyse von ETL-Traces (WPA/Xperf), nicht Live-Optimierung
-- Für WindowsPerformance irrelevant
+- Für HorosPulse irrelevant
 
 ---
 
@@ -106,7 +106,7 @@ MSO (Microsoft Office) Skripte sind für Office-Automatisierung via JavaScript/T
 
 **Ursache 1:** Icon-Datei nicht als `Resource` markiert.
 ```xml
-<!-- WindowsPerformance.App.csproj -->
+<!-- HorosPulse.App.csproj -->
 <Resource Include="Resources\tray.ico" />
 ```
 
@@ -138,9 +138,9 @@ xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCor
 
 **Symptom:** Methode wirft Exception oder gibt Fehler-NTSTATUS zurück.
 
-**Ursache:** Die Operation wird nicht durch den `WindowsPerformance.Elevation.exe` ausgeführt, sondern direkt im App-Prozess (ohne Admin-Rechte).
+**Ursache:** Die Operation wird nicht durch den `HorosPulse.Elevation.exe` ausgeführt, sondern direkt im App-Prozess (ohne Admin-Rechte).
 
-**Lösung:** `MemoryOptimizerService.PurgeStandbyListAsync()` muss über Named-Pipe-IPC an `WindowsPerformance.Elevation.exe` delegieren — nicht direkt aufgerufen werden. Das Elevation-Helper-Projekt bekommt die Vanara-Abhängigkeit.
+**Lösung:** `MemoryOptimizerService.PurgeStandbyListAsync()` muss über Named-Pipe-IPC an `HorosPulse.Elevation.exe` delegieren — nicht direkt aufgerufen werden. Das Elevation-Helper-Projekt bekommt die Vanara-Abhängigkeit.
 
 ---
 

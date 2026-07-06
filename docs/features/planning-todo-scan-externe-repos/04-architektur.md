@@ -67,20 +67,20 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph App["WindowsPerformance.App\n(WPF Entry-Point)"]
+    subgraph App["HorosPulse.App\n(WPF Entry-Point)"]
         HNI2["H.NotifyIcon.Wpf"]
         LVC2["LiveChartsCore.WPF"]
         VLP2["Velopack"]
     end
 
-    subgraph Svc["WindowsPerformance.Services\n(Business-Logik)"]
+    subgraph Svc["HorosPulse.Services\n(Business-Logik)"]
         VAN2["Vanara.PInvoke.NtDll"]
         CSW2["CsWin32"]
         TSL2["TaskScheduler"]
         MML2["Microsoft.ML"]
     end
 
-    subgraph Elev["WindowsPerformance.Elevation\n(WindowsPerformance.Elevation.exe)"]
+    subgraph Elev["HorosPulse.Elevation\n(HorosPulse.Elevation.exe)"]
         CSW3["CsWin32\n(NativeMethods.txt)"]
     end
 
@@ -128,7 +128,7 @@ Die Chart-Library empfängt nur Daten — sie hat keine Kenntnis von der Datenqu
 MemoryOptimizerService.PurgeStandbyListAsync()
   └── Vanara.PInvoke.NtDll.NtSetSystemInformation
         └── SYSTEM_MEMORY_LIST_COMMAND.MemoryPurgeStandbyList
-              └── WindowsPerformance.Elevation.exe (Named Pipe IPC)
+              └── HorosPulse.Elevation.exe (Named Pipe IPC)
                     └── requireAdministrator-Manifest
 ```
 
@@ -175,7 +175,7 @@ Velopack CLI (vpk pack) → Release-Bundle
 
 ## Was sich durch externe Pakete NICHT ändert
 
-- **Elevation-Architektur:** `WindowsPerformance.Elevation.exe` als separater Prozess bleibt — Vanara und CsWin32 ändern *wie* P/Invoke-Calls aussehen, nicht *wo* sie ausgeführt werden.
+- **Elevation-Architektur:** `HorosPulse.Elevation.exe` als separater Prozess bleibt — Vanara und CsWin32 ändern *wie* P/Invoke-Calls aussehen, nicht *wo* sie ausgeführt werden.
 - **Snapshot/Rollback:** Kein externes Paket greift in den Snapshot-Mechanismus ein. `SnapshotManager` und `RollbackEngine` bleiben rein intern.
 - **DI-Container:** `Microsoft.Extensions.Hosting` bleibt der alleinige DI-Container. Die externen Pakete registrieren sich als normale Services.
 - **SQLite-Persistenz:** `Microsoft.Data.Sqlite` bleibt der Datenbank-Treiber. ML.NET liest Daten aus dem bestehenden `IPerformanceMetricRepository` — es bekommt kein eigenes Datenbank-Zugriffs-Layer.

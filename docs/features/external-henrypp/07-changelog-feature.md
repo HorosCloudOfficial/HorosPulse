@@ -51,7 +51,7 @@ Dieser Changelog wird manuell geführt. Relevante Ereignisse:
 - Repo-Updates (`git pull` in einem der Henry++-Repos)
 - Neue NT-API-Erkenntnisse die Phase-2-Implementierung beeinflussen
 - Lizenzänderungen in Henry++-Repos (selten, aber prüfenswert)
-- Neue Repos im Henry++-Portfolio die für WindowsPerformance relevant werden
+- Neue Repos im Henry++-Portfolio die für HorosPulse relevant werden
 
 ---
 

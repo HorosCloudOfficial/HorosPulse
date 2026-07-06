@@ -1,23 +1,23 @@
 # Henry++ Referenz-Bibliothek — Repo-Inventar & Konfiguration
 
 > **Diataxis: Referenz** · Stand: 2026-07-06  
-> Vollständige Inventur der 19 Repos in `external/henrypp/`: Pfade, Sprachen, Build-Toolchain, .gitignore-Verhalten und Beziehung zum WindowsPerformance-Projekt.
+> Vollständige Inventur der 19 Repos in `external/henrypp/`: Pfade, Sprachen, Build-Toolchain, .gitignore-Verhalten und Beziehung zum HorosPulse-Projekt.
 
 ---
 
 ## .gitignore-Konfiguration
 
-Die Henry++-Repos sind vollständig aus dem WindowsPerformance-Git-Repository ausgeschlossen:
+Die Henry++-Repos sind vollständig aus dem HorosPulse-Git-Repository ausgeschlossen:
 
 ```
-# D:\WindowsPerformance\.gitignore — Zeile 84
+# D:\HorosPulse\.gitignore — Zeile 84
 external/henrypp/
 ```
 
 Das bedeutet:
 - `git status` zeigt das Verzeichnis nicht an
 - `git add .` schließt es aus
-- Nach einem frischen `git clone` von `WindowsPerformance` existiert `external/henrypp/` nicht
+- Nach einem frischen `git clone` von `HorosPulse` existiert `external/henrypp/` nicht
 - Manuelle Klon-Schritte sind erforderlich (→ [02-benutzer-anleitung.md](02-benutzer-anleitung.md))
 
 ---
@@ -25,7 +25,7 @@ Das bedeutet:
 ## Verzeichnisstruktur
 
 ```
-D:\WindowsPerformance\
+D:\HorosPulse\
 └── external\
     └── henrypp\           ← gitignored
         ├── autoruns2\

@@ -25,9 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initiale WindowsPerformance-App mit Tokyo Night UI
+- Initiale HorosPulse-App mit Tokyo Night UI
 - Cursor Dev Mode Preset, Snapshot/Rollback, ElevationHelper
 - Phase-2-Module: Dienste, Startup, Visuell, Speicher, Netzwerk, Trends, Prozesse
 
-[Unreleased]: https://github.com/example/WindowsPerformance/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/example/WindowsPerformance/releases/tag/v0.1.0
+[Unreleased]: https://github.com/example/HorosPulse/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/example/HorosPulse/releases/tag/v0.1.0

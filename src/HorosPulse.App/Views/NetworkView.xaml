@@ -1,0 +1,22 @@
+<UserControl x:Class="HorosPulse.App.Views.NetworkView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="TCP NoDelay und DNS-Cache-TTL optimieren (Registry)." Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding CurrentSettingsText}" Margin="0,0,0,16" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Optimierungen anwenden" Command="{Binding ApplyCommand}" Margin="0,0,8,0" />
+                        <Button Content="Rollback" Command="{Binding RollbackCommand}" Margin="0,0,8,0" />
+                        <Button Content="Aktualisieren" Command="{Binding RefreshCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AccentOrangeBrush}"
+                               Margin="0,12,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

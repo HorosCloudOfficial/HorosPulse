@@ -7,9 +7,9 @@
 
 ## Klonen & Einrichtung
 
-### F: Nach `git clone` des WindowsPerformance-Repos fehlt `external/henrypp/` komplett. Warum?
+### F: Nach `git clone` des HorosPulse-Repos fehlt `external/henrypp/` komplett. Warum?
 
-`external/henrypp/` ist in `.gitignore` (Zeile 84) ausgeschlossen. Das ist beabsichtigt — die Repos sind nicht Teil des WindowsPerformance-Commits und müssen separat geklont werden.
+`external/henrypp/` ist in `.gitignore` (Zeile 84) ausgeschlossen. Das ist beabsichtigt — die Repos sind nicht Teil des HorosPulse-Commits und müssen separat geklont werden.
 
 **Lösung:** Klonschritte in [02-benutzer-anleitung.md](02-benutzer-anleitung.md) befolgen.
 
@@ -20,18 +20,18 @@
 Das passiert, wenn `memreduct` ohne `--recurse-submodules` geklont wurde und `routine` fehlt.
 
 ```powershell
-Set-Location "D:\WindowsPerformance\external\henrypp\memreduct"
+Set-Location "D:\HorosPulse\external\henrypp\memreduct"
 git submodule update --init --recursive
 ```
 
 Wenn das Netzwerk das Submodul nicht auflöst, kann `routine` auch direkt geklont und verlinkt werden:
 
 ```powershell
-Set-Location "D:\WindowsPerformance\external\henrypp"
+Set-Location "D:\HorosPulse\external\henrypp"
 git clone --depth=1 https://github.com/henrypp/routine.git
 
 # Manuell in memreduct verlinken:
-Set-Location "D:\WindowsPerformance\external\henrypp\memreduct"
+Set-Location "D:\HorosPulse\external\henrypp\memreduct"
 # .gitmodules zeigt den erwarteten Pfad; routine-Ordner muss dort liegen
 ```
 
@@ -43,7 +43,7 @@ Das liegt im Ermessen des Entwicklers. Da es sich um Leserefrenz handelt, sind r
 
 ```powershell
 # Update einzelner Repos:
-Set-Location "D:\WindowsPerformance\external\henrypp\memreduct"
+Set-Location "D:\HorosPulse\external\henrypp\memreduct"
 git pull origin master
 ```
 
@@ -51,9 +51,9 @@ git pull origin master
 
 ## Integration & Verwendungszweck
 
-### F: Warum wird der C-Code nicht direkt in WindowsPerformance eingebunden?
+### F: Warum wird der C-Code nicht direkt in HorosPulse eingebunden?
 
-WindowsPerformance ist ein WPF .NET 9 Projekt. Henry++-Repos sind C/MSVC-Projekte. Eine direkte Einbindung würde bedeuten:
+HorosPulse ist ein WPF .NET 9 Projekt. Henry++-Repos sind C/MSVC-Projekte. Eine direkte Einbindung würde bedeuten:
 
 1. MSVC als zusätzliche Build-Abhängigkeit
 2. Komplexe C-Interop via P/Invoke auf eigene DLLs
@@ -65,30 +65,30 @@ WindowsPerformance ist ein WPF .NET 9 Projekt. Henry++-Repos sind C/MSVC-Projekt
 
 ---
 
-### F: Kann `memreduct.exe` oder `simplewall.exe` als Child-Process aus WindowsPerformance gestartet werden?
+### F: Kann `memreduct.exe` oder `simplewall.exe` als Child-Process aus HorosPulse gestartet werden?
 
 Technisch möglich, aber bewusst **nicht** geplant:
 
 - Keine Kontrolle über UI oder Verhalten des externen Prozesses
 - Keine programmatische Schnittstelle (keine API, nur UI)
 - Benutzer würde plötzlich ein fremdes Fenster sehen
-- UAC-Prompt käme vom externen Prozess, nicht von WindowsPerformance
+- UAC-Prompt käme vom externen Prozess, nicht von HorosPulse
 
-WindowsPerformance implementiert die Funktionalität selbst (via Vanara/ElevationHelper).
+HorosPulse implementiert die Funktionalität selbst (via Vanara/ElevationHelper).
 
 ---
 
-### F: Sind die Henry++-Repos in `WindowsPerformance.sln` eingetragen?
+### F: Sind die Henry++-Repos in `HorosPulse.sln` eingetragen?
 
 Nein. Die Solution-Datei enthält ausschließlich die sieben .NET-Projekte unter `src/` und `tests/`. `external/henrypp/` hat keinen Eintrag in der Solution.
 
 ---
 
-### F: Darf ich Code aus Henry++-Repos in WindowsPerformance kopieren?
+### F: Darf ich Code aus Henry++-Repos in HorosPulse kopieren?
 
 Die Repos haben unterschiedliche Lizenzen:
 
-| Repo | Lizenz | Für WindowsPerformance nutzbar? |
+| Repo | Lizenz | Für HorosPulse nutzbar? |
 |------|--------|--------------------------------|
 | `memreduct` | MIT | Ja, mit Namensnennung |
 | `routine` | MIT | Ja, mit Namensnennung |
@@ -104,9 +104,9 @@ Die Repos haben unterschiedliche Lizenzen:
 
 ### F: `NtSetSystemInformation` gibt `STATUS_PRIVILEGE_NOT_HELD` zurück. Was fehlt?
 
-Das Privilege `SeProfileSingleProcessPrivilege` ist nicht aktiviert. In WindowsPerformance bedeutet das, der Aufruf wurde nicht über `WindowsPerformance.Elevation.exe` gesendet.
+Das Privilege `SeProfileSingleProcessPrivilege` ist nicht aktiviert. In HorosPulse bedeutet das, der Aufruf wurde nicht über `HorosPulse.Elevation.exe` gesendet.
 
-**Lösung:** Sicherstellen, dass der Aufruf über `ElevationService → WindowsPerformance.Elevation.exe` geht. Der ElevationHelper hat `requireAdministrator` im Manifest und kann das Privilege selbst erteilen.
+**Lösung:** Sicherstellen, dass der Aufruf über `ElevationService → HorosPulse.Elevation.exe` geht. Der ElevationHelper hat `requireAdministrator` im Manifest und kann das Privilege selbst erteilen.
 
 ---
 
@@ -133,7 +133,7 @@ if (_r_sys_isosversiongreaterorequal (WINDOWS_8_1))
 }
 ```
 
-In WindowsPerformance entsprechend mit `Environment.OSVersion.Version`-Check absichern.
+In HorosPulse entsprechend mit `Environment.OSVersion.Version`-Check absichern.
 
 ---
 
@@ -145,7 +145,7 @@ Ja — installierte WFP-Filter bleiben aktiv auch wenn `simplewall.exe` beendet 
 
 Zum Entfernen: `simplewall.exe --uninstall` oder "Filter deaktivieren"-Button in der UI.
 
-**Relevanz für WindowsPerformance:** Wenn TODO §5.5 (Network Optimizer) WFP-Filter nutzen sollte (Phase 3+), müssen diese beim App-Deinstall explizit entfernt werden.
+**Relevanz für HorosPulse:** Wenn TODO §5.5 (Network Optimizer) WFP-Filter nutzen sollte (Phase 3+), müssen diese beim App-Deinstall explizit entfernt werden.
 
 ---
 
@@ -162,7 +162,7 @@ Das ist eine gängige Kombination. `routine` als SDK-Bibliothek ist MIT-lizenzie
 `routine` muss als Submodul initialisiert sein. Außerdem benötigen die Repos das Windows SDK in der im `.vcxproj` konfigurierten Version.
 
 ```powershell
-Set-Location "D:\WindowsPerformance\external\henrypp\memreduct"
+Set-Location "D:\HorosPulse\external\henrypp\memreduct"
 git submodule update --init --recursive
 ```
 
@@ -170,7 +170,7 @@ git submodule update --init --recursive
 
 ### F: Ich will die Henry++-Repos nur lesen, nicht bauen. Muss ich Python/NSIS installieren?
 
-Nein. Zum Lesen des Quellcodes genügt ein Texteditor oder Visual Studio Code. Python, 7-Zip, GPG und NSIS werden nur benötigt um tatsächliche Binaries/Installer zu erzeugen — was für WindowsPerformance-Entwicklung nicht nötig ist.
+Nein. Zum Lesen des Quellcodes genügt ein Texteditor oder Visual Studio Code. Python, 7-Zip, GPG und NSIS werden nur benötigt um tatsächliche Binaries/Installer zu erzeugen — was für HorosPulse-Entwicklung nicht nötig ist.
 
 ---
 

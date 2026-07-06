@@ -7,7 +7,7 @@
 
 ## Central Package Management (`Directory.Packages.props`)
 
-Alle empfohlenen Pakete als fertige `<PackageVersion>`-Einträge, nach Phase geordnet. Einfach in `D:\WindowsPerformance\Directory.Packages.props` einfügen:
+Alle empfohlenen Pakete als fertige `<PackageVersion>`-Einträge, nach Phase geordnet. Einfach in `D:\HorosPulse\Directory.Packages.props` einfügen:
 
 ```xml
 <Project>
@@ -84,14 +84,14 @@ Welches Paket kommt in welches `.csproj`-Projekt?
 
 | Paket | Projekt(e) |
 |-------|-----------|
-| `H.NotifyIcon.Wpf` | `WindowsPerformance.App` |
-| `LiveChartsCore.SkiaSharpView.WPF` | `WindowsPerformance.App` |
-| `coverlet.collector` | `WindowsPerformance.Tests.Unit`, `WindowsPerformance.Tests.Integration` |
-| `Vanara.PInvoke.NtDll` | `WindowsPerformance.Services` (oder `WindowsPerformance.Elevation`) |
-| `Microsoft.Windows.CsWin32` | `WindowsPerformance.Services`, `WindowsPerformance.Elevation` |
-| `TaskScheduler` | `WindowsPerformance.Services` |
-| `Velopack` | `WindowsPerformance.App` |
-| `Microsoft.ML` / `Microsoft.ML.TimeSeries` | `WindowsPerformance.Services` (neues `AnalyticsService`) |
+| `H.NotifyIcon.Wpf` | `HorosPulse.App` |
+| `LiveChartsCore.SkiaSharpView.WPF` | `HorosPulse.App` |
+| `coverlet.collector` | `HorosPulse.Tests.Unit`, `HorosPulse.Tests.Integration` |
+| `Vanara.PInvoke.NtDll` | `HorosPulse.Services` (oder `HorosPulse.Elevation`) |
+| `Microsoft.Windows.CsWin32` | `HorosPulse.Services`, `HorosPulse.Elevation` |
+| `TaskScheduler` | `HorosPulse.Services` |
+| `Velopack` | `HorosPulse.App` |
+| `Microsoft.ML` / `Microsoft.ML.TimeSeries` | `HorosPulse.Services` (neues `AnalyticsService`) |
 
 ---
 
@@ -100,10 +100,10 @@ Welches Paket kommt in welches `.csproj`-Projekt?
 Kein NuGet-Paket — ein **Referenz-Architekturmuster** für UAC-Elevation in WPF-Anwendungen:
 
 - Hauptprozess läuft **ohne** `requireAdministrator`-Manifest (Standard-Benutzerrechte).
-- Elevation-Operationen werden an ein separates `WindowsPerformance.Elevation.exe` delegiert (eigenes Manifest: `requireAdministrator`).
+- Elevation-Operationen werden an ein separates `HorosPulse.Elevation.exe` delegiert (eigenes Manifest: `requireAdministrator`).
 - Kommunikation via **Named Pipe** (IPC): JSON-kodierte Befehle, JSON-Antworten.
 - Helper beendet sich nach jeder UAC-Session selbst (kein dauerhafter Admin-Prozess).
 
-WindowsPerformance implementiert dieses Muster bereits vollständig in `WindowsPerformance.Elevation` (TODO 2.3). Die Referenz dient als Qualitäts-Benchmark — die Implementierung ist konform.
+HorosPulse implementiert dieses Muster bereits vollständig in `HorosPulse.Elevation` (TODO 2.3). Die Referenz dient als Qualitäts-Benchmark — die Implementierung ist konform.
 
 GitHub-Referenz: Komurasoft ist ein japanischer WPF-Entwickler, bekannt für saubere Separation von Elevation in Desktop-Apps. Das Muster ist Community-Best-Practice und kein offizielles Framework.

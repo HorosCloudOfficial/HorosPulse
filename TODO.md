@@ -1,7 +1,7 @@
-# WindowsPerformance — Master Task List
+# HorosPulse — Master Task List
 
 > **Projekt:** WPF .NET 9 Desktop-App zur Windows-Systemoptimierung für Cursor IDE Programmier-Workflows
-> **Stand:** 2026-07-06 · MVP + Phase 2–3 abgeschlossen · Workspace: `D:\WindowsPerformance`
+> **Stand:** 2026-07-06 · MVP + Phase 2–3 abgeschlossen · Workspace: `D:\HorosPulse`
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Projektüberblick
 
-WindowsPerformance ist eine WPF .NET 9 Desktop-Applikation mit einem modernen Tokyo-Night-Interface, die Windows-Systemeinstellungen gezielt für Cursor-IDE-Entwicklungsworkflows optimiert. Sie arbeitet mit on-demand-Elevation (separates `WindowsPerformance.Elevation.exe`), persistiert Snapshots in SQLite, führt PowerShell-Skripte als externer Prozess (`pwsh.exe`) aus und stellt jederzeit Rollback-Sicherheit bereit.
+HorosPulse ist eine WPF .NET 9 Desktop-Applikation mit einem modernen Tokyo-Night-Interface, die Windows-Systemeinstellungen gezielt für Cursor-IDE-Entwicklungsworkflows optimiert. Sie arbeitet mit on-demand-Elevation (separates `HorosPulse.Elevation.exe`), persistiert Snapshots in SQLite, führt PowerShell-Skripte als externer Prozess (`pwsh.exe`) aus und stellt jederzeit Rollback-Sicherheit bereit.
 
 ---
 
@@ -34,7 +34,7 @@ WindowsPerformance ist eine WPF .NET 9 Desktop-Applikation mit einem modernen To
 | Design-System | Tokyo Night Farb-Palette, MaterialDesignInXamlToolkit oder eigene Styles |
 | PowerShell | `pwsh.exe` externer Prozess (keine In-Process-Ausführung) |
 | Persistenz | System.Text.Json (Profiles/Snapshots) + SQLite via EF Core 9 (Trends/Audit) |
-| Elevation | Separates `WindowsPerformance.Elevation.exe` (UAC on-demand, App läuft **nie** als Admin) |
+| Elevation | Separates `HorosPulse.Elevation.exe` (UAC on-demand, App läuft **nie** als Admin) |
 | Logging | Microsoft.Extensions.Logging + Serilog-File-Sink |
 | Tests | xUnit, Moq, FluentAssertions |
 | Build/CI | `dotnet build`, `dotnet test` (lokal); GitHub Actions optional |
@@ -44,18 +44,18 @@ WindowsPerformance ist eine WPF .NET 9 Desktop-Applikation mit einem modernen To
 ## Solution-Struktur
 
 ```
-WindowsPerformance.sln
+HorosPulse.sln
 ├── src/
-│   ├── WindowsPerformance.App           # WPF Entry-Point, Styles, Navigation
-│   ├── WindowsPerformance.Core          # Domain-Modelle, Interfaces, Enums
-│   ├── WindowsPerformance.ViewModels    # CommunityToolkit.Mvvm ViewModels
-│   ├── WindowsPerformance.Services      # Business-Logik, OS-Interaktion
-│   ├── WindowsPerformance.Data          # EF Core DbContext, Repositories, JSON-IO
-│   ├── WindowsPerformance.Elevation     # WindowsPerformance.Elevation.exe (separates Projekt)
-│   └── WindowsPerformance.PowerShell   # Wrapper für pwsh.exe-Ausführung
+│   ├── HorosPulse.App           # WPF Entry-Point, Styles, Navigation
+│   ├── HorosPulse.Core          # Domain-Modelle, Interfaces, Enums
+│   ├── HorosPulse.ViewModels    # CommunityToolkit.Mvvm ViewModels
+│   ├── HorosPulse.Services      # Business-Logik, OS-Interaktion
+│   ├── HorosPulse.Data          # EF Core DbContext, Repositories, JSON-IO
+│   ├── HorosPulse.Elevation     # HorosPulse.Elevation.exe (separates Projekt)
+│   └── HorosPulse.PowerShell   # Wrapper für pwsh.exe-Ausführung
 └── tests/
-    ├── WindowsPerformance.Unit          # xUnit Unit-Tests
-    └── WindowsPerformance.Integration   # Integrations-Tests (mit echtem FS/Registry)
+    ├── HorosPulse.Unit          # xUnit Unit-Tests
+    └── HorosPulse.Integration   # Integrations-Tests (mit echtem FS/Registry)
 ```
 
 ---
@@ -82,17 +82,17 @@ WindowsPerformance.sln
 
 - [x] **P0** Git-Repository initialisieren (`git init`) und initialer Commit nach Solution-Setup *(ergänzt)* - Repo auf `main`; initialer Bulk-Commit `f36a228` (MVP + Phase 3, 221 Dateien)
 - [x] **P0** Branch-Strategie festlegen: `main` (stable), Feature-Branches `feature/<name>`, Squash-Merge in `main` *(ergänzt)*
-- [x] **P0** `dotnet new sln -n WindowsPerformance` in `D:\WindowsPerformance` ausführen
+- [x] **P0** `dotnet new sln -n HorosPulse` in `D:\HorosPulse` ausführen
 - [x] **P0** Projektordner `src/` und `tests/` anlegen
-- [x] **P0** `WindowsPerformance.App` (WPF, .NET 9) erstellen: `dotnet new wpf -n WindowsPerformance.App -o src/WindowsPerformance.App`
-- [x] **P0** `WindowsPerformance.Core` (classlib) erstellen
-- [x] **P0** `WindowsPerformance.ViewModels` (classlib) erstellen
-- [x] **P0** `WindowsPerformance.Services` (classlib) erstellen
-- [x] **P0** `WindowsPerformance.Data` (classlib) erstellen
-- [x] **P0** `WindowsPerformance.Elevation` (console app, separates EXE-Projekt) erstellen
-- [x] **P0** `WindowsPerformance.PowerShell` (classlib) erstellen — Platzhalter-Ordner mit `.psm1`
-- [x] **P0** `WindowsPerformance.Unit` (xUnit-Testprojekt) erstellen — als `tests/WindowsPerformance.Tests.Unit`
-- [x] **P0** `WindowsPerformance.Integration` (xUnit-Testprojekt) erstellen — als `tests/WindowsPerformance.Tests.Integration`
+- [x] **P0** `HorosPulse.App` (WPF, .NET 9) erstellen: `dotnet new wpf -n HorosPulse.App -o src/HorosPulse.App`
+- [x] **P0** `HorosPulse.Core` (classlib) erstellen
+- [x] **P0** `HorosPulse.ViewModels` (classlib) erstellen
+- [x] **P0** `HorosPulse.Services` (classlib) erstellen
+- [x] **P0** `HorosPulse.Data` (classlib) erstellen
+- [x] **P0** `HorosPulse.Elevation` (console app, separates EXE-Projekt) erstellen
+- [x] **P0** `HorosPulse.PowerShell` (classlib) erstellen — Platzhalter-Ordner mit `.psm1`
+- [x] **P0** `HorosPulse.Unit` (xUnit-Testprojekt) erstellen — als `tests/HorosPulse.Tests.Unit`
+- [x] **P0** `HorosPulse.Integration` (xUnit-Testprojekt) erstellen — als `tests/HorosPulse.Tests.Integration`
 - [x] **P0** Alle Projekte zur Solution hinzufügen (`dotnet sln add …`)
 - [x] **P0** Projekt-Referenzen verdrahten (App → ViewModels, Services, Data; ViewModels → Core; Services → Core, Data; Tests.Unit → Core, Services)
 - [x] **P0** `global.json` mit `"sdk": { "version": "9.x.x" }` anlegen
@@ -178,26 +178,26 @@ WindowsPerformance.sln
 - [x] **P0** `IPowerShellBridge` Interface: `RunAsync(string script, bool elevated, CancellationToken ct)` *(als IPowerShellRunner)*
 - [x] **P0** `PowerShellResult` (record: int ExitCode, string StdOut, string StdErr, bool Success)
 - [x] **P0** `PowerShellBridge` — startet `pwsh.exe -NonInteractive -NoProfile -Command "…"` via `Process.Start`, captured stdout/stderr, Timeout (30s default)
-- [x] **P0** Elevated-Variante: Named-Pipe-IPC an `WindowsPerformance.Elevation.exe --server` (UAC via `runas` beim Start)
+- [x] **P0** Elevated-Variante: Named-Pipe-IPC an `HorosPulse.Elevation.exe --server` (UAC via `runas` beim Start)
 - [x] **P0** Skript-Sanitisierung: verbotene Muster blocken (z. B. `rm -rf`, `Format-`, `Remove-Item C:\Windows`)
 - [x] **P0** Startup-Check: `pwsh.exe`-Verfügbarkeit beim App-Start prüfen; Fallback auf `powershell.exe` 5.1 *(ergänzt)*
 - [x] **P1** `PowerShellScriptLibrary` — statische Klasse mit vorkompilierten Skript-Strings (keine `.ps1`-Dateien auf Disk im Produktionsbetrieb)
 - [x] **P1** Timeout konfigurierbar via `PowerShellOptions` *(ohne IOptions-Pattern)*
 - [x] **P1** Logging jedes PS-Aufrufs (Script-Hash, ExitCode, Dauer) via `IAuditLogger` — Sprint 3
 
-### 2.3 WindowsPerformance.Elevation.exe (P0)
+### 2.3 HorosPulse.Elevation.exe (P0)
 
 **Abhängigkeit:** 1.1
 
-- [x] **P0** Separates `WindowsPerformance.Elevation`-Projekt (Console App, .NET 9, `<ApplicationManifest>` mit `requireAdministrator`)
+- [x] **P0** Separates `HorosPulse.Elevation`-Projekt (Console App, .NET 9, `<ApplicationManifest>` mit `requireAdministrator`)
 - [x] **P0** Eingabe: Base64-kodiertes PowerShell-Skript als `args[0]`, optional `--timeout <ms>` *(+ Named-Pipe-Server-Modus)*
 - [x] **P0** Ausgabe: JSON auf stdout `{ "exitCode": 0, "stdout": "…", "stderr": "…" }`
 - [x] **P0** Fehlerfall: Exit-Code ≠ 0, JSON mit `stderr`-Inhalt
-- [x] **P0** Keine dauerhafte Elevation: WindowsPerformance.Elevation.exe `--server` läuft pro UAC-Session, Einzelaufruf-Modus beendet sich
+- [x] **P0** Keine dauerhafte Elevation: HorosPulse.Elevation.exe `--server` läuft pro UAC-Session, Einzelaufruf-Modus beendet sich
 - [x] **P1** Whitelist der erlaubten Skript-Hashes (SHA-256) im ElevationHelper — lehnt unbekannte Skripte ab
-- [x] **P1** Signierung des WindowsPerformance.Elevation.exe (selbstsigniertes Zertifikat für Dev; `scripts/sign-elevation-helper.ps1`; Produktion: echtes Zertifikat)
+- [x] **P1** Signierung des HorosPulse.Elevation.exe (selbstsigniertes Zertifikat für Dev; `scripts/sign-elevation-helper.ps1`; Produktion: echtes Zertifikat)
 - [x] **P1** Test: ElevationHelper gibt korrektes JSON zurück für bekanntes Dummy-Skript
-- [x] **P0** Build-Output: `WindowsPerformance.Elevation.exe` bei Build neben `WindowsPerformance.App.exe` kopieren (MSBuild Post-Build-Target) *(ergänzt)*
+- [x] **P0** Build-Output: `HorosPulse.Elevation.exe` bei Build neben `HorosPulse.App.exe` kopieren (MSBuild Post-Build-Target) *(ergänzt)*
 - [x] **P0** Runtime-Pfad-Auflösung: `ElevationHelperPathResolver` findet EXE relativ zum App-Basisverzeichnis (Dev-Build + portable Deploy) *(ergänzt)*
 
 ### 2.4 PowerPlan-Modul (P1)
@@ -219,7 +219,7 @@ WindowsPerformance.sln
 
 - [x] **P0** `ICursorOptimizer` Interface + `CursorOptimizerService`
 - [x] **P0** settings.json lesen/schreiben mit Merge (Performance-Template: maxTsServerMemory 8192, watcherExclude, search.exclude, minimap off, telemetry off)
-- [x] **P0** Backup vor Schreiben (`settings.json.windowsperformance.bak`)
+- [x] **P0** Backup vor Schreiben (`settings.json.HorosPulse.bak`)
 - [x] **P0** Rollback: settings.json aus Backup wiederherstellen
 - [x] **P1** `CursorViewModel` + `CursorView.xaml` — Apply/Restore, Vorschau der Änderungen
 - [x] **P1** Live-Status: Prozessprioritäten-Status in Cursor-Ansicht
@@ -306,14 +306,14 @@ WindowsPerformance.sln
 
 **Abhängigkeit:** 1.1, 1.3
 
-- [x] **P0** `DatabaseBootstrap` (Microsoft.Data.Sqlite) in `WindowsPerformance.Data` — statt EF Core
+- [x] **P0** `DatabaseBootstrap` (Microsoft.Data.Sqlite) in `HorosPulse.Data` — statt EF Core
 - [x] **P0** Tabellen: `snapshots`, `audit_entries`, `performance_metrics`
 - [x] **P0** `ISnapshotRepository`: CRUD für Snapshots
 - [x] **P0** `IAuditRepository`: Insert + Query für AuditEntries
 - [x] **P0** `IPerformanceMetricRepository`: Insert + Query (Time-Series, Paginierung)
 - [x] **P0** DB-Schema-Bootstrap beim ersten Start (`DatabaseBootstrap.InitializeAsync`)
-- [x] **P0** DB-Datei-Pfad: `%LOCALAPPDATA%\WindowsPerformance\data.db`
-- [x] **P1** `ProfileRepository` — liest/schreibt `ProfileDefinition`-JSON aus `%LOCALAPPDATA%\WindowsPerformance\profiles\`
+- [x] **P0** DB-Datei-Pfad: `%LOCALAPPDATA%\HorosPulse\data.db`
+- [x] **P1** `ProfileRepository` — liest/schreibt `ProfileDefinition`-JSON aus `%LOCALAPPDATA%\HorosPulse\profiles\`
 - [x] **P1** `IProfileRepository` Interface: `GetAllAsync()`, `GetByIdAsync()`, `SaveAsync()`, `DeleteAsync()`
 - [x] **P1** JSON-Serialisierung mit `System.Text.Json`, `JsonSerializerOptions` (Indented, camelCase)
 - [x] **P1** DB-Initialisierung beim App-Start automatisch (`BootstrapApplicationAsync`)
@@ -410,7 +410,7 @@ WindowsPerformance.sln
 **Abhängigkeit:** 4.1 Unit Tests grün
 
 - [x] **P2** `AppDbContext` gegen echte SQLite In-Memory-DB testen — ersetzt durch `DatabaseBootstrapTests` (Microsoft.Data.Sqlite, kein EF)
-- [x] **P2** `WindowsPerformance.Elevation.exe` Integration: Build + Start + JSON-Output parsen
+- [x] **P2** `HorosPulse.Elevation.exe` Integration: Build + Start + JSON-Output parsen
 - [x] **P2** `SnapshotManager` ↔ `RollbackEngine` End-to-End mit Fake-Modul
 - [x] **P2** `PowerShellRunner` gegen `pwsh.exe` auf CI-Maschine (wenn verfügbar)
 
@@ -427,7 +427,7 @@ WindowsPerformance.sln
 **Abhängigkeit:** 2.3 (ElevationHelper-Deploy), 1.4 (Shell lauffähig)
 
 - [x] **P1** MVP portable ZIP-Distribution: `dotnet publish` (win-x64, self-contained optional) → Ordner mit App + ElevationHelper + README bündeln; interim bis Phase-3-Installer *(ergänzt)*
-- [x] **P1** Publish-Skript oder MSBuild-Target: ZIP-Artefakt `WindowsPerformance-<version>-win-x64.zip` erzeugen *(ergänzt)*
+- [x] **P1** Publish-Skript oder MSBuild-Target: ZIP-Artefakt `HorosPulse-<version>-win-x64.zip` erzeugen *(ergänzt)*
 
 ---
 
@@ -560,7 +560,7 @@ Diese Items werden bewusst **nicht** implementiert:
 - [ ] ~~`node_modules`-Verzeichnis als Defender-Exclusion~~ — Sicherheitsrisiko, nicht recommended
 - [ ] ~~`EmptyWorkingSet` für `cursor.exe` / `node.exe`~~ — führt zu Working-Set-Thrashing, verschlechtert Performance
 - [ ] ~~Automatisches Deaktivieren von Windows-Diensten~~ — zu destruktiv; manuelle Opt-in-Kontrolle in Phase 2
-- [ ] ~~App läuft dauerhaft als Administrator~~ — Elevation nur on-demand via WindowsPerformance.Elevation.exe
+- [ ] ~~App läuft dauerhaft als Administrator~~ — Elevation nur on-demand via HorosPulse.Elevation.exe
 - [ ] ~~Cloud-Sync von Profilen/Metriken~~ — alle Daten lokal, keine externen API-Calls
 - [ ] ~~Browser-Performance-Tweaks~~ — außerhalb des definierten Scopes
 - [ ] ~~Linux/macOS-Support~~ — Windows-only by design
@@ -586,15 +586,15 @@ Diese Items werden bewusst **nicht** implementiert:
 ## Sicherheit & Elevation-Architektur
 
 - [x] **P0** App läuft **niemals** mit `requireAdministrator`-Manifest — `app.manifest`: `asInvoker`
-- [x] **P0** Nur `WindowsPerformance.Elevation.exe` hat `requireAdministrator`; wird als separater Prozess gestartet — `ElevationService` + separates Projekt
+- [x] **P0** Nur `HorosPulse.Elevation.exe` hat `requireAdministrator`; wird als separater Prozess gestartet — `ElevationService` + separates Projekt
 - [x] **P0** Alle elevated Operationen gehen durch Whitelist im ElevationHelper (Script-Hash-Check)
 - [x] **P0** Keine Credentials, Tokens oder Passwörter werden gespeichert
 - [x] **P1** Eingaben für PowerShell-Skripte werden sanitized (keine User-kontrollierten Skript-Inhalte) — `ScriptSanitizer` + `PowerShellBridge`
 - [x] **P1** Snapshot-Checksums verhindern Tampering mit gespeicherten States — `SnapshotCompression.ValidateChecksum`
 - [x] **P1** SQLite-Datei liegt in `%LOCALAPPDATA%` — kein Netzwerk-Zugriff — `DataPaths.DatabasePath`
-- [x] **P2** WindowsPerformance.Elevation.exe signiert (SHA-256 Authenticode) — Dev: `scripts/sign-elevation-helper.ps1`; CI: optional/skipped
+- [x] **P2** HorosPulse.Elevation.exe signiert (SHA-256 Authenticode) — Dev: `scripts/sign-elevation-helper.ps1`; CI: optional/skipped
 - [x] **P2** Audit-Log ist append-only (keine Update/Delete-Operationen auf AuditEntries)
 
 ---
 
-*Zuletzt aktualisiert: 2026-07-06 — MVP + Phase 2–3 vollständig; `dotnet build`/`dotnet test` Release grün (38 Tests: 32 Unit + 6 Integration); `publish.ps1` → `artifacts/WindowsPerformance-0.1.0-win-x64.zip` verifiziert; Out-of-Scope (559–567).*
+*Zuletzt aktualisiert: 2026-07-06 — MVP + Phase 2–3 vollständig; `dotnet build`/`dotnet test` Release grün (38 Tests: 32 Unit + 6 Integration); `publish.ps1` → `artifacts/HorosPulse-0.1.0-win-x64.zip` verifiziert; Out-of-Scope (559–567).*
