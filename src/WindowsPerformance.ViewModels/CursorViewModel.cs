@@ -89,7 +89,7 @@ public sealed partial class CursorViewModel : ViewModelBase
     {
         if (!_confirmationService.Confirm(
                 "Cursor-Einstellungen anwenden",
-                "Die Cursor settings.json wird mit Performance-Vorlagen zusammengeführt. Ein Backup wird vorher erstellt.\n\nFortfahren?"))
+                "Die Cursor settings.json wird mit Performance- und Editor-Vorlagen zusammengeführt. Ein Backup wird vorher erstellt.\n\nFortfahren?"))
             return;
 
         IsBusy = true;

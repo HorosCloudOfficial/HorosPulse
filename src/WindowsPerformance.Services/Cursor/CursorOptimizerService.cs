@@ -29,6 +29,27 @@ public sealed class CursorOptimizerService : ICursorOptimizer
         },
         ["editor.minimap.enabled"] = false,
         ["telemetry.telemetryLevel"] = "off",
+        ["files.autoSave"] = "onFocusChange",
+        ["files.encoding"] = "utf8",
+        ["files.trimTrailingWhitespace"] = true,
+        ["files.insertFinalNewline"] = true,
+        ["editor.formatOnSave"] = true,
+        ["editor.tabSize"] = 4,
+        ["editor.insertSpaces"] = true,
+        ["[csharp]"] = new Dictionary<string, object?>
+        {
+            ["editor.defaultFormatter"] = "ms-dotnettools.csharp",
+            ["editor.formatOnSave"] = true,
+            ["editor.codeActionsOnSave"] = new Dictionary<string, object?>
+            {
+                ["source.organizeImports"] = "explicit",
+            },
+        },
+        ["[markdown]"] = new Dictionary<string, object?>
+        {
+            ["editor.wordWrap"] = "on",
+            ["files.trimTrailingWhitespace"] = false,
+        },
     };
 
     private readonly ILogger<CursorOptimizerService> _logger;
@@ -136,7 +157,11 @@ internal static class JsonSettingsMerger
             {
                 var existing = result[key]?.AsObject() ?? new JsonObject();
                 foreach (var (subKey, subValue) in dictValue)
-                    existing[subKey] = JsonValue.Create(subValue);
+                {
+                    existing[subKey] = subValue is IReadOnlyDictionary<string, object?> nested
+                        ? DictionaryToJsonObject(nested)
+                        : JsonValue.Create(subValue);
+                }
 
                 result[key] = existing;
             }
@@ -147,6 +172,15 @@ internal static class JsonSettingsMerger
         }
 
         return result;
+    }
+
+    private static JsonObject DictionaryToJsonObject(IReadOnlyDictionary<string, object?> dict)
+    {
+        var obj = new JsonObject();
+        foreach (var (key, value) in dict)
+            obj[key] = JsonValue.Create(value);
+
+        return obj;
     }
 
     public static IReadOnlyList<string> GetChangedKeys(JsonObject before, JsonObject after)
