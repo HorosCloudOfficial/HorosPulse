@@ -24,6 +24,8 @@ public class RollbackEngineTests
         };
 
         var snapshotManager = new Mock<ISnapshotManager>();
+        snapshotManager.Setup(s => s.CreateBaselineAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SnapshotEntry { Label = "post-rollback-test" });
         var audit = new Mock<IAuditLogger>();
         audit.Setup(a => a.LogRollbackAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

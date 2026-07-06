@@ -36,6 +36,10 @@ public class PresetOrchestratorTests
             .ReturnsAsync(OptimizationResult.Ok("prio"))
             .Callback(() => callOrder.Add("priority"));
 
+        processPriority.Setup(p => p.EnsureNodeNormalPriorityAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OptimizationResult.Ok("node"))
+            .Callback(() => callOrder.Add("node"));
+
         var indexer = new Mock<IIndexerExclusionService>();
         indexer.Setup(i => i.GetAvailableEntriesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<IndexerExcludeEntry>());
@@ -58,6 +62,11 @@ public class PresetOrchestratorTests
         var settings = new Mock<IAppSettingsService>();
         settings.SetupGet(s => s.Current).Returns(new AppSettings { DefenderOptIn = false });
 
+        var visualEffects = new Mock<IVisualEffectsService>();
+        visualEffects.Setup(v => v.ApplyPresetAsync(It.IsAny<WindowsPerformance.Core.Enums.VisualEffectsPreset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OptimizationResult.Ok("visual"))
+            .Callback(() => callOrder.Add("visual"));
+
         var orchestrator = new PresetOrchestrator(
             profileRepo.Object,
             snapshotManager.Object,
@@ -66,6 +75,7 @@ public class PresetOrchestratorTests
             indexer.Object,
             defender.Object,
             cursor.Object,
+            visualEffects.Object,
             audit.Object,
             settings.Object,
             NullLogger<PresetOrchestrator>.Instance);
@@ -73,8 +83,54 @@ public class PresetOrchestratorTests
         await orchestrator.ApplyPresetAsync(PresetIds.CursorDevMode);
 
         callOrder.First().Should().Be("snapshot");
-        callOrder.Should().Contain("power");
+        callOrder.Should().Contain("priority");
+        callOrder.Should().Contain("node");
         callOrder.IndexOf("snapshot").Should().BeLessThan(callOrder.IndexOf("power"));
         callOrder.IndexOf("power").Should().BeLessThan(callOrder.IndexOf("cursor"));
+    }
+
+    [Fact]
+    public async Task ApplyPresetAsync_UserPreset_ExecutesConfiguredSteps()
+    {
+        const string userPresetId = "user-test-preset";
+
+        var profileRepo = new Mock<IProfileRepository>();
+        profileRepo.Setup(r => r.EnsureDefaultPresetsAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        profileRepo.Setup(r => r.GetByIdAsync(userPresetId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ProfileDefinition
+            {
+                Id = userPresetId,
+                Name = "Mein Preset",
+                IsBuiltIn = false,
+                Steps = [PresetStepIds.Snapshot, PresetStepIds.PowerPlanHighPerformance],
+            });
+
+        var snapshotManager = new Mock<ISnapshotManager>();
+        snapshotManager.Setup(s => s.CreateBaselineAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SnapshotEntry { Id = Guid.NewGuid(), Label = "before_mein_preset" });
+
+        var powerPlan = new Mock<IPowerPlanService>();
+        powerPlan.Setup(p => p.EnsureHighPerformancePlanAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OptimizationResult.Ok("high"));
+
+        var orchestrator = new PresetOrchestrator(
+            profileRepo.Object,
+            snapshotManager.Object,
+            powerPlan.Object,
+            Mock.Of<IProcessPriorityService>(),
+            Mock.Of<IIndexerExclusionService>(),
+            Mock.Of<IDefenderExclusionService>(),
+            Mock.Of<ICursorOptimizer>(),
+            Mock.Of<IVisualEffectsService>(),
+            Mock.Of<IAuditLogger>(),
+            Mock.Of<IAppSettingsService>(),
+            NullLogger<PresetOrchestrator>.Instance);
+
+        var result = await orchestrator.ApplyPresetAsync(userPresetId);
+
+        result.Success.Should().BeTrue();
+        result.Steps.Should().HaveCount(2);
+        snapshotManager.Verify(s => s.CreateBaselineAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        powerPlan.Verify(p => p.EnsureHighPerformancePlanAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

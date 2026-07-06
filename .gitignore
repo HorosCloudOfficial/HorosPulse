@@ -79,3 +79,7 @@ $RECYCLE.BIN/
 
 ## App-specific
 logs/
+
+## Third-party clones
+external/henrypp/
+

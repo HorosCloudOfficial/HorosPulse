@@ -16,4 +16,7 @@ public sealed class StubPowerPlanService : IPowerPlanService
 
     public Task<OptimizationResult> EnsureHighPerformancePlanAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(OptimizationResult.Ok());
+
+    public Task<OptimizationResult> EnsureUltimatePerformancePlanAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult(OptimizationResult.Ok());
 }

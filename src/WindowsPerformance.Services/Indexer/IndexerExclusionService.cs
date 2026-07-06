@@ -4,16 +4,22 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using WindowsPerformance.Core.Interfaces;
 using WindowsPerformance.Core.Models;
+using WindowsPerformance.Core.Scripts;
 
 public sealed class IndexerExclusionService : IIndexerExclusionService
 {
     private readonly IPowerShellBridge _powerShellBridge;
+    private readonly IAppSettingsService _appSettingsService;
     private readonly ILogger<IndexerExclusionService> _logger;
     private readonly string _statePath;
 
-    public IndexerExclusionService(IPowerShellBridge powerShellBridge, ILogger<IndexerExclusionService> logger)
+    public IndexerExclusionService(
+        IPowerShellBridge powerShellBridge,
+        IAppSettingsService appSettingsService,
+        ILogger<IndexerExclusionService> logger)
     {
         _powerShellBridge = powerShellBridge;
+        _appSettingsService = appSettingsService;
         _logger = logger;
         _statePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -63,17 +69,7 @@ public sealed class IndexerExclusionService : IIndexerExclusionService
             }
 
             var normalized = NormalizePath(path);
-            var escaped = normalized.Replace("'", "''", StringComparison.Ordinal);
-            var script = $@"
-$regBase = 'HKLM:\SOFTWARE\Microsoft\Windows Search\Gather\Windows\SystemIndex\ExcludePaths'
-if (-not (Test-Path $regBase)) {{ New-Item -Path $regBase -Force | Out-Null }}
-$id = [guid]::NewGuid().ToString('B')
-$key = Join-Path $regBase $id
-New-Item -Path $key -Force | Out-Null
-Set-ItemProperty -Path $key -Name 'Path' -Value '{escaped}'
-Set-ItemProperty -Path $key -Name 'Type' -Value 0 -Type DWord
-";
-
+            var script = PowerShellScriptLibrary.BuildIndexerExclusionScript(normalized);
             var result = await _powerShellBridge.RunAsync(script, elevated: true, cancellationToken: cancellationToken);
             if (result.Success)
             {
@@ -87,6 +83,23 @@ Set-ItemProperty -Path $key -Name 'Type' -Value 0 -Type DWord
         }
 
         SaveAppliedPaths(applied);
+
+        if (_appSettingsService.Current.RestartSearchServiceAfterIndexerChange && applied.Count > 0)
+        {
+            var restart = await _powerShellBridge.RunAsync(
+                PowerShellScriptLibrary.RestartSearchService,
+                elevated: true,
+                cancellationToken: cancellationToken);
+            if (!restart.Success)
+            {
+                return OptimizationResult.Fail(
+                    $"Ausschlüsse angewendet, aber WSearch-Neustart fehlgeschlagen: {restart.StdErr}");
+            }
+
+            return OptimizationResult.Ok(
+                applied.Select(p => $"Ausgeschlossen: {p}").Append("Windows-Suchdienst neu gestartet").ToArray());
+        }
+
         return OptimizationResult.Ok(applied.Select(p => $"Ausgeschlossen: {p}").ToArray());
     }
 
@@ -96,16 +109,10 @@ Set-ItemProperty -Path $key -Name 'Type' -Value 0 -Type DWord
         if (applied.Count == 0)
             return OptimizationResult.Fail("Keine angewendeten Indexer-Ausschlüsse.");
 
-        var script = @"
-$regBase = 'HKLM:\SOFTWARE\Microsoft\Windows Search\Gather\Windows\SystemIndex\ExcludePaths'
-if (Test-Path $regBase) {
-  Get-ChildItem $regBase | ForEach-Object {
-    Remove-Item $_.PSPath -Recurse -Force -ErrorAction SilentlyContinue
-  }
-}
-";
-
-        var result = await _powerShellBridge.RunAsync(script, elevated: true, cancellationToken: cancellationToken);
+        var result = await _powerShellBridge.RunAsync(
+            PowerShellScriptLibrary.IndexerExclusionRollback,
+            elevated: true,
+            cancellationToken: cancellationToken);
         if (!result.Success)
             return OptimizationResult.Fail(result.StdErr);
 

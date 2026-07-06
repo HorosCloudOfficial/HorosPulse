@@ -108,6 +108,29 @@ public sealed partial class EnergieViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private async Task ApplyUltimatePerformanceAsync()
+    {
+        IsBusy = true;
+        StatusMessage = null;
+        try
+        {
+            var result = await _powerPlanService.EnsureUltimatePerformancePlanAsync();
+            StatusMessage = result.Success
+                ? "Ultimate-Performance-Plan aktiviert."
+                : result.ErrorMessage;
+            await LoadPlansAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private bool CanApplyPlan() => SelectedPlan is not null && !IsBusy;
 
     partial void OnSelectedPlanChanged(PowerPlanInfo? value) =>

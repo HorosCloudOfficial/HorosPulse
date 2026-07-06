@@ -26,10 +26,13 @@ public sealed class RollbackEngine : IRollbackEngine
 
     public async Task<OptimizationResult> RollbackSnapshotAsync(
         SnapshotEntry snapshot,
+        IProgress<string>? progress = null,
         CancellationToken cancellationToken = default)
     {
         if (!snapshot.CanRollback || !snapshot.IsValid)
             return OptimizationResult.Fail("Snapshot ist ungültig oder kann nicht zurückgesetzt werden.");
+
+        progress?.Report($"Rollback startet für \"{snapshot.Label}\"…");
 
         var changes = new List<string>();
         var errors = new List<string>();
@@ -40,6 +43,10 @@ public sealed class RollbackEngine : IRollbackEngine
             {
                 "Cursor",
                 "ProcessPriority",
+                "Startup",
+                "Services",
+                "VisualEffects",
+                "Network",
                 "IndexerExclusion",
                 "DefenderExclusion",
                 "PowerPlan",
@@ -47,8 +54,12 @@ public sealed class RollbackEngine : IRollbackEngine
 
             foreach (var moduleName in moduleOrder)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!_modules.TryGetValue(moduleName, out var module))
                     continue;
+
+                progress?.Report($"Modul {moduleName} wird zurückgesetzt…");
 
                 try
                 {
@@ -66,6 +77,8 @@ public sealed class RollbackEngine : IRollbackEngine
         }
         else if (_modules.TryGetValue(snapshot.Module, out var singleModule))
         {
+            progress?.Report($"Modul {snapshot.Module} wird zurückgesetzt…");
+
             try
             {
                 await singleModule.RollbackAsync(cancellationToken);
@@ -81,6 +94,25 @@ public sealed class RollbackEngine : IRollbackEngine
         else
         {
             return OptimizationResult.Fail($"Kein Modul für Snapshot '{snapshot.Module}' gefunden.");
+        }
+
+        if (errors.Count > 0 && changes.Count == 0)
+            return OptimizationResult.Fail(string.Join("; ", errors));
+
+        if (errors.Count == 0)
+        {
+            try
+            {
+                progress?.Report("Post-Rollback-Snapshot wird erstellt…");
+                cancellationToken.ThrowIfCancellationRequested();
+                await _snapshotManager.CreateBaselineAsync($"post-rollback-{snapshot.Label}", cancellationToken);
+                changes.Add("Post-Rollback-Snapshot erstellt");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Post-Rollback-Snapshot fehlgeschlagen");
+                errors.Add($"Post-Rollback-Snapshot: {ex.Message}");
+            }
         }
 
         if (errors.Count > 0 && changes.Count == 0)
@@ -119,6 +151,6 @@ public sealed class RollbackEngine : IRollbackEngine
         if (latest is null)
             return OptimizationResult.Fail("Kein Snapshot zum Zurücksetzen vorhanden.");
 
-        return await RollbackSnapshotAsync(latest, cancellationToken);
+        return await RollbackSnapshotAsync(latest, progress: null, cancellationToken);
     }
 }

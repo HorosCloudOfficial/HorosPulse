@@ -5,20 +5,24 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using WindowsPerformance.Core.Interfaces;
 using WindowsPerformance.Core.Models;
+using WindowsPerformance.Core.Scripts;
 
 public sealed class PowerShellBridge : IPowerShellBridge
 {
     private readonly IElevationService _elevationService;
+    private readonly IAuditLogger _auditLogger;
     private readonly ILogger<PowerShellBridge> _logger;
     private readonly PowerShellOptions _options;
     private readonly string? _executablePath;
 
     public PowerShellBridge(
         IElevationService elevationService,
+        IAuditLogger auditLogger,
         ILogger<PowerShellBridge> logger,
         PowerShellOptions? options = null)
     {
         _elevationService = elevationService;
+        _auditLogger = auditLogger;
         _logger = logger;
         _options = options ?? new PowerShellOptions();
         _executablePath = ResolveExecutable(_options);
@@ -36,14 +40,46 @@ public sealed class PowerShellBridge : IPowerShellBridge
     {
         ScriptSanitizer.RequireSafeScript(script);
         var effectiveTimeout = timeout ?? _options.DefaultTimeout;
+        var scriptHash = ScriptHashValidator.ComputeHash(script);
+        var stopwatch = Stopwatch.StartNew();
+        var module = elevated ? "PowerShellElevated" : "PowerShell";
 
-        if (elevated)
-            return await _elevationService.RunElevatedScriptAsync(script, effectiveTimeout, cancellationToken);
+        PowerShellResult result;
+        try
+        {
+            result = elevated
+                ? await _elevationService.RunElevatedScriptAsync(script, scriptHash, effectiveTimeout, cancellationToken)
+                : _executablePath is null
+                    ? PowerShellResult.Failed("PowerShell ist nicht verfügbar (pwsh.exe / powershell.exe fehlt).")
+                    : await RunProcessAsync(_executablePath, script, effectiveTimeout, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "PowerShell-Aufruf fehlgeschlagen");
+            result = PowerShellResult.Failed(ex.Message);
+        }
 
-        if (_executablePath is null)
-            return PowerShellResult.Failed("PowerShell ist nicht verfügbar (pwsh.exe / powershell.exe fehlt).");
+        stopwatch.Stop();
+        await LogInvocationAsync(module, scriptHash, result, stopwatch.ElapsedMilliseconds, cancellationToken);
+        return result;
+    }
 
-        return await RunProcessAsync(_executablePath, script, effectiveTimeout, cancellationToken);
+    private async Task LogInvocationAsync(
+        string module,
+        string scriptHash,
+        PowerShellResult result,
+        long durationMs,
+        CancellationToken cancellationToken)
+    {
+        var details = $"Hash={scriptHash}; ExitCode={result.ExitCode}; DurationMs={durationMs}; Success={result.Success}";
+        try
+        {
+            await _auditLogger.LogAsync("PowerShellInvoke", module, details, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Audit-Log für PowerShell-Aufruf fehlgeschlagen");
+        }
     }
 
     internal static async Task<PowerShellResult> RunProcessAsync(

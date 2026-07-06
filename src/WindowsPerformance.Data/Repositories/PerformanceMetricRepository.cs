@@ -61,6 +61,35 @@ public sealed class PerformanceMetricRepository : IPerformanceMetricRepository
         return results;
     }
 
+    public async Task<IReadOnlyList<PerformanceMetric>> GetSinceAsync(DateTimeOffset since, CancellationToken cancellationToken = default)
+    {
+        await using var connection = DatabaseBootstrap.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT timestamp, cpu_percent, ram_used_mb, ram_total_mb, disk_active_percent
+            FROM performance_metrics
+            WHERE timestamp >= $since
+            ORDER BY timestamp ASC;
+            """;
+        command.Parameters.AddWithValue("$since", since.UtcDateTime.ToString("O"));
+
+        var results = new List<PerformanceMetric>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            results.Add(new PerformanceMetric(
+                DateTimeOffset.Parse(reader.GetString(0)),
+                reader.GetDouble(1),
+                reader.GetInt64(2),
+                reader.GetInt64(3),
+                reader.GetDouble(4)));
+        }
+
+        return results;
+    }
+
     public async Task PurgeOlderThanAsync(TimeSpan maxAge, CancellationToken cancellationToken = default)
     {
         var cutoff = DateTimeOffset.UtcNow.Subtract(maxAge).UtcDateTime.ToString("O");

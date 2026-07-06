@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Henry++ Referenz-Bibliothek · WindowsPerformance</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    /* ── Reset ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokyo Night palette ─────────────────────────────── */
+    :root {
+      --bg:        #0f172a;
+      --surface:   #1e293b;
+      --surface2:  #263349;
+      --border:    #334155;
+      --fg:        #e2e8f0;
+      --fg-muted:  #94a3b8;
+      --accent:    #f59e0b;   /* amber — Tokyo Night warm accent */
+      --accent2:   #fbbf24;
+      --study:     #34d399;   /* emerald — study-only */
+      --phase2:    #60a5fa;   /* blue — Phase 2 */
+      --phase3:    #a78bfa;   /* purple — Phase 3+ */
+      --warn:      #f87171;   /* red — GPL / Warnung */
+      --sidebar-w: 260px;
+      --header-h:  56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0; left: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header .app-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg);
+      line-height: 1.3;
+    }
+
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+
+    .nav-section {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+      color: var(--fg);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    .sidebar-nav a .icon { width: 16px; text-align: center; font-size: 14px; }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--fg-muted);
+    }
+
+    /* ── Main content ────────────────────────────────────── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      max-width: 960px;
+      padding: 40px 48px 80px;
+    }
+
+    /* ── Sections ────────────────────────────────────────── */
+    section { margin-bottom: 64px; scroll-margin-top: 24px; }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+
+    h1 .tag {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 4px;
+      padding: 2px 8px;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent2);
+      margin: 20px 0 10px;
+    }
+
+    p { color: var(--fg-muted); margin-bottom: 12px; }
+    p strong { color: var(--fg); }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--fg-muted);
+      margin-bottom: 32px;
+    }
+
+    /* ── Badges ──────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-study  { background: rgba(52,211,153,0.15); color: var(--study); border: 1px solid rgba(52,211,153,0.3); }
+    .badge-phase2 { background: rgba(96,165,250,0.15); color: var(--phase2); border: 1px solid rgba(96,165,250,0.3); }
+    .badge-phase3 { background: rgba(167,139,250,0.15); color: var(--phase3); border: 1px solid rgba(167,139,250,0.3); }
+    .badge-warn   { background: rgba(248,113,113,0.15); color: var(--warn); border: 1px solid rgba(248,113,113,0.3); }
+    .badge-mit    { background: rgba(52,211,153,0.10); color: var(--study); border: 1px solid rgba(52,211,153,0.2); }
+    .badge-gpl    { background: rgba(248,113,113,0.10); color: var(--warn); border: 1px solid rgba(248,113,113,0.2); }
+
+    /* ── Repo Cards ──────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .card:hover { border-color: var(--accent); transition: border-color 0.15s; }
+
+    .card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 6px;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .card .card-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    /* ── Tables ──────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface);
+      color: var(--fg-muted);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid rgba(51,65,85,0.5);
+      color: var(--fg-muted);
+      vertical-align: top;
+    }
+
+    td strong, td code { color: var(--fg); }
+
+    tr:hover td { background: rgba(30,41,59,0.4); }
+
+    /* ── Code blocks ─────────────────────────────────────── */
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 12px 0 20px;
+      font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    }
+
+    code {
+      font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+      font-size: 12.5px;
+      background: rgba(30,41,59,0.6);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent2);
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 13px;
+      color: var(--fg);
+    }
+
+    /* ── Callout boxes ───────────────────────────────────── */
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+      margin: 16px 0;
+    }
+
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.info { border-left-color: var(--phase2); }
+    .callout.success { border-left-color: var(--study); }
+
+    .callout p { margin-bottom: 0; font-size: 13.5px; }
+    .callout strong { color: var(--fg); }
+
+    /* ── Mermaid diagrams ────────────────────────────────── */
+    .mermaid {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0 24px;
+      text-align: center;
+      overflow-x: auto;
+    }
+
+    /* ── Screenshot placeholder ──────────────────────────── */
+    .screenshot-placeholder {
+      background: var(--surface);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 40px 24px;
+      text-align: center;
+      margin: 16px 0;
+    }
+
+    .screenshot-placeholder .placeholder-icon { font-size: 32px; margin-bottom: 8px; }
+    .screenshot-placeholder p { font-size: 12px; color: var(--fg-muted); margin: 0; }
+    .screenshot-placeholder code { font-size: 11px; }
+
+    /* ── Doc links ───────────────────────────────────────── */
+    .doc-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .doc-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      text-decoration: none;
+      color: var(--fg-muted);
+      font-size: 13px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .doc-link:hover { color: var(--fg); border-color: var(--accent); }
+    .doc-link .icon { font-size: 14px; }
+
+    /* ── Info row ────────────────────────────────────────── */
+    .info-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .info-item .label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--fg-muted);
+    }
+
+    .info-item .value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--fg);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ════════════════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="app-name">WindowsPerformance</div>
+    <h2>Henry++ Referenz-Bibliothek</h2>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section">Navigation</div>
+    <a href="#uebersicht"><span class="icon">📋</span> Übersicht</a>
+    <a href="#schluessel-repos"><span class="icon">⭐</span> Schlüssel-Repos</a>
+    <a href="#repo-inventar"><span class="icon">📦</span> Alle 19 Repos</a>
+    <a href="#architektur"><span class="icon">🏗️</span> Architektur</a>
+    <a href="#api-mapping"><span class="icon">⚙️</span> API-Mapping (Phase 2)</a>
+    <a href="#nt-typen"><span class="icon">🔧</span> NT-Typen</a>
+    <a href="#lizenz"><span class="icon">⚖️</span> Lizenzen</a>
+    <a href="#docs"><span class="icon">📚</span> Dokumentation</a>
+
+    <div class="nav-section">Markdown-Suite</div>
+    <a href="README.md"><span class="icon">🏠</span> README.md (Hub)</a>
+    <a href="01-uebersicht.md"><span class="icon">📋</span> 01 · Übersicht</a>
+    <a href="02-benutzer-anleitung.md"><span class="icon">📖</span> 02 · Anleitung</a>
+    <a href="03-einstellungen.md"><span class="icon">⚙️</span> 03 · Inventar</a>
+    <a href="04-architektur.md"><span class="icon">🏗️</span> 04 · Architektur</a>
+    <a href="05-api-datenmodell.md"><span class="icon">🔌</span> 05 · API &amp; Typen</a>
+    <a href="06-faq-troubleshooting.md"><span class="icon">❓</span> 06 · FAQ</a>
+    <a href="07-changelog-feature.md"><span class="icon">📝</span> 07 · Changelog</a>
+
+    <div class="nav-section">Verwandt</div>
+    <a href="../planning-todo-scan-externe-repos/README.md"><span class="icon">🔗</span> NuGet-Scan</a>
+    <a href="../../TODO.md"><span class="icon">✅</span> Master-TODO</a>
+  </div>
+
+  <div class="sidebar-footer">
+    Stand: 2026-07-06 · /doc-epic
+  </div>
+</nav>
+
+<!-- ══ MAIN ═══════════════════════════════════════════════ -->
+<main id="main">
+
+  <!-- Hero -->
+  <section id="uebersicht">
+    <h1>Henry++ Referenz-Bibliothek <span class="tag">Entwickler-Referenz</span></h1>
+    <p class="subtitle">
+      19 lokale Shallow Clones von <a href="https://github.com/henrypp" style="color:var(--accent)">github.com/henrypp</a> —
+      Windows-Systemprogramme in purem C als Code-Referenz für undokumentierte NT-APIs.
+      Grundlage für Phase-2-Module in WindowsPerformance.
+    </p>
+
+    <div class="info-row">
+      <div class="info-item">
+        <span class="label">Repos</span>
+        <span class="value">19</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Dateien</span>
+        <span class="value">~2 734</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Klon-Typ</span>
+        <span class="value">Shallow (–depth=1)</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Integration</span>
+        <span class="value">Keine (gitignored)</span>
+      </div>
+      <div class="info-item">
+        <span class="label">.NET-Anbindung</span>
+        <span class="value">Vanara.PInvoke.NtDll</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Kernprinzip:</strong> Henry++-Repos sind <em>Lese-Referenz</em>, kein vendored Code.
+      WindowsPerformance übernimmt die Algorithmen als .NET-Implementierung via
+      <code>Vanara.PInvoke.NtDll</code> und <code>ElevationHelper.exe</code> — kein MSVC, keine native DLL.</p>
+    </div>
+
+    <h2>Abgrenzung</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Ebene</th><th>Henry++-Repos</th><th>WindowsPerformance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sprache</td><td>C (Win32 / NT Native)</td><td>C# / .NET 9 / WPF</td></tr>
+          <tr><td>API-Zugriff</td><td>Direkt via <code>ntdll.dll</code></td><td>P/Invoke via <code>Vanara.PInvoke.NtDll</code></td></tr>
+          <tr><td>Elevation</td><td><code>requireAdministrator</code> Manifest</td><td>Nur <code>ElevationHelper.exe</code> hat Admin-Manifest</td></tr>
+          <tr><td>Build</td><td>MSVC + NSIS + Python</td><td><code>dotnet build</code> / MSBuild</td></tr>
+          <tr><td>In Solution?</td><td><strong>Nein</strong> — gitignored</td><td>7 .NET-Projekte in <code>WindowsPerformance.sln</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Schlüssel-Repos -->
+  <section id="schluessel-repos">
+    <h2>Vier Schlüssel-Repos</h2>
+    <p>Diese vier Repos haben direkten Bezug zu Phase-2-Modulen in WindowsPerformance:</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>memreduct</h4>
+        <p>Leichtgewichtiger Speichermanager. Nutzt <code>NtSetSystemInformation</code> für Working-Set- und Standby-Listen-Flush. Direkte Referenz für TODO §5.4.</p>
+        <div class="card-meta">
+          <span class="badge badge-phase2">§5.4 Memory</span>
+          <span class="badge badge-mit">MIT</span>
+          <span class="badge badge-study">Schlüssel</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>routine</h4>
+        <p>Gemeinsames C-SDK für alle Henry++-Projekte. <code>ntapi.h</code> enthält alle undokumentierten NT-Typdefinitionen (~10 000 Zeilen). Primäre Typ-Referenz.</p>
+        <div class="card-meta">
+          <span class="badge badge-study">Gemeinsames SDK</span>
+          <span class="badge badge-mit">MIT</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>simplewall</h4>
+        <p>WFP-basierter Netzwerkfilter. Referenz für Windows Filtering Platform API. Relevant für §5.5 Network Optimizer (Phase 3+).</p>
+        <div class="card-meta">
+          <span class="badge badge-phase3">§5.5 WFP</span>
+          <span class="badge badge-gpl">GPL-3.0</span>
+          <span class="badge badge-warn">Kein Code kopieren</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>processhacker</h4>
+        <p>System Informer — detaillierte Prozess-Infos via NT-API. Referenz für §5.8 Process Inspector: Handle-Count, Working Set, Thread-Count.</p>
+        <div class="card-meta">
+          <span class="badge badge-phase2">§5.8 Prozesse</span>
+          <span class="badge badge-mit">MIT</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alle 19 Repos -->
+  <section id="repo-inventar">
+    <h2>Vollständiges Repo-Inventar (19 Repos)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Repo</th>
+            <th>Pfad</th>
+            <th>Lizenz</th>
+            <th>Relevanz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><code>autoruns2</code></td><td><code>external/henrypp/autoruns2/</code></td><td><span class="badge badge-mit">MIT</span></td><td>§5.2 Startup-Manager</td></tr>
+          <tr><td>2</td><td><code>builder</code></td><td><code>external/henrypp/builder/</code></td><td><span class="badge badge-mit">MIT</span></td><td>Python Build-Skripte</td></tr>
+          <tr><td>3</td><td><code>chrlauncher</code></td><td><code>external/henrypp/chrlauncher/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>4</td><td><code>dbgvision</code></td><td><code>external/henrypp/dbgvision/</code></td><td><span class="badge badge-mit">MIT</span></td><td>Debug-Hilfe</td></tr>
+          <tr><td>5</td><td><code>drivedotshield</code></td><td><code>external/henrypp/drivedotshield/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>6</td><td><code>errorlookup</code></td><td><code>external/henrypp/errorlookup/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>7</td><td><code>freeshooter</code></td><td><code>external/henrypp/freeshooter/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>8</td><td><code>henrypp</code></td><td><code>external/henrypp/henrypp/</code></td><td>—</td><td>Profil-Repo (kein Code)</td></tr>
+          <tr><td>9</td><td><code>henrypp.org</code></td><td><code>external/henrypp/henrypp.org/</code></td><td>—</td><td>Website</td></tr>
+          <tr><td>10</td><td><code>hostsmgr</code></td><td><code>external/henrypp/hostsmgr/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>11</td><td><code>inetops</code></td><td><code>external/henrypp/inetops/</code></td><td><span class="badge badge-mit">MIT</span></td><td>§5.5 peripher</td></tr>
+          <tr><td>12</td><td><code>iplookup</code></td><td><code>external/henrypp/iplookup/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>13</td><td><code>matrix</code></td><td><code>external/henrypp/matrix/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>14</td><td><strong><code>memreduct</code></strong></td><td><code>external/henrypp/memreduct/</code></td><td><span class="badge badge-mit">MIT</span></td><td><span class="badge badge-phase2">§5.4 Memory</span></td></tr>
+          <tr><td>15</td><td><strong><code>processhacker</code></strong></td><td><code>external/henrypp/processhacker/</code></td><td><span class="badge badge-mit">MIT</span></td><td><span class="badge badge-phase2">§5.8 Prozesse</span></td></tr>
+          <tr><td>16</td><td><strong><code>routine</code></strong></td><td><code>external/henrypp/routine/</code></td><td><span class="badge badge-mit">MIT</span></td><td><span class="badge badge-study">Gemeinsames SDK</span></td></tr>
+          <tr><td>17</td><td><strong><code>simplewall</code></strong></td><td><code>external/henrypp/simplewall/</code></td><td><span class="badge badge-gpl">GPL-3.0</span></td><td><span class="badge badge-phase3">§5.5 WFP</span></td></tr>
+          <tr><td>18</td><td><code>timevertor</code></td><td><code>external/henrypp/timevertor/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+          <tr><td>19</td><td><code>uninstmgr</code></td><td><code>external/henrypp/uninstmgr/</code></td><td><span class="badge badge-mit">MIT</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Architektur -->
+  <section id="architektur">
+    <h2>Architektur</h2>
+
+    <h3>Repo-Beziehungsdiagramm</h3>
+    <div class="mermaid">
+graph TD
+    subgraph henrypp["external/henrypp/ (gitignored)"]
+        ROUTINE["routine\nC SDK · ntapi.h"]
+        MEMREDUCT["memreduct\nMemory Optimizer"]
+        SIMPLEWALL["simplewall\nWFP Firewall"]
+        PH["processhacker\nSystem Informer"]
+        BUILDER["builder\nPython Build Scripts"]
+
+        ROUTINE --"submodule"--> MEMREDUCT
+        ROUTINE --"submodule"--> SIMPLEWALL
+    end
+
+    subgraph wp["WindowsPerformance (.NET 9)"]
+        VANARA["Vanara.PInvoke.NtDll\n(NuGet)"]
+        MEMOPT["IMemoryOptimizerService\n(TODO §5.4)"]
+        NETOPT["INetworkOptimizerService\n(TODO §5.5)"]
+        PROCINSP["IProcessInspectorService\n(TODO §5.8)"]
+    end
+
+    MEMREDUCT -."Referenz NtSetSystemInformation".-> MEMOPT
+    SIMPLEWALL -."Referenz WFP-Filter-API".-> NETOPT
+    PH -."Referenz NtQuerySystemInformation".-> PROCINSP
+
+    MEMOPT --> VANARA
+    NETOPT --> VANARA
+    PROCINSP --> VANARA
+    </div>
+
+    <h3>Memory-Flush-Aufrufkette (TODO §5.4)</h3>
+    <div class="mermaid">
+sequenceDiagram
+    participant User as Benutzer
+    participant VM as MemoryViewModel
+    participant Svc as MemoryOptimizerService
+    participant Elev as ElevationHelper.exe
+    participant Vanara as Vanara.PInvoke.NtDll
+    participant NT as ntdll.dll
+
+    User->>VM: Klick "Speicher leeren"
+    VM->>Svc: FlushMemoryAsync()
+    Svc->>Elev: Named Pipe IPC
+    Elev->>Vanara: NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)
+    Vanara->>NT: syscall
+    NT-->>Vanara: NTSTATUS
+    Vanara-->>Elev: NTStatus
+    Elev-->>Svc: JSON {exitCode, ramFreedMB}
+    Svc-->>VM: OptimizationResult
+    VM-->>User: RAM vorher/nachher
+    </div>
+
+    <div class="screenshot-placeholder">
+      <div class="placeholder-icon">🖼️</div>
+      <p>Screenshot: MemoryView — RAM-Karte mit Flush-Button und vorher/nachher-Anzeige</p>
+      <p><code>docs/screenshots/features/external-henrypp/01-memory-view-flush.png</code></p>
+    </div>
+  </section>
+
+  <!-- API-Mapping -->
+  <section id="api-mapping">
+    <h2>API-Mapping — Phase 2</h2>
+    <p>Abbildung der geplanten WindowsPerformance-Module auf NT-API-Aufrufe aus Henry++-Repos:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>TODO-Item</th>
+            <th>Phase</th>
+            <th>NT-API / Registry</th>
+            <th>Henry++ Quelldatei</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>§5.4</strong> Standby-Liste leeren</td>
+            <td><span class="badge badge-phase2">Phase 2</span></td>
+            <td><code>NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)</code></td>
+            <td><code>memreduct/src/main.c:419</code></td>
+          </tr>
+          <tr>
+            <td><strong>§5.4</strong> Working Sets leeren</td>
+            <td><span class="badge badge-phase2">Phase 2</span></td>
+            <td><code>NtSetSystemInformation(SystemMemoryListInformation, MemoryEmptyWorkingSets)</code></td>
+            <td><code>memreduct/src/main.c:383</code></td>
+          </tr>
+          <tr>
+            <td><strong>§5.4</strong> File Cache leeren</td>
+            <td><span class="badge badge-phase2">Phase 2</span></td>
+            <td><code>NtSetSystemInformation(SystemFileCacheInformationEx, sfci)</code></td>
+            <td><code>memreduct/src/main.c:395</code></td>
+          </tr>
+          <tr>
+            <td><strong>§5.4</strong> Modified Page List</td>
+            <td><span class="badge badge-phase2">Phase 2</span></td>
+            <td><code>NtSetSystemInformation(SystemMemoryListInformation, MemoryFlushModifiedList)</code></td>
+            <td><code>memreduct/src/main.c:410</code></td>
+          </tr>
+          <tr>
+            <td><strong>§5.5</strong> Network WFP</td>
+            <td><span class="badge badge-phase3">Phase 3+</span></td>
+            <td><code>FwpmFilterAdd0</code>, <code>FwpmEngineOpen0</code></td>
+            <td><code>simplewall/src/</code></td>
+          </tr>
+          <tr>
+            <td><strong>§5.5</strong> TCP NoDelay</td>
+            <td><span class="badge badge-phase2">Phase 2</span></td>
+            <td>Registry <code>HKLM\...\Tcpip\Parameters</code></td>
+            <td>Direkte Registry-Änderung</td>
+          </tr>
+          <tr>
+            <td><strong>§5.8</strong> Process Inspector</td>
+            <td><span class="badge badge-phase2">Phase 2</span></td>
+            <td><code>NtQuerySystemInformation(SystemProcessInformation)</code></td>
+            <td><code>processhacker/</code></td>
+          </tr>
+          <tr>
+            <td><strong>§5.2</strong> Startup-Manager</td>
+            <td><span class="badge badge-phase2">Phase 2</span></td>
+            <td>Registry <code>HKCU\...\Run</code>, <code>HKLM\...\Run</code></td>
+            <td><code>autoruns2/src/</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NT-Typen -->
+  <section id="nt-typen">
+    <h2>Zentrale NT-Typen</h2>
+    <p>Alle Typen stammen aus <code>external/henrypp/routine/src/ntapi.h</code>:</p>
+
+    <h3>SYSTEM_MEMORY_LIST_COMMAND (Zeilen 1027–1036)</h3>
+    <pre><code>typedef enum _SYSTEM_MEMORY_LIST_COMMAND
+{
+    MemoryCaptureAccessedBits,          // 0
+    MemoryCaptureAndResetAccessedBits,  // 1
+    MemoryEmptyWorkingSets,             // 2 — Working Sets leeren
+    MemoryFlushModifiedList,            // 3 — Modified Page List leeren
+    MemoryPurgeStandbyList,             // 4 — Standby-Liste leeren
+    MemoryPurgeLowPriorityStandbyList,  // 5 — Standby Priority-0 leeren
+    MemoryCommandMax
+} SYSTEM_MEMORY_LIST_COMMAND;</code></pre>
+
+    <h3>NtSetSystemInformation — Signatur (Zeile 5687)</h3>
+    <pre><code>NTSTATUS NTAPI NtSetSystemInformation(
+    _In_ SYSTEM_INFORMATION_CLASS SystemInformationClass,
+    _In_ PVOID SystemInformation,
+    _In_ ULONG SystemInformationLength
+);</code></pre>
+
+    <h3>Benötigte Privileges</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Privilege</th><th>Benötigt für</th><th>Wie erhalten</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SeProfileSingleProcessPrivilege</code></td>
+            <td>Memory-Flush via <code>SystemMemoryListInformation</code></td>
+            <td><code>ElevationHelper.exe</code> (UAC on-demand)</td>
+          </tr>
+          <tr>
+            <td><code>SeIncreaseQuotaPrivilege</code></td>
+            <td><code>SystemFileCacheInformationEx</code></td>
+            <td><code>ElevationHelper.exe</code></td>
+          </tr>
+          <tr>
+            <td>Administrator-Rechte</td>
+            <td>Registry HKLM-Schreibzugriff</td>
+            <td><code>ElevationHelper.exe</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Wichtig:</strong> Alle Aufrufe die erhöhte Rechte erfordern werden ausschließlich über <code>ElevationHelper.exe</code> (separates Prozess mit <code>requireAdministrator</code>) ausgeführt. <code>WindowsPerformance.App.exe</code> läuft niemals als Administrator.</p>
+    </div>
+  </section>
+
+  <!-- Lizenzen -->
+  <section id="lizenz">
+    <h2>Lizenzen</h2>
+    <div class="callout warn">
+      <p><strong>simplewall ist GPL-3.0</strong> — kein Code aus diesem Repo in WindowsPerformance übernehmen. Alle anderen Schlüssel-Repos sind MIT-lizenziert.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Repo</th><th>Lizenz</th><th>Code kopierbar?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>memreduct</code></td>
+            <td><span class="badge badge-mit">MIT</span></td>
+            <td>Ja, mit Namensnennung</td>
+          </tr>
+          <tr>
+            <td><code>routine</code></td>
+            <td><span class="badge badge-mit">MIT</span></td>
+            <td>Ja, mit Namensnennung</td>
+          </tr>
+          <tr>
+            <td><code>simplewall</code></td>
+            <td><span class="badge badge-gpl">GPL-3.0</span></td>
+            <td><strong>Nein</strong> — GPL würde Gesamtprojekt infizieren</td>
+          </tr>
+          <tr>
+            <td><code>processhacker</code></td>
+            <td><span class="badge badge-mit">MIT</span></td>
+            <td>Ja, mit Namensnennung</td>
+          </tr>
+          <tr>
+            <td><code>autoruns2</code></td>
+            <td><span class="badge badge-mit">MIT</span></td>
+            <td>Ja, mit Namensnennung</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Empfehlung:</strong> Keinen Code direkt kopieren. Algorithmen als Inspiration nutzen, .NET-Implementierung von Grund auf schreiben.</p>
+  </section>
+
+  <!-- Dokumentation -->
+  <section id="docs">
+    <h2>Dokumentations-Suite</h2>
+    <div class="doc-links">
+      <a class="doc-link" href="README.md"><span class="icon">🏠</span> README.md — Hub</a>
+      <a class="doc-link" href="01-uebersicht.md"><span class="icon">📋</span> 01 · Übersicht &amp; Abgrenzung</a>
+      <a class="doc-link" href="02-benutzer-anleitung.md"><span class="icon">📖</span> 02 · Klonen &amp; Navigieren</a>
+      <a class="doc-link" href="03-einstellungen.md"><span class="icon">⚙️</span> 03 · Repo-Inventar</a>
+      <a class="doc-link" href="04-architektur.md"><span class="icon">🏗️</span> 04 · Architektur</a>
+      <a class="doc-link" href="05-api-datenmodell.md"><span class="icon">🔌</span> 05 · NT-APIs &amp; Typen</a>
+      <a class="doc-link" href="06-faq-troubleshooting.md"><span class="icon">❓</span> 06 · FAQ</a>
+      <a class="doc-link" href="07-changelog-feature.md"><span class="icon">📝</span> 07 · Changelog</a>
+    </div>
+
+    <h3>Verwandte Dokumentation</h3>
+    <div class="doc-links">
+      <a class="doc-link" href="../planning-todo-scan-externe-repos/README.md"><span class="icon">📦</span> NuGet-Scan (Vanara-Empfehlung)</a>
+      <a class="doc-link" href="../../TODO.md"><span class="icon">✅</span> Master-TODO (Phase 2)</a>
+      <a class="doc-link" href="../../README.md"><span class="icon">🏠</span> Projekt-README</a>
+    </div>
+
+    <div class="screenshot-placeholder">
+      <div class="placeholder-icon">🖼️</div>
+      <p>Screenshot: external/henrypp/ Verzeichnisstruktur in VS Code Explorer</p>
+      <p><code>docs/screenshots/features/external-henrypp/02-directory-structure.png</code></p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background: '#1e293b',
+      primaryColor: '#334155',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#475569',
+      lineColor: '#64748b',
+      secondaryColor: '#263349',
+      tertiaryColor: '#0f172a',
+      edgeLabelBackground: '#1e293b',
+      fontFamily: "'Segoe UI', system-ui, sans-serif"
+    }
+  });
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.sidebar-nav a[href^="#"]');
+
+  function updateActiveLink() {
+    let current = '';
+    sections.forEach(s => {
+      const top = s.getBoundingClientRect().top;
+      if (top <= 80) current = s.id;
+    });
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveLink, { passive: true });
+  updateActiveLink();
+</script>
+
+</body>
+</html>

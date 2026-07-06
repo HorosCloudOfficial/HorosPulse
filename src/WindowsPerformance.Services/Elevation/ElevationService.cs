@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using WindowsPerformance.Core.Interfaces;
 using WindowsPerformance.Core.Models;
+using WindowsPerformance.Core.Scripts;
 
 public sealed class ElevationService : IElevationService
 {
@@ -26,9 +27,13 @@ public sealed class ElevationService : IElevationService
 
     public async Task<PowerShellResult> RunElevatedScriptAsync(
         string script,
+        string scriptHash,
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default)
     {
+        if (!ScriptHashValidator.IsAllowed(script, scriptHash))
+            return PowerShellResult.Failed("Skript-Hash ist nicht auf der Whitelist.");
+
         var helperPath = ElevationHelperPathResolver.GetExpectedPath();
         if (!File.Exists(helperPath))
             return PowerShellResult.Failed($"ElevationHelper nicht gefunden: {helperPath}");
@@ -39,6 +44,7 @@ public sealed class ElevationService : IElevationService
         var request = new ElevationRequest
         {
             Script = Convert.ToBase64String(Encoding.UTF8.GetBytes(script)),
+            ScriptHash = scriptHash,
             TimeoutMs = (int)effectiveTimeout.TotalMilliseconds,
         };
 
@@ -67,12 +73,60 @@ public sealed class ElevationService : IElevationService
             if (response is null)
                 return PowerShellResult.Failed("Ungültige JSON-Antwort vom ElevationHelper.");
 
-            return new PowerShellResult(response.ExitCode, response.Stdout ?? string.Empty, response.Stderr ?? string.Empty, response.Success);
+            return new PowerShellResult(
+                response.ExitCode,
+                response.Stdout ?? string.Empty,
+                response.Stderr ?? string.Empty,
+                response.Success);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "ElevationHelper-Aufruf fehlgeschlagen");
             return PowerShellResult.Failed(ex.Message);
+        }
+    }
+
+    public async Task<OptimizationResult> PurgeStandbyListAsync(CancellationToken cancellationToken = default)
+    {
+        var helperPath = ElevationHelperPathResolver.GetExpectedPath();
+        if (!File.Exists(helperPath))
+            return OptimizationResult.Fail($"ElevationHelper nicht gefunden: {helperPath}");
+
+        try
+        {
+            await EnsureHelperServerRunningAsync(helperPath, cancellationToken);
+
+            using var client = new NamedPipeClientStream(
+                ".",
+                PipeName,
+                PipeDirection.InOut,
+                PipeOptions.Asynchronous);
+
+            await client.ConnectAsync(5000, cancellationToken);
+
+            await using var stream = client;
+            await using var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: true) { AutoFlush = true };
+            using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
+
+            var request = new ElevationRequest { Operation = "purge-standby" };
+            await writer.WriteLineAsync(JsonSerializer.Serialize(request, JsonOptions).AsMemory(), cancellationToken);
+
+            var responseLine = await reader.ReadLineAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(responseLine))
+                return OptimizationResult.Fail("Leere Antwort vom ElevationHelper.");
+
+            var response = JsonSerializer.Deserialize<ElevationResponse>(responseLine, JsonOptions);
+            if (response is null)
+                return OptimizationResult.Fail("Ungültige JSON-Antwort vom ElevationHelper.");
+
+            return response.Success
+                ? OptimizationResult.Ok(response.Stdout ?? "Standby-Liste geleert")
+                : OptimizationResult.Fail(response.Stderr ?? "Standby-Purge fehlgeschlagen");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Standby-Purge fehlgeschlagen");
+            return OptimizationResult.Fail(ex.Message);
         }
     }
 
@@ -124,7 +178,9 @@ public sealed class ElevationService : IElevationService
 
     private sealed class ElevationRequest
     {
+        public string Operation { get; init; } = "script";
         public string Script { get; init; } = string.Empty;
+        public string ScriptHash { get; init; } = string.Empty;
         public int TimeoutMs { get; init; } = 30000;
     }
 

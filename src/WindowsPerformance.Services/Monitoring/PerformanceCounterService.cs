@@ -93,6 +93,8 @@ public sealed class PerformanceCounterService : IMetricsCollector
         _pollingTimer = null;
     }
 
+    public IObservable<PerformanceMetric> ObserveMetrics() => new MetricsObservableAdapter(this);
+
     public void Dispose()
     {
         if (_disposed)

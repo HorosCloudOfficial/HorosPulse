@@ -73,4 +73,68 @@ public sealed class AuditRepository : IAuditRepository
 
         return results;
     }
+
+    public async Task<IReadOnlyList<AuditEntry>> GetSinceAsync(DateTimeOffset since, CancellationToken cancellationToken = default)
+    {
+        await using var connection = DatabaseBootstrap.CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT id, timestamp, operation, module, actor, details
+            FROM audit_entries
+            WHERE timestamp >= $since
+            ORDER BY timestamp ASC;
+            """;
+        command.Parameters.AddWithValue("$since", since.UtcDateTime.ToString("O"));
+
+        var results = new List<AuditEntry>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            results.Add(new AuditEntry
+            {
+                Id = reader.GetInt64(0),
+                Timestamp = DateTimeOffset.Parse(reader.GetString(1)),
+                Operation = reader.GetString(2),
+                Module = reader.GetString(3),
+                Actor = reader.GetString(4),
+                Details = reader.IsDBNull(5) ? null : reader.GetString(5),
+            });
+        }
+
+        return results;
+    }
+
+    public async Task<string> ExportToCsvAsync(CancellationToken cancellationToken = default)
+    {
+        var entries = await GetRecentAsync(int.MaxValue, cancellationToken);
+        var builder = new System.Text.StringBuilder();
+        builder.AppendLine("Id,Timestamp,Operation,Module,Actor,Details");
+
+        foreach (var entry in entries.OrderBy(e => e.Timestamp))
+        {
+            builder.Append(entry.Id).Append(',');
+            builder.Append(CsvEscape(entry.Timestamp.UtcDateTime.ToString("O"))).Append(',');
+            builder.Append(CsvEscape(entry.Operation)).Append(',');
+            builder.Append(CsvEscape(entry.Module)).Append(',');
+            builder.Append(CsvEscape(entry.Actor)).Append(',');
+            builder.AppendLine(CsvEscape(entry.Details ?? string.Empty));
+        }
+
+        return builder.ToString();
+    }
+
+    private static string CsvEscape(string value)
+    {
+        if (value.Contains('"', StringComparison.Ordinal) ||
+            value.Contains(',', StringComparison.Ordinal) ||
+            value.Contains('\n', StringComparison.Ordinal) ||
+            value.Contains('\r', StringComparison.Ordinal))
+        {
+            return $"\"{value.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
+        }
+
+        return value;
+    }
 }

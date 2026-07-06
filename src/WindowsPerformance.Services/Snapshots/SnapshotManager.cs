@@ -5,6 +5,10 @@ using Microsoft.Extensions.Logging;
 using WindowsPerformance.Core.Interfaces;
 using WindowsPerformance.Core.Models;
 using WindowsPerformance.Data;
+using WindowsPerformance.Services.Startup;
+using WindowsPerformance.Services.VisualEffects;
+using WindowsPerformance.Services.Network;
+using WindowsPerformance.Services.WindowsServices;
 
 public sealed class SnapshotManager : ISnapshotManager
 {
@@ -13,6 +17,10 @@ public sealed class SnapshotManager : ISnapshotManager
     private readonly ICursorOptimizer _cursorOptimizer;
     private readonly IDefenderExclusionService _defenderExclusionService;
     private readonly IIndexerExclusionService _indexerExclusionService;
+    private readonly IWindowsServiceManager _windowsServiceManager;
+    private readonly IStartupManagerService _startupManagerService;
+    private readonly IVisualEffectsService _visualEffectsService;
+    private readonly INetworkOptimizerService _networkOptimizerService;
     private readonly IAppSettingsService _appSettingsService;
     private readonly ILogger<SnapshotManager> _logger;
 
@@ -22,6 +30,10 @@ public sealed class SnapshotManager : ISnapshotManager
         ICursorOptimizer cursorOptimizer,
         IDefenderExclusionService defenderExclusionService,
         IIndexerExclusionService indexerExclusionService,
+        IWindowsServiceManager windowsServiceManager,
+        IStartupManagerService startupManagerService,
+        IVisualEffectsService visualEffectsService,
+        INetworkOptimizerService networkOptimizerService,
         IAppSettingsService appSettingsService,
         ILogger<SnapshotManager> logger)
     {
@@ -30,6 +42,10 @@ public sealed class SnapshotManager : ISnapshotManager
         _cursorOptimizer = cursorOptimizer;
         _defenderExclusionService = defenderExclusionService;
         _indexerExclusionService = indexerExclusionService;
+        _windowsServiceManager = windowsServiceManager;
+        _startupManagerService = startupManagerService;
+        _visualEffectsService = visualEffectsService;
+        _networkOptimizerService = networkOptimizerService;
         _appSettingsService = appSettingsService;
         _logger = logger;
     }
@@ -93,6 +109,11 @@ public sealed class SnapshotManager : ISnapshotManager
         var defenderState = await _defenderExclusionService.GetExclusionSetAsync(cancellationToken);
         var indexerState = await _indexerExclusionService.GetAvailableEntriesAsync(cancellationToken);
         var processPriorityJson = ReadProcessPriorityState();
+        var services = await _windowsServiceManager.GetServicesAsync(cancellationToken);
+        var serviceSnapshot = services.ToDictionary(s => s.Name, s => s.StartupType);
+        var startupEntries = await _startupManagerService.GetEntriesAsync(cancellationToken);
+        var visualState = await _visualEffectsService.GetCurrentStateAsync(cancellationToken);
+        var networkState = await _networkOptimizerService.GetCurrentSettingsAsync(cancellationToken);
 
         return new BaselineState
         {
@@ -103,6 +124,10 @@ public sealed class SnapshotManager : ISnapshotManager
             DefenderState = defenderState,
             IndexerState = indexerState.ToList(),
             ProcessPriorityStateJson = processPriorityJson,
+            ServiceStartupTypesJson = JsonSerializer.Serialize(serviceSnapshot),
+            StartupEntriesJson = JsonSerializer.Serialize(startupEntries),
+            VisualEffectsStateJson = JsonSerializer.Serialize(visualState),
+            NetworkSettingsStateJson = JsonSerializer.Serialize(networkState),
         };
     }
 

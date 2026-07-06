@@ -5,11 +5,17 @@ using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Serilog;
+using Serilog.Core;
+using Velopack;
+using WindowsPerformance.App.Services;
+using WindowsPerformance.Core.Models;
 using WindowsPerformance.Data;
 using WindowsPerformance.Services;
+using WindowsPerformance.Services.PowerShell;
+using WindowsPerformance.Services.Settings;
 using WindowsPerformance.Core.Interfaces;
-
 using WindowsPerformance.ViewModels;
 
 namespace WindowsPerformance.App;
@@ -17,10 +23,15 @@ namespace WindowsPerformance.App;
 public partial class App : Application
 {
     private IHost? _host;
+    private static readonly LoggingLevelSwitch LogLevelSwitch = new(Serilog.Events.LogEventLevel.Debug);
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        VelopackApp.Build()
+            .OnFirstRun(_ => { })
+            .Run();
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -33,14 +44,62 @@ public partial class App : Application
 
         CheckPowerShellAvailability(_host.Services.GetRequiredService<ILogger<App>>());
 
+        var settingsService = _host.Services.GetRequiredService<IAppSettingsService>();
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+        RestoreWindowGeometry(mainWindow, settingsService.Current);
         mainWindow.Show();
+
+        var cursorWatch = _host.Services.GetRequiredService<ICursorProcessWatchService>();
+        cursorWatch.Start();
+    }
+
+    private static void RestoreWindowGeometry(Window window, AppSettings settings)
+    {
+        window.Width = settings.WindowWidth > 0 ? settings.WindowWidth : 1100;
+        window.Height = settings.WindowHeight > 0 ? settings.WindowHeight : 720;
+
+        if (!double.IsNaN(settings.WindowLeft) && !double.IsNaN(settings.WindowTop))
+        {
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            window.Left = settings.WindowLeft;
+            window.Top = settings.WindowTop;
+        }
+
+        if (Enum.TryParse<WindowState>(settings.WindowState, ignoreCase: true, out var state) &&
+            state != WindowState.Minimized)
+        {
+            window.WindowState = state;
+        }
+    }
+
+    private static async Task SaveWindowGeometryAsync(MainWindow window, IAppSettingsService settingsService)
+    {
+        var settings = settingsService.Current;
+        if (window.WindowState == WindowState.Normal)
+        {
+            settings.WindowWidth = window.Width;
+            settings.WindowHeight = window.Height;
+            settings.WindowLeft = window.Left;
+            settings.WindowTop = window.Top;
+        }
+
+        settings.WindowState = window.WindowState.ToString();
+        await settingsService.SaveAsync();
     }
 
     protected override async void OnExit(ExitEventArgs e)
     {
         if (_host is not null)
         {
+            var mainWindow = Current.MainWindow as MainWindow;
+            if (mainWindow is not null)
+            {
+                await SaveWindowGeometryAsync(
+                    mainWindow,
+                    _host.Services.GetRequiredService<IAppSettingsService>());
+            }
+
+            _host.Services.GetRequiredService<ICursorProcessWatchService>().Stop();
             await _host.StopAsync();
             _host.Dispose();
         }
@@ -52,17 +111,24 @@ public partial class App : Application
     private static IHostBuilder CreateHostBuilder() =>
         Host.CreateDefaultBuilder()
             .UseSerilog((context, _, config) => config
-                .MinimumLevel.Debug()
+                .MinimumLevel.ControlledBy(LogLevelSwitch)
                 .WriteTo.Debug()
                 .WriteTo.File(
                     Path.Combine(AppContext.BaseDirectory, "logs", "app-.log"),
                     rollingInterval: RollingInterval.Day))
-            .ConfigureServices((_, services) =>
+            .ConfigureServices((context, services) =>
             {
+                services.AddSingleton(LogLevelSwitch);
+                services.Configure<AppSettings>(context.Configuration.GetSection("AppSettings"));
                 services.AddWindowsPerformanceData();
                 services.AddWindowsPerformanceServices();
                 services.AddWindowsPerformanceViewModels();
-                services.AddSingleton<WindowsPerformance.Core.Interfaces.IUserConfirmationService, Services.UserConfirmationService>();
+                services.AddSingleton<IThemeService, ThemeService>();
+                services.AddSingleton<ILoggingLevelService, LoggingLevelService>();
+                services.AddSingleton<ISettingsApplyService, SettingsApplyService>();
+                services.AddSingleton<INavigationService, Services.NavigationService>();
+                services.AddSingleton<IUserConfirmationService, Services.UserConfirmationService>();
+                services.AddSingleton<IFilePickerService, FilePickerService>();
                 services.AddSingleton<MainWindow>();
             });
 
@@ -70,6 +136,12 @@ public partial class App : Application
     {
         var settings = services.GetRequiredService<IAppSettingsService>();
         await settings.LoadAsync();
+
+        AppSettingsApplicator.Apply(
+            settings.Current,
+            services.GetRequiredService<PowerShellOptions>(),
+            services.GetRequiredService<ILoggingLevelService>(),
+            services.GetRequiredService<IThemeService>());
 
         var snapshotRepository = services.GetRequiredService<ISnapshotRepository>();
         await snapshotRepository.InitializeAsync();

@@ -9,6 +9,7 @@ using WindowsPerformance.Core.Models;
 public sealed partial class PowerPlanService : IPowerPlanService
 {
     private static readonly Guid HighPerformanceGuid = Guid.Parse("8c5e7fda-e8bf-4a96-9a85-a6e23a67c135");
+    private static readonly Guid UltimatePerformanceGuid = Guid.Parse("e9a42b02-d5df-448d-aa00-03f14749ebe5");
 
     private readonly ILogger<PowerPlanService> _logger;
     private Guid? _previousActiveGuid;
@@ -58,6 +59,26 @@ public sealed partial class PowerPlanService : IPowerPlanService
         var match = DuplicateGuidRegex().Match(duplicateOutput);
         if (!match.Success)
             return OptimizationResult.Fail("High-Performance-Plan konnte nicht erstellt werden.");
+
+        var newGuid = Guid.Parse(match.Groups[1].Value);
+        return await SetActivePlanAsync(newGuid, cancellationToken);
+    }
+
+    public async Task<OptimizationResult> EnsureUltimatePerformancePlanAsync(CancellationToken cancellationToken = default)
+    {
+        var plans = await GetAvailablePlansAsync(cancellationToken);
+        var ultimate = plans.FirstOrDefault(p =>
+            p.Name.Contains("Ultimate Performance", StringComparison.OrdinalIgnoreCase) ||
+            p.Name.Contains("Ultimative Leistung", StringComparison.OrdinalIgnoreCase) ||
+            p.Guid == UltimatePerformanceGuid);
+
+        if (ultimate is not null)
+            return await SetActivePlanAsync(ultimate.Guid, cancellationToken);
+
+        var duplicateOutput = await RunPowerCfgAsync($"/duplicatescheme {UltimatePerformanceGuid:D}", cancellationToken);
+        var match = DuplicateGuidRegex().Match(duplicateOutput);
+        if (!match.Success)
+            return OptimizationResult.Fail("Ultimate-Performance-Plan konnte nicht erstellt werden.");
 
         var newGuid = Guid.Parse(match.Groups[1].Value);
         return await SetActivePlanAsync(newGuid, cancellationToken);

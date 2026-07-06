@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,16" />
+            <TextBlock Text="{Binding Title, Mode=OneWay}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,16" />
 
             <TabControl SelectedIndex="{Binding SelectedTabIndex}">
                 <TabItem Header="Allgemein">
@@ -20,7 +20,49 @@
 
                             <TextBlock Text="Snapshot-Aufbewahrung (max. Anzahl)" Margin="0,0,0,4" />
                             <TextBox Text="{Binding SnapshotRetentionLimit, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="0,0,0,16" />
+                                     Margin="0,0,0,12" />
+
+                            <TextBlock Text="Theme" Margin="0,0,0,4" />
+                            <ComboBox Style="{StaticResource TokyoNightComboBoxStyle}"
+                                      ItemContainerStyle="{StaticResource TokyoNightComboBoxItemStyle}"
+                                      ItemsSource="{Binding AvailableThemes}"
+                                      SelectedItem="{Binding SelectedTheme}"
+                                      Margin="0,0,0,12" />
+
+                            <TextBlock Text="Log-Level (Serilog)" Margin="0,0,0,4" />
+                            <ComboBox Style="{StaticResource TokyoNightComboBoxStyle}"
+                                      ItemContainerStyle="{StaticResource TokyoNightComboBoxItemStyle}"
+                                      ItemsSource="{Binding AvailableLogLevels}"
+                                      SelectedItem="{Binding SelectedLogLevel}"
+                                      Margin="0,0,0,12" />
+
+                            <CheckBox Content="Mit Windows starten"
+                                      IsChecked="{Binding AutoStartWithWindows}"
+                                      Margin="0,0,0,12" />
+
+                            <TextBlock Text="PowerShell-Timeout (Sekunden)" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding PowerShellTimeoutSeconds, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0,0,0,12" />
+
+                            <CheckBox Content="Light Mode (Skeleton — speichert Voreinstellung, UI folgt)"
+                                      IsChecked="{Binding UseLightMode}"
+                                      Margin="0,0,0,12" />
+
+                            <TextBlock Text="Monitor: Refresh-Intervall (ms)" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding ProcessMonitorRefreshIntervalMs, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0,0,0,12" />
+
+                            <CheckBox Content="Monitor: nur Cursor-relevante Prozesse"
+                                      IsChecked="{Binding ProcessMonitorCursorFilterOnly}"
+                                      Margin="0,0,0,12" />
+
+                            <CheckBox Content="Windows-Suchdienst nach Indexer-Änderung neu starten (Opt-in)"
+                                      IsChecked="{Binding RestartSearchServiceAfterIndexerChange}"
+                                      Margin="0,0,0,12" />
+
+                            <CheckBox Content="Cursor-Prioritäten bei Neustart automatisch anwenden"
+                                      IsChecked="{Binding ReapplyCursorPrioritiesOnRestart}"
+                                      Margin="0,0,0,16" />
 
                             <Button Content="Einstellungen speichern"
                                     Command="{Binding SaveSettingsCommand}"
@@ -40,7 +82,9 @@
                                 <TextBlock Text="Letzte Einträge" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <Button Content="Aktualisieren"
                                         Command="{Binding LoadAuditLogCommand}"
-                                        Margin="16,0,0,0" />
+                                        Margin="16,0,8,0" />
+                                <Button Content="CSV exportieren"
+                                        Command="{Binding ExportAuditCsvCommand}" />
                             </StackPanel>
 
                             <DataGrid ItemsSource="{Binding AuditEntries}"
@@ -66,10 +110,10 @@
                     <Border Style="{StaticResource CardBorderStyle}" Margin="0,8,0,0">
                         <StackPanel>
                             <TextBlock Text="WindowsPerformance" FontSize="20" FontWeight="SemiBold" />
-                            <TextBlock Margin="0,8,0,0">
-                                <Run Text="Version " />
-                                <Run Text="{Binding AppVersion}" FontWeight="Bold" />
-                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="Version " />
+                                <TextBlock Text="{Binding AppVersion, Mode=OneWay}" FontWeight="Bold" />
+                            </StackPanel>
                             <TextBlock Text="Windows-Optimierung für Cursor IDE Entwicklungsworkflows."
                                        Foreground="{StaticResource TextMutedBrush}"
                                        TextWrapping="Wrap"

@@ -40,6 +40,23 @@ public class PowerShellBridgeTests
         result.Success.Should().BeTrue();
         result.StdOut.Trim().Should().Be("hello");
     }
+
+    [Fact]
+    public async Task RunProcessAsync_ReturnsTimeoutFailure()
+    {
+        var pwsh = PowerShellBridge.ResolveExecutable(new PowerShellOptions());
+        if (pwsh is null)
+            return;
+
+        var result = await PowerShellBridge.RunProcessAsync(
+            pwsh,
+            "Start-Sleep -Seconds 30",
+            TimeSpan.FromMilliseconds(500),
+            CancellationToken.None);
+
+        result.Success.Should().BeFalse();
+        result.StdErr.Should().Contain("Timeout");
+    }
 }
 
 public class CursorOptimizerServiceTests

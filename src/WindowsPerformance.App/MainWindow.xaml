@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
         mc:Ignorable="d"
         Title="WindowsPerformance"
         Height="720"
@@ -20,6 +21,34 @@
                       CornerRadius="0"
                       UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
+
+    <Grid>
+    <tb:TaskbarIcon x:Name="TrayIcon"
+                    ToolTipText="WindowsPerformance"
+                    Visibility="Collapsed"
+                    TrayMouseDoubleClick="TrayIcon_TrayMouseDoubleClick">
+        <tb:TaskbarIcon.IconSource>
+            <tb:GeneratedIconSource Text="&#xE9D9;"
+                                    FontFamily="Segoe MDL2 Assets"
+                                    Foreground="#7AA2F7"
+                                    Background="#1E1E2E"
+                                    FontSize="12" />
+        </tb:TaskbarIcon.IconSource>
+        <tb:TaskbarIcon.ContextMenu>
+            <ContextMenu Style="{StaticResource TrayContextMenuStyle}"
+                         Background="#24283B"
+                         Foreground="#C0CAF5"
+                         BorderBrush="#3B4261">
+                <MenuItem Header="Fenster öffnen"
+                          Click="TrayOpen_Click"
+                          Style="{StaticResource TrayMenuItemStyle}" />
+                <Separator Style="{StaticResource TrayMenuSeparatorStyle}" />
+                <MenuItem Header="Beenden"
+                          Click="TrayExit_Click"
+                          Style="{StaticResource TrayMenuItemStyle}" />
+            </ContextMenu>
+        </tb:TaskbarIcon.ContextMenu>
+    </tb:TaskbarIcon>
 
     <Border Background="{StaticResource PrimaryDarkBrush}"
             BorderBrush="{StaticResource TertiaryDarkBrush}"
@@ -124,11 +153,132 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+                        <Button Content="Snapshots" Command="{Binding NavigateToSnapshotsCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Snapshots">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Content="Presets" Command="{Binding NavigateToPresetsCommand}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding SelectedNavItem}" Value="Presets">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Dienste" Command="{Binding NavigateToServicesCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Dienste">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Startup" Command="{Binding NavigateToStartupCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Startup">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Visuell" Command="{Binding NavigateToVisualEffectsCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Visuell">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Speicher" Command="{Binding NavigateToMemoryCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Speicher">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Netzwerk" Command="{Binding NavigateToNetworkCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Netzwerk">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Trends" Command="{Binding NavigateToTrendsCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Trends">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Prozesse" Command="{Binding NavigateToProcessInspectorCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Prozesse">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Festplatte" Command="{Binding NavigateToDiskCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Festplatte">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Tasks" Command="{Binding NavigateToTaskSchedulerCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Tasks">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Registry" Command="{Binding NavigateToRegistryTunerCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Registry">
                                             <Setter Property="Tag" Value="Selected" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -151,9 +301,15 @@
             </Border>
 
             <!-- Content -->
-            <ContentControl Grid.Row="1" Grid.Column="1"
+            <ContentControl x:Name="MainContent"
+                            Grid.Row="1" Grid.Column="1"
                             Content="{Binding CurrentViewModel}"
-                            Margin="24" />
+                            Margin="24">
+                <ContentControl.RenderTransform>
+                    <TranslateTransform x:Name="ContentTranslate" X="0" />
+                </ContentControl.RenderTransform>
+            </ContentControl>
         </Grid>
     </Border>
+    </Grid>
 </Window>

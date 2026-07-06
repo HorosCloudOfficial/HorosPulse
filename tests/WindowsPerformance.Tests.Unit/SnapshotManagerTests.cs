@@ -43,12 +43,32 @@ public class SnapshotManagerTests
         var settings = new Mock<IAppSettingsService>();
         settings.SetupGet(s => s.Current).Returns(new AppSettings { SnapshotRetentionLimit = 50 });
 
+        var windowsServices = new Mock<IWindowsServiceManager>();
+        windowsServices.Setup(s => s.GetServicesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<WindowsServiceInfo>());
+
+        var startup = new Mock<IStartupManagerService>();
+        startup.Setup(s => s.GetEntriesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<StartupEntry>());
+
+        var visualEffects = new Mock<IVisualEffectsService>();
+        visualEffects.Setup(v => v.GetCurrentStateAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new VisualEffectsState());
+
+        var network = new Mock<INetworkOptimizerService>();
+        network.Setup(n => n.GetCurrentSettingsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NetworkSettingsState());
+
         var manager = new SnapshotManager(
             repository.Object,
             powerPlan.Object,
             cursor.Object,
             defender.Object,
             indexer.Object,
+            windowsServices.Object,
+            startup.Object,
+            visualEffects.Object,
+            network.Object,
             settings.Object,
             NullLogger<SnapshotManager>.Instance);
 

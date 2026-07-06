@@ -1,0 +1,24 @@
+<UserControl x:Class="WindowsPerformance.App.Views.VisualEffectsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding CurrentStateText}" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,16" />
+                    <RadioButton Content="Performance (alle Effekte aus)" IsChecked="{Binding IsPerformance}" Margin="0,0,0,8" />
+                    <RadioButton Content="Balanced" IsChecked="{Binding IsBalanced}" Margin="0,0,0,8" />
+                    <RadioButton Content="Best Appearance" IsChecked="{Binding IsBestAppearance}" Margin="0,0,0,16" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Anwenden" Command="{Binding ApplyCommand}" Margin="0,0,8,0" />
+                        <Button Content="Rollback" Command="{Binding RollbackCommand}" Margin="0,0,8,0" />
+                        <Button Content="Aktualisieren" Command="{Binding RefreshStateCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AccentOrangeBrush}"
+                               Margin="0,12,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

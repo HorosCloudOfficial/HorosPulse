@@ -22,6 +22,9 @@
                         <Button Content="High Performance"
                                 Command="{Binding ApplyHighPerformanceCommand}"
                                 Margin="0,0,8,0" />
+                        <Button Content="Ultimate Performance"
+                                Command="{Binding ApplyUltimatePerformanceCommand}"
+                                Margin="0,0,8,0" />
                         <Button Content="Aktualisieren"
                                 Command="{Binding LoadPlansCommand}" />
                     </StackPanel>

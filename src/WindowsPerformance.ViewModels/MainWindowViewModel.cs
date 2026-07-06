@@ -5,60 +5,98 @@ using CommunityToolkit.Mvvm.Input;
 
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly DashboardViewModel _dashboard;
-    private readonly EnergieViewModel _energie;
-    private readonly CursorViewModel _cursor;
-    private readonly MonitorViewModel _monitor;
-    private readonly PresetsViewModel _presets;
-    private readonly EinstellungenViewModel _einstellungen;
+    private readonly INavigationService _navigation;
 
-    public MainWindowViewModel(
-        DashboardViewModel dashboard,
-        EnergieViewModel energie,
-        CursorViewModel cursor,
-        MonitorViewModel monitor,
-        PresetsViewModel presets,
-        EinstellungenViewModel einstellungen)
+    public MainWindowViewModel(INavigationService navigation)
     {
-        _dashboard = dashboard;
-        _energie = energie;
-        _cursor = cursor;
-        _monitor = monitor;
-        _presets = presets;
-        _einstellungen = einstellungen;
-        CurrentViewModel = _dashboard;
-        SelectedNavItem = "Dashboard";
+        _navigation = navigation;
+        _navigation.Navigated += OnNavigated;
     }
 
-    [ObservableProperty]
-    private ViewModelBase _currentViewModel;
+    public ViewModelBase CurrentViewModel => _navigation.CurrentViewModel;
 
-    [ObservableProperty]
-    private string _selectedNavItem = "Dashboard";
+    public string SelectedNavItem => _navigation.SelectedNavItem;
+
+    public bool CanGoBack => _navigation.CanGoBack;
 
     public string AppVersion { get; } = "0.1.0";
 
-    [RelayCommand]
-    private void NavigateToDashboard() => Navigate(_dashboard, "Dashboard");
+    [RelayCommand(CanExecute = nameof(CanGoBack))]
+    private void GoBack() => _navigation.GoBack();
 
     [RelayCommand]
-    private void NavigateToEnergie() => Navigate(_energie, "Energie");
+    private void NavigateToDashboard() =>
+        _navigation.Navigate(typeof(DashboardViewModel), "Dashboard");
 
     [RelayCommand]
-    private void NavigateToCursor() => Navigate(_cursor, "Cursor");
+    private void NavigateToEnergie() =>
+        _navigation.Navigate(typeof(EnergieViewModel), "Energie");
 
     [RelayCommand]
-    private void NavigateToMonitor() => Navigate(_monitor, "Monitor");
+    private void NavigateToCursor() =>
+        _navigation.Navigate(typeof(CursorViewModel), "Cursor");
 
     [RelayCommand]
-    private void NavigateToPresets() => Navigate(_presets, "Presets");
+    private void NavigateToMonitor() =>
+        _navigation.Navigate(typeof(MonitorViewModel), "Monitor");
 
     [RelayCommand]
-    private void NavigateToEinstellungen() => Navigate(_einstellungen, "Einstellungen");
+    private void NavigateToSnapshots() =>
+        _navigation.Navigate(typeof(SnapshotViewModel), "Snapshots");
 
-    private void Navigate(ViewModelBase viewModel, string navItem)
+    [RelayCommand]
+    private void NavigateToPresets() =>
+        _navigation.Navigate(typeof(PresetsViewModel), "Presets");
+
+    [RelayCommand]
+    private void NavigateToEinstellungen() =>
+        _navigation.Navigate(typeof(EinstellungenViewModel), "Einstellungen");
+
+    [RelayCommand]
+    private void NavigateToServices() =>
+        _navigation.Navigate(typeof(ServicesViewModel), "Dienste");
+
+    [RelayCommand]
+    private void NavigateToStartup() =>
+        _navigation.Navigate(typeof(StartupViewModel), "Startup");
+
+    [RelayCommand]
+    private void NavigateToVisualEffects() =>
+        _navigation.Navigate(typeof(VisualEffectsViewModel), "Visuell");
+
+    [RelayCommand]
+    private void NavigateToMemory() =>
+        _navigation.Navigate(typeof(MemoryViewModel), "Speicher");
+
+    [RelayCommand]
+    private void NavigateToNetwork() =>
+        _navigation.Navigate(typeof(NetworkViewModel), "Netzwerk");
+
+    [RelayCommand]
+    private void NavigateToTrends() =>
+        _navigation.Navigate(typeof(TrendViewModel), "Trends");
+
+    [RelayCommand]
+    private void NavigateToProcessInspector() =>
+        _navigation.Navigate(typeof(ProcessInspectorViewModel), "Prozesse");
+
+    [RelayCommand]
+    private void NavigateToDisk() =>
+        _navigation.Navigate(typeof(DiskOptimizerViewModel), "Festplatte");
+
+    [RelayCommand]
+    private void NavigateToTaskScheduler() =>
+        _navigation.Navigate(typeof(TaskSchedulerViewModel), "Tasks");
+
+    [RelayCommand]
+    private void NavigateToRegistryTuner() =>
+        _navigation.Navigate(typeof(RegistryTunerViewModel), "Registry");
+
+    private void OnNavigated(object? sender, EventArgs e)
     {
-        CurrentViewModel = viewModel;
-        SelectedNavItem = navItem;
+        OnPropertyChanged(nameof(CurrentViewModel));
+        OnPropertyChanged(nameof(SelectedNavItem));
+        OnPropertyChanged(nameof(CanGoBack));
+        GoBackCommand.NotifyCanExecuteChanged();
     }
 }

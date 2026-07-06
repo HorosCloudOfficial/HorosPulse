@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using WindowsPerformance.Core.Interfaces;
 using WindowsPerformance.Core.Models;
+using WindowsPerformance.Core.Scripts;
 
 public sealed class DefenderExclusionService : IDefenderExclusionService
 {
@@ -37,12 +38,15 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
     {
         var current = await GetCurrentExclusionsAsync(cancellationToken);
         var addedByApp = LoadAddedByApp();
+        var defaultPaths = GetDefaultPaths();
+        var validations = ValidatePaths(defaultPaths);
 
         return new DefenderExclusionSet
         {
             CurrentExclusions = current,
             AddedByApp = addedByApp,
-            DefaultPaths = GetDefaultPaths(),
+            DefaultPaths = defaultPaths,
+            PathValidations = validations,
         };
     }
 
@@ -57,14 +61,26 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
 
         foreach (var path in paths)
         {
+            var validation = ValidatePath(path);
+            if (!validation.Exists)
+            {
+                errors.Add($"{path}: {validation.Message}");
+                continue;
+            }
+
+            if (!validation.DriveValid)
+            {
+                errors.Add($"{path}: {validation.Message}");
+                continue;
+            }
+
             if (!Directory.Exists(path) && !File.Exists(path))
             {
                 _logger.LogWarning("Defender-Pfad existiert nicht, übersprungen: {Path}", path);
                 continue;
             }
 
-            var escaped = path.Replace("'", "''", StringComparison.Ordinal);
-            var script = $"Add-MpPreference -ExclusionPath '{escaped}'";
+            var script = PowerShellScriptLibrary.AddDefenderExclusion(path);
             var result = await _powerShellBridge.RunAsync(script, elevated: true, cancellationToken: cancellationToken);
 
             if (result.Success)
@@ -94,8 +110,7 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
         var removed = new List<string>();
         foreach (var path in added)
         {
-            var escaped = path.Replace("'", "''", StringComparison.Ordinal);
-            var script = $"Remove-MpPreference -ExclusionPath '{escaped}'";
+            var script = PowerShellScriptLibrary.RemoveDefenderExclusion(path);
             var result = await _powerShellBridge.RunAsync(script, elevated: true, cancellationToken: cancellationToken);
             if (result.Success)
                 removed.Add(path);
@@ -108,7 +123,7 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
     private async Task<IReadOnlyList<string>> GetCurrentExclusionsAsync(CancellationToken cancellationToken)
     {
         var result = await _powerShellBridge.RunAsync(
-            "(Get-MpPreference).ExclusionPath | ConvertTo-Json -Compress",
+            PowerShellScriptLibrary.GetDefenderExclusions,
             elevated: true,
             cancellationToken: cancellationToken);
 
@@ -142,5 +157,52 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
             Directory.CreateDirectory(dir);
 
         File.WriteAllText(_trackingPath, JsonSerializer.Serialize(paths, new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    internal static IReadOnlyList<PathValidationResult> ValidatePaths(IReadOnlyList<string> paths) =>
+        paths.Select(ValidatePath).ToList();
+
+    internal static PathValidationResult ValidatePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return new PathValidationResult
+            {
+                Path = path,
+                Exists = false,
+                DriveValid = false,
+                Message = "Pfad ist leer.",
+            };
+        }
+
+        try
+        {
+            var fullPath = Path.GetFullPath(path);
+            var root = Path.GetPathRoot(fullPath);
+            var driveValid = !string.IsNullOrEmpty(root) && Directory.Exists(root);
+            var exists = Directory.Exists(fullPath) || File.Exists(fullPath);
+
+            return new PathValidationResult
+            {
+                Path = fullPath,
+                Exists = exists,
+                DriveValid = driveValid,
+                Message = exists
+                    ? "OK"
+                    : driveValid
+                        ? "Pfad existiert nicht (Laufwerk gültig)."
+                        : "Laufwerk nicht verfügbar oder Pfad ungültig.",
+            };
+        }
+        catch (Exception ex)
+        {
+            return new PathValidationResult
+            {
+                Path = path,
+                Exists = false,
+                DriveValid = false,
+                Message = ex.Message,
+            };
+        }
     }
 }

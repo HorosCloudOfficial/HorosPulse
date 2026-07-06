@@ -62,6 +62,26 @@ public sealed class ProcessPriorityService : IProcessPriorityService
         return Task.FromResult(OptimizationResult.Ok(changes.ToArray()));
     }
 
+    public Task<OptimizationResult> EnsureNodeNormalPriorityAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var changes = new List<string>();
+        _savedPriorities ??= new Dictionary<int, ProcessPriorityLevel>();
+
+        foreach (var process in Process.GetProcessesByName("node"))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            SaveAndSet(process, ProcessPriorityLevel.Normal, changes);
+        }
+
+        if (changes.Count == 0)
+            return Task.FromResult(OptimizationResult.Ok("Keine node.exe-Prozesse gefunden — nichts zu tun."));
+
+        PersistState();
+        _logger.LogInformation("node.exe-Priorität auf Normal gesetzt: {Count}", changes.Count);
+        return Task.FromResult(OptimizationResult.Ok(changes.ToArray()));
+    }
+
     public Task<OptimizationResult> RollbackCursorPrioritiesAsync(CancellationToken cancellationToken = default)
     {
         if (_savedPriorities is null || _savedPriorities.Count == 0)

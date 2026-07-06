@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TODO-Scan → Externe Repos · WindowsPerformance</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    /* ── Reset ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokyo Night palette ─────────────────────────────── */
+    :root {
+      --bg:        #0f172a;
+      --surface:   #1e293b;
+      --surface2:  #263349;
+      --border:    #334155;
+      --fg:        #e2e8f0;
+      --fg-muted:  #94a3b8;
+      --accent:    #f59e0b;   /* amber — Tokyo Night warm accent */
+      --accent2:   #fbbf24;
+      --need:      #34d399;   /* emerald */
+      --nice:      #60a5fa;   /* blue */
+      --skip:      #f87171;   /* red */
+      --sidebar-w: 260px;
+      --header-h:  56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0; left: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header .app-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg);
+      line-height: 1.3;
+    }
+
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+
+    .nav-section {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+      color: var(--fg);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    .sidebar-nav a .icon { width: 16px; text-align: center; font-size: 14px; }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--fg-muted);
+    }
+
+    /* ── Main content ────────────────────────────────────── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      max-width: 960px;
+      padding: 40px 48px 80px;
+    }
+
+    /* ── Sections ────────────────────────────────────────── */
+    section { margin-bottom: 64px; scroll-margin-top: 24px; }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+
+    h1 .tag {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 4px;
+      padding: 2px 8px;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent2);
+      margin: 20px 0 10px;
+    }
+
+    p { color: var(--fg-muted); margin-bottom: 12px; }
+    p strong { color: var(--fg); }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--fg-muted);
+      margin-bottom: 32px;
+    }
+
+    /* ── Verdict badges ──────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-need  { background: rgba(52,211,153,0.15); color: var(--need); border: 1px solid rgba(52,211,153,0.3); }
+    .badge-nice  { background: rgba(96,165,250,0.15); color: var(--nice); border: 1px solid rgba(96,165,250,0.3); }
+    .badge-skip  { background: rgba(248,113,113,0.15); color: var(--skip); border: 1px solid rgba(248,113,113,0.3); }
+
+    /* ── Phase badges ────────────────────────────────────── */
+    .phase-mvp   { background: rgba(245,158,11,0.12); color: var(--accent); border: 1px solid rgba(245,158,11,0.25); }
+    .phase-p2    { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.25); }
+    .phase-p3    { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+
+    /* ── Top-5 cards ─────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .card:hover { border-color: var(--accent); }
+
+    .card-num {
+      position: absolute;
+      top: 14px; right: 14px;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--border);
+    }
+
+    .card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 6px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+    }
+
+    .card p { font-size: 13px; margin: 0 0 10px; }
+
+    .card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ── Repo table ──────────────────────────────────────── */
+    .repo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .repo-table th {
+      background: var(--surface2);
+      color: var(--fg-muted);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .repo-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg-muted);
+      vertical-align: top;
+    }
+
+    .repo-table tr:last-child td { border-bottom: none; }
+
+    .repo-table tr:hover td { background: var(--surface2); }
+
+    .repo-table td:first-child {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--fg);
+    }
+
+    .repo-table a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .repo-table a:hover { text-decoration: underline; }
+
+    /* ── Skip table ──────────────────────────────────────── */
+    .skip-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .skip-table th {
+      background: var(--surface2);
+      color: var(--fg-muted);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .skip-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg-muted);
+    }
+    .skip-table tr:last-child td { border-bottom: none; }
+    .skip-table td:first-child { color: var(--skip); font-family: monospace; }
+
+    /* ── Doc links ───────────────────────────────────────── */
+    .doc-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .doc-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .doc-link:hover { border-color: var(--accent); background: var(--surface2); }
+
+    .doc-link .doc-icon { font-size: 18px; }
+
+    .doc-link .doc-info .doc-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--fg);
+      display: block;
+    }
+
+    .doc-link .doc-info .doc-desc {
+      font-size: 11px;
+      color: var(--fg-muted);
+      display: block;
+    }
+
+    /* ── Mermaid wrapper ─────────────────────────────────── */
+    .mermaid-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .mermaid { color: var(--fg); }
+
+    /* ── Code ────────────────────────────────────────────── */
+    code {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      background: var(--surface2);
+      color: var(--accent2);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    /* ── Divider ─────────────────────────────────────────── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #main { margin-left: 0; padding: 24px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ──────────────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="app-name">WindowsPerformance</div>
+    <h2>TODO-Scan<br>Externe Repos</h2>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section">Überblick</div>
+    <a href="#top5"><span class="icon">⭐</span> Top-5 Shortlist</a>
+    <a href="#repos"><span class="icon">📦</span> Alle Empfehlungen</a>
+    <a href="#skip"><span class="icon">🚫</span> SKIP-Liste</a>
+
+    <div class="nav-section">Phasen</div>
+    <a href="#mvp"><span class="icon">🚀</span> MVP (Sprint 1–3)</a>
+    <a href="#phase2"><span class="icon">⚡</span> Phase 2 (W7–14)</a>
+    <a href="#phase3"><span class="icon">🔮</span> Phase 3 (W15+)</a>
+
+    <div class="nav-section">Architektur</div>
+    <a href="#diagram"><span class="icon">🗺</span> Phasen-Diagramm</a>
+    <a href="#layers"><span class="icon">🏗</span> Solution-Schichten</a>
+
+    <div class="nav-section">Dokumentation</div>
+    <a href="#docs"><span class="icon">📄</span> Markdown-Suite</a>
+  </div>
+
+  <div class="sidebar-footer">
+    Stand: 2026-07-06<br>
+    Planungsartefakt · WPF .NET 9
+  </div>
+</nav>
+
+<!-- ── Main ─────────────────────────────────────────────── -->
+<main id="main">
+
+  <section id="header">
+    <h1>TODO-Scan → Externe Repos <span class="tag">Planung</span></h1>
+    <p class="subtitle">
+      Phasenweise Analyse empfohlener NuGet-Pakete und GitHub-Repos für WindowsPerformance —
+      abgeleitet aus <code>TODO.md</code>. 8 Empfehlungen, 5 bewusste Ablehnungen.
+    </p>
+  </section>
+
+  <!-- ── Top-5 ── -->
+  <section id="top5">
+    <h2>⭐ Top-5 Shortlist</h2>
+    <p>Die fünf wichtigsten Abhängigkeiten nach Dringlichkeit und TODO-Bezug:</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-num">1</div>
+        <h4>H.NotifyIcon.Wpf</h4>
+        <p>Tray-Icon — App in Taskleiste minimieren. TODO 1.4 P1 blockiert ohne dieses Paket.</p>
+        <div class="card-meta">
+          <span class="badge badge-need">NEED</span>
+          <span class="badge phase-mvp">MVP</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">2</div>
+        <h4>LiveChartsCore<br>.SkiaSharpView.WPF</h4>
+        <p>CPU/RAM-Sparklines auf Dashboard, Trend-Linien-Charts in Phase 2.</p>
+        <div class="card-meta">
+          <span class="badge badge-need">NEED</span>
+          <span class="badge phase-mvp">MVP</span>
+          <span class="badge phase-p2">Phase 2</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">3</div>
+        <h4>coverlet.collector</h4>
+        <p>Test-Coverage-Reports für CI-Pipeline (GitHub Actions). Dev-Only.</p>
+        <div class="card-meta">
+          <span class="badge badge-need">NEED</span>
+          <span class="badge phase-mvp">MVP</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">4</div>
+        <h4>Vanara.PInvoke.NtDll</h4>
+        <p>Standby-Liste leeren (<code>NtSetSystemInformation</code>) für Memory Optimizer.</p>
+        <div class="card-meta">
+          <span class="badge badge-need">NEED</span>
+          <span class="badge phase-p2">Phase 2</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-num">5</div>
+        <h4>Velopack</h4>
+        <p>Auto-Update-Mechanismus. Moderner Squirrel-Nachfolger, aktiv gepflegt.</p>
+        <div class="card-meta">
+          <span class="badge badge-need">NEED</span>
+          <span class="badge phase-p3">Phase 3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Alle Repos ── -->
+  <section id="repos">
+    <h2>📦 Alle Empfehlungen</h2>
+
+    <table class="repo-table">
+      <thead>
+        <tr>
+          <th>Paket</th>
+          <th>Verdict</th>
+          <th>Typ</th>
+          <th>Phase</th>
+          <th>TODO</th>
+          <th>GitHub</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>H.NotifyIcon.Wpf</td>
+          <td><span class="badge badge-need">NEED</span></td>
+          <td>NuGet Runtime</td>
+          <td><span class="badge phase-mvp">MVP</span></td>
+          <td>1.4 P1</td>
+          <td><a href="https://github.com/HavenDV/H.NotifyIcon" target="_blank">HavenDV/H.NotifyIcon</a></td>
+        </tr>
+        <tr>
+          <td>LiveChartsCore.SkiaSharpView.WPF</td>
+          <td><span class="badge badge-need">NEED</span></td>
+          <td>NuGet Runtime</td>
+          <td><span class="badge phase-mvp">MVP</span> <span class="badge phase-p2">P2</span></td>
+          <td>3.6, 5.7</td>
+          <td><a href="https://github.com/beto-rodriguez/LiveCharts2" target="_blank">beto-rodriguez/LiveCharts2</a></td>
+        </tr>
+        <tr>
+          <td>coverlet.collector</td>
+          <td><span class="badge badge-need">NEED</span></td>
+          <td>NuGet Dev-Only</td>
+          <td><span class="badge phase-mvp">MVP</span></td>
+          <td>4.3 P2</td>
+          <td><a href="https://github.com/coverlet-coverage/coverlet" target="_blank">coverlet-coverage/coverlet</a></td>
+        </tr>
+        <tr>
+          <td>Komurasoft Elevation Pattern</td>
+          <td><span class="badge badge-need">NEED</span></td>
+          <td>Architekturmuster</td>
+          <td><span class="badge phase-mvp">MVP</span></td>
+          <td>2.3 P0</td>
+          <td>— (bereits impl.)</td>
+        </tr>
+        <tr>
+          <td>Vanara.PInvoke.NtDll</td>
+          <td><span class="badge badge-need">NEED</span></td>
+          <td>P/Invoke-Wrapper</td>
+          <td><span class="badge phase-p2">Phase 2</span></td>
+          <td>5.4 P2</td>
+          <td><a href="https://github.com/dahall/Vanara" target="_blank">dahall/Vanara</a></td>
+        </tr>
+        <tr>
+          <td>Microsoft.Windows.CsWin32</td>
+          <td><span class="badge badge-nice">NICE</span></td>
+          <td>SourceGen</td>
+          <td><span class="badge phase-p2">Phase 2</span></td>
+          <td>5.3, 5.5</td>
+          <td><a href="https://github.com/microsoft/CsWin32" target="_blank">microsoft/CsWin32</a></td>
+        </tr>
+        <tr>
+          <td>TaskScheduler (dahall)</td>
+          <td><span class="badge badge-need">NEED</span></td>
+          <td>NuGet Runtime</td>
+          <td><span class="badge phase-p2">Phase 2</span></td>
+          <td>6.2 P2</td>
+          <td><a href="https://github.com/dahall/TaskScheduler" target="_blank">dahall/TaskScheduler</a></td>
+        </tr>
+        <tr>
+          <td>Velopack</td>
+          <td><span class="badge badge-need">NEED</span></td>
+          <td>NuGet Runtime + CLI</td>
+          <td><span class="badge phase-p3">Phase 3</span></td>
+          <td>6.4 P2</td>
+          <td><a href="https://github.com/velopack/velopack" target="_blank">velopack/velopack</a></td>
+        </tr>
+        <tr>
+          <td>Microsoft.ML + ML.TimeSeries</td>
+          <td><span class="badge badge-nice">NICE</span></td>
+          <td>NuGet Runtime</td>
+          <td><span class="badge phase-p3">Phase 3</span></td>
+          <td>6.3 P3</td>
+          <td><a href="https://github.com/dotnet/machinelearning" target="_blank">dotnet/machinelearning</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── SKIP ── -->
+  <section id="skip">
+    <h2>🚫 SKIP-Liste</h2>
+    <p>Diese Repos wurden geprüft und <strong>bewusst abgelehnt</strong>. Dürfen nicht ohne neue Entscheidung eingeführt werden.</p>
+
+    <table class="skip-table">
+      <thead>
+        <tr>
+          <th>Paket / Repo</th>
+          <th>Grund</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Performance Toolkit SDK</td>
+          <td>Kein NuGet-Paket; ADK-Install; Scope: Offline-ETL-Analyse, nicht Live-Optimierung.</td>
+        </tr>
+        <tr>
+          <td>MSO-Scripts</td>
+          <td>Office-Automation. Kein Bezug zu Windows-System-Performance im Cursor-Kontext.</td>
+        </tr>
+        <tr>
+          <td>ETW / TraceEvent</td>
+          <td><code>PerformanceCounter</code> reicht aus. ETW erfordert Kernel-Sessions + erhöhte Komplexität.</td>
+        </tr>
+        <tr>
+          <td>MaterialDesignInXamlToolkit</td>
+          <td>Tokyo-Night-Styles bereits etabliert. Paket-Overhead ~15 MB. Theme-Konflikte unvermeidbar.</td>
+        </tr>
+        <tr>
+          <td>Squirrel.Windows</td>
+          <td>Seit 2021 inaktiv. <strong>Velopack</strong> ist der direkte, gewartete Nachfolger desselben Teams.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── MVP Phase ── -->
+  <section id="mvp">
+    <h2>🚀 MVP — Sprint 1–3</h2>
+
+    <h3>H.NotifyIcon.Wpf</h3>
+    <p><strong>TODO 1.4 P1</strong> — Tray-Icon, App in Systemtray minimieren. Moderner Nachfolger von <code>Hardcodet.NotifyIcon.Wpf</code>. Native WPF-Integration ohne Windows-Forms-Dependency.</p>
+
+    <h3>LiveChartsCore.SkiaSharpView.WPF</h3>
+    <p><strong>TODO 3.6 P1</strong> — CPU-Sparkline (letzten 60 Datenpunkte) auf Dashboard. SkiaSharp-basiert, performant, reactive-freundlich. Versiion <code>2.0.0-rc4</code> ist API-stabil.</p>
+
+    <h3>coverlet.collector</h3>
+    <p><strong>TODO 4.3 P2</strong> — XPlat Code Coverage für <code>dotnet test</code>. Ausgabe Cobertura XML. Dev-Only (<code>PrivateAssets="all"</code>). Kompatibel mit GitHub Actions Artifact Upload.</p>
+
+    <h3>Komurasoft Elevation Pattern</h3>
+    <p><strong>TODO 2.3 P0</strong> — Referenzarchitektur für UAC-Elevation in WPF: Hauptprozess ohne Admin-Rechte, Elevation via separatem <code>ElevationHelper.exe</code> (Named Pipe IPC). <strong>Bereits vollständig implementiert</strong> in <code>WindowsPerformance.Elevation</code>. Dieser Eintrag dient als Qualitäts-Benchmark.</p>
+  </section>
+
+  <!-- ── Phase 2 ── -->
+  <section id="phase2">
+    <h2>⚡ Phase 2 — W7–14</h2>
+
+    <h3>Vanara.PInvoke.NtDll</h3>
+    <p><strong>TODO 5.4</strong> — Memory Optimizer: Standby-Liste leeren via <code>NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)</code>. Erfordert <code>SE_INCREASE_QUOTA_PRIVILEGE</code> → läuft durch <code>ElevationHelper.exe</code>. Vanara liefert typsichere Wrapper ohne manuelles <code>[DllImport]</code>.</p>
+
+    <h3>Microsoft.Windows.CsWin32</h3>
+    <p><strong>TODO 5.3, 5.5</strong> — Roslyn Source-Generator für Windows-API-Bindings. <code>NativeMethods.txt</code> deklariert benötigte APIs; zur Kompilierzeit werden typsichere C#-Stubs generiert. Kein Runtime-Overhead.</p>
+
+    <h3>TaskScheduler (dahall)</h3>
+    <p><strong>TODO 6.2</strong> — COM-Wrapper für Windows Task Scheduler 2.0. Lesen, deaktivieren und wiederherstellen von geplanten Tasks. Benutzertasks ohne Elevation; System-Tasks über ElevationHelper.</p>
+  </section>
+
+  <!-- ── Phase 3 ── -->
+  <section id="phase3">
+    <h2>🔮 Phase 3 — W15+</h2>
+
+    <h3>Velopack</h3>
+    <p><strong>TODO 6.4</strong> — Auto-Update-Mechanismus. Nachfolger von Squirrel.Windows. <code>VelopackApp.Build().Run()</code> in <code>App.xaml.cs</code>; Update-Prüfung beim Start gegen HTTPS-Release-Server. Delta-Updates unterstützt. CLI-Tool: <code>vpk pack</code>.</p>
+
+    <h3>Microsoft.ML + Microsoft.ML.TimeSeries</h3>
+    <p><strong>TODO 6.3</strong> — Lokales ML-Modell für Anomalie-Erkennung auf CPU/RAM-Zeitreihen (SrCnn-Algorithmus). Trainingsdaten aus SQLite (<code>performance_metrics</code>, 7-Tage-Retention). Keine Cloud-API. ~100 MB Paketgröße — erst Phase 3 relevant.</p>
+  </section>
+
+  <!-- ── Diagramm ── -->
+  <section id="diagram">
+    <h2>🗺 Phasen → Repos Diagramm</h2>
+
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart TD
+    subgraph MVP["🚀 MVP — Sprint 1–3"]
+        T1["TODO 1.4 P1\nTray-Icon"]
+        T36["TODO 3.6 P1\nDashboard Sparklines"]
+        T43["TODO 4.3 P2\nCI Coverage"]
+        T23["TODO 2.3 P0\nElevation-Pattern\n✓ bereits impl."]
+    end
+
+    subgraph P2["⚡ Phase 2 — W7–14"]
+        T54["TODO 5.4 P2\nMemory Optimizer"]
+        T53["TODO 5.3 P2\nVisual Effects"]
+        T55["TODO 5.5 P2\nNetwork Optimizer"]
+        T57["TODO 5.7 P2\nTrend-Charts"]
+        T62["TODO 6.2 P2\nTask Scheduler"]
+    end
+
+    subgraph P3["🔮 Phase 3 — W15+"]
+        T64["TODO 6.4 P2\nInstaller / Update"]
+        T63["TODO 6.3 P3\nML-Empfehlungen"]
+    end
+
+    subgraph Pakete["📦 Empfohlene Pakete"]
+        HNI["H.NotifyIcon.Wpf\nNEED"]
+        LVC["LiveChartsCore\nNEED"]
+        CVL["coverlet.collector\nNEED"]
+        VAN["Vanara.PInvoke.NtDll\nNEED"]
+        CSW["CsWin32\nNICE"]
+        TSL["TaskScheduler\nNEED"]
+        VLP["Velopack\nNEED"]
+        MML["Microsoft.ML\nNICE"]
+    end
+
+    T1  --> HNI
+    T36 --> LVC
+    T57 --> LVC
+    T43 --> CVL
+    T54 --> VAN
+    T53 --> CSW
+    T55 --> CSW
+    T62 --> TSL
+    T64 --> VLP
+    T63 --> MML
+
+    style MVP fill:#1e293b,stroke:#f59e0b,color:#e2e8f0
+    style P2  fill:#1e293b,stroke:#60a5fa,color:#e2e8f0
+    style P3  fill:#1e293b,stroke:#a78bfa,color:#e2e8f0
+    style Pakete fill:#1e293b,stroke:#334155,color:#e2e8f0
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Solution-Schichten ── -->
+  <section id="layers">
+    <h2>🏗 Solution-Schichten-Mapping</h2>
+
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart LR
+    subgraph App["WindowsPerformance.App"]
+        HNI2["H.NotifyIcon.Wpf"]
+        LVC2["LiveChartsCore.WPF"]
+        VLP2["Velopack"]
+    end
+
+    subgraph Svc["WindowsPerformance.Services"]
+        VAN2["Vanara.PInvoke.NtDll"]
+        CSW2["CsWin32"]
+        TSL2["TaskScheduler"]
+        MML2["Microsoft.ML"]
+    end
+
+    subgraph Elev["WindowsPerformance.Elevation"]
+        CSW3["CsWin32\nNativeMethods.txt"]
+        VAN3["Vanara (elevated ops)"]
+    end
+
+    subgraph Tests["Tests.Unit + Integration"]
+        CVL2["coverlet.collector"]
+    end
+
+    App --> Svc
+    Svc --> Elev
+
+    style App   fill:#1e293b,stroke:#f59e0b,color:#e2e8f0
+    style Svc   fill:#1e293b,stroke:#60a5fa,color:#e2e8f0
+    style Elev  fill:#1e293b,stroke:#f87171,color:#e2e8f0
+    style Tests fill:#1e293b,stroke:#34d399,color:#e2e8f0
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Docs ── -->
+  <section id="docs">
+    <h2>📄 Markdown-Dokumentation</h2>
+    <p>Die vollständige Epic-Dokumentation als Markdown-Suite:</p>
+
+    <div class="doc-links">
+      <a class="doc-link" href="README.md">
+        <span class="doc-icon">🏠</span>
+        <span class="doc-info">
+          <span class="doc-title">README.md</span>
+          <span class="doc-desc">Hub · Top-5 · SKIP-Kurzfassung</span>
+        </span>
+      </a>
+      <a class="doc-link" href="01-uebersicht.md">
+        <span class="doc-icon">📖</span>
+        <span class="doc-info">
+          <span class="doc-title">01-uebersicht.md</span>
+          <span class="doc-desc">Methodik · Scope · Phasen-Übersicht</span>
+        </span>
+      </a>
+      <a class="doc-link" href="02-benutzer-anleitung.md">
+        <span class="doc-icon">🔧</span>
+        <span class="doc-info">
+          <span class="doc-title">02-benutzer-anleitung.md</span>
+          <span class="doc-desc">Integration Schritt für Schritt</span>
+        </span>
+      </a>
+      <a class="doc-link" href="03-einstellungen.md">
+        <span class="doc-icon">⚙️</span>
+        <span class="doc-info">
+          <span class="doc-title">03-einstellungen.md</span>
+          <span class="doc-desc">NuGet-Versionen · Directory.Packages.props</span>
+        </span>
+      </a>
+      <a class="doc-link" href="04-architektur.md">
+        <span class="doc-icon">🏗</span>
+        <span class="doc-info">
+          <span class="doc-title">04-architektur.md</span>
+          <span class="doc-desc">Phasen-Mapping · Abhängigkeitsketten</span>
+        </span>
+      </a>
+      <a class="doc-link" href="05-api-datenmodell.md">
+        <span class="doc-icon">📊</span>
+        <span class="doc-info">
+          <span class="doc-title">05-api-datenmodell.md</span>
+          <span class="doc-desc">Vollständige Repo-Tabelle mit Details</span>
+        </span>
+      </a>
+      <a class="doc-link" href="06-faq-troubleshooting.md">
+        <span class="doc-icon">❓</span>
+        <span class="doc-info">
+          <span class="doc-title">06-faq-troubleshooting.md</span>
+          <span class="doc-desc">SKIP-Begründungen · Integrationsprobleme</span>
+        </span>
+      </a>
+    </div>
+
+    <hr />
+
+    <p style="font-size:13px;">
+      Zurück zur Projekt-Dokumentation:
+      <a href="../../README.md" style="color:var(--accent);">docs/README.md</a> ·
+      <a href="../../../TODO.md" style="color:var(--accent);">TODO.md</a> ·
+      <a href="../../../README.md" style="color:var(--accent);">WindowsPerformance README</a>
+    </p>
+  </section>
+
+</main>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background: '#1e293b',
+      primaryColor: '#1e293b',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#334155',
+      lineColor: '#f59e0b',
+      secondaryColor: '#263349',
+      tertiaryColor: '#0f172a',
+      edgeLabelBackground: '#1e293b',
+      clusterBkg: '#1e293b',
+      clusterBorder: '#334155',
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+      fontSize: '13px'
+    }
+  });
+
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('#sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`#sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

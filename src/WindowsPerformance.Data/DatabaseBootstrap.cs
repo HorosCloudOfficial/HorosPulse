@@ -7,6 +7,7 @@ public sealed class DatabaseBootstrap
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         DataPaths.EnsureDirectories();
+        BackupDatabaseIfExists();
 
         await using var connection = CreateConnection();
         await connection.OpenAsync(cancellationToken);
@@ -59,6 +60,17 @@ public sealed class DatabaseBootstrap
 
     internal static SqliteConnection CreateConnection() =>
         new($"Data Source={DataPaths.DatabasePath}");
+
+    private static void BackupDatabaseIfExists()
+    {
+        var dbPath = DataPaths.DatabasePath;
+        if (!File.Exists(dbPath))
+            return;
+
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+        var backupPath = $"{dbPath}.backup.{timestamp}";
+        File.Copy(dbPath, backupPath, overwrite: false);
+    }
 
     private static async Task ExecuteAsync(SqliteConnection connection, string sql, CancellationToken cancellationToken)
     {
