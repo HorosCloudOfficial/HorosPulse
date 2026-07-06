@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class RegistryTunerService : IRegistryTunerService
 {
@@ -133,7 +134,7 @@ public sealed class RegistryTunerService : IRegistryTunerService
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot, JsonDefaults.Options));
     }
 
     private async Task<Dictionary<string, int?>?> LoadSnapshotAsync()
@@ -142,7 +143,7 @@ public sealed class RegistryTunerService : IRegistryTunerService
             return null;
 
         var json = await File.ReadAllTextAsync(_snapshotPath);
-        return JsonSerializer.Deserialize<Dictionary<string, int?>>(json);
+        return JsonSerializer.Deserialize<Dictionary<string, int?>>(json, JsonDefaults.Options);
     }
 
     private static int? ReadRegistryDword(RegistryKey hive, string subKey, string valueName)

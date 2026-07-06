@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class WindowsServiceManager : IWindowsServiceManager
 {
@@ -191,7 +192,7 @@ public sealed class WindowsServiceManager : IWindowsServiceManager
         try
         {
             var json = File.ReadAllText(_snapshotPath);
-            var raw = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
+            var raw = JsonSerializer.Deserialize<Dictionary<string, string>>(json, JsonDefaults.Options) ?? new();
             return raw.ToDictionary(
                 kvp => kvp.Key,
                 kvp => Enum.Parse<ServiceStartMode>(kvp.Value),
@@ -210,6 +211,6 @@ public sealed class WindowsServiceManager : IWindowsServiceManager
 
         Directory.CreateDirectory(Path.GetDirectoryName(_snapshotPath)!);
         var raw = _savedStartupTypes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
-        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(raw));
+        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(raw, JsonDefaults.Options));
     }
 }

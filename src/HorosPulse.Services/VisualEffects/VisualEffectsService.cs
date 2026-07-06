@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using HorosPulse.Core.Enums;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class VisualEffectsService : IVisualEffectsService
 {
@@ -128,7 +129,7 @@ public sealed class VisualEffectsService : IVisualEffectsService
 
         _snapshot = ReadCurrentState();
         Directory.CreateDirectory(Path.GetDirectoryName(_snapshotPath)!);
-        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot));
+        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot, JsonDefaults.Options));
     }
 
     private async Task<VisualEffectsState?> LoadSnapshotAsync()
@@ -137,7 +138,7 @@ public sealed class VisualEffectsService : IVisualEffectsService
             return null;
 
         var json = await File.ReadAllTextAsync(_snapshotPath);
-        return JsonSerializer.Deserialize<VisualEffectsState>(json);
+        return JsonSerializer.Deserialize<VisualEffectsState>(json, JsonDefaults.Options);
     }
 
     private static void SetSystemParameter(uint action, bool enabled)

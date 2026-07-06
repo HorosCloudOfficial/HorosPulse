@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32.TaskScheduler;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class TaskSchedulerService : ITaskSchedulerService
 {
@@ -110,7 +111,7 @@ public sealed class TaskSchedulerService : ITaskSchedulerService
         if (!File.Exists(_statePath))
             return Array.Empty<string>();
 
-        return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_statePath)) ?? [];
+        return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_statePath), JsonDefaults.Options) ?? [];
     }
 
     private void SaveDisabledTasks(IReadOnlyList<string> paths)
@@ -119,6 +120,6 @@ public sealed class TaskSchedulerService : ITaskSchedulerService
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        File.WriteAllText(_statePath, JsonSerializer.Serialize(paths, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(_statePath, JsonSerializer.Serialize(paths, JsonDefaults.Options));
     }
 }

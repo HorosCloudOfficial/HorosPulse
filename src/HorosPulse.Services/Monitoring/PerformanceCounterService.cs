@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class PerformanceCounterService : IMetricsCollector
 {
@@ -65,10 +66,10 @@ public sealed class PerformanceCounterService : IMetricsCollector
 
         var metric = new PerformanceMetric(
             DateTimeOffset.UtcNow,
-            Math.Round(cpu, 1),
+            Math.Round(JsonDefaults.SanitizeMetric(cpu), 1),
             usedMb,
             totalMb,
-            Math.Round(disk, 1));
+            Math.Round(JsonDefaults.SanitizeMetric(disk), 1));
 
         _latestMetric = metric;
         return Task.FromResult(metric);

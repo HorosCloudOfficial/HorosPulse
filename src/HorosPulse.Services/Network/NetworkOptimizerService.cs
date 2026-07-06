@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class NetworkOptimizerService : INetworkOptimizerService
 {
@@ -93,7 +94,7 @@ public sealed class NetworkOptimizerService : INetworkOptimizerService
 
         _snapshot = ReadCurrentSettings();
         Directory.CreateDirectory(Path.GetDirectoryName(_snapshotPath)!);
-        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot));
+        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot, JsonDefaults.Options));
     }
 
     private async Task<NetworkSettingsState?> LoadSnapshotAsync()
@@ -102,7 +103,7 @@ public sealed class NetworkOptimizerService : INetworkOptimizerService
             return null;
 
         var json = await File.ReadAllTextAsync(_snapshotPath);
-        return JsonSerializer.Deserialize<NetworkSettingsState>(json);
+        return JsonSerializer.Deserialize<NetworkSettingsState>(json, JsonDefaults.Options);
     }
 
     private static int? ReadRegistryDword(RegistryKey hive, string subKey, string name)

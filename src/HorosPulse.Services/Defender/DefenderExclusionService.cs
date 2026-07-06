@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
 using HorosPulse.Core.Scripts;
+using HorosPulse.Data;
 
 public sealed class DefenderExclusionService : IDefenderExclusionService
 {
@@ -132,12 +133,12 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
 
         try
         {
-            var parsed = JsonSerializer.Deserialize<string[]>(result.StdOut.Trim());
+            var parsed = JsonSerializer.Deserialize<string[]>(result.StdOut.Trim(), JsonDefaults.Options);
             return parsed ?? Array.Empty<string>();
         }
         catch
         {
-            var single = JsonSerializer.Deserialize<string>(result.StdOut.Trim());
+            var single = JsonSerializer.Deserialize<string>(result.StdOut.Trim(), JsonDefaults.Options);
             return single is not null ? [single] : Array.Empty<string>();
         }
     }
@@ -147,7 +148,7 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
         if (!File.Exists(_trackingPath))
             return Array.Empty<string>();
 
-        return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_trackingPath)) ?? [];
+        return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_trackingPath), JsonDefaults.Options) ?? [];
     }
 
     private void SaveAddedByApp(IReadOnlyList<string> paths)
@@ -156,7 +157,7 @@ public sealed class DefenderExclusionService : IDefenderExclusionService
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        File.WriteAllText(_trackingPath, JsonSerializer.Serialize(paths, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(_trackingPath, JsonSerializer.Serialize(paths, JsonDefaults.Options));
     }
 
     internal static IReadOnlyList<PathValidationResult> ValidatePaths(IReadOnlyList<string> paths) =>

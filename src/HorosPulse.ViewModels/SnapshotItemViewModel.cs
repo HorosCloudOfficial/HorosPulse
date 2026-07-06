@@ -47,11 +47,11 @@ public sealed partial class SnapshotItemViewModel : ObservableObject
         {
             var json = SnapshotCompression.Decompress(entry.StateJson);
             using var doc = JsonDocument.Parse(json);
-            return JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = true });
+            return JsonSerializer.Serialize(doc, JsonDefaults.Options);
         }
         catch (Exception ex)
         {
-            return JsonSerializer.Serialize(new { error = ex.Message });
+            return JsonSerializer.Serialize(new { error = ex.Message }, JsonDefaults.Options);
         }
     }
 }

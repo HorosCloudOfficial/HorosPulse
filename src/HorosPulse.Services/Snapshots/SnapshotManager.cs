@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
 using HorosPulse.Data;
+using HorosPulse.Data;
 using HorosPulse.Services.Startup;
 using HorosPulse.Services.VisualEffects;
 using HorosPulse.Services.Network;
@@ -124,10 +125,10 @@ public sealed class SnapshotManager : ISnapshotManager
             DefenderState = defenderState,
             IndexerState = indexerState.ToList(),
             ProcessPriorityStateJson = processPriorityJson,
-            ServiceStartupTypesJson = JsonSerializer.Serialize(serviceSnapshot),
-            StartupEntriesJson = JsonSerializer.Serialize(startupEntries),
-            VisualEffectsStateJson = JsonSerializer.Serialize(visualState),
-            NetworkSettingsStateJson = JsonSerializer.Serialize(networkState),
+            ServiceStartupTypesJson = JsonSerializer.Serialize(serviceSnapshot, JsonDefaults.Options),
+            StartupEntriesJson = JsonSerializer.Serialize(startupEntries, JsonDefaults.Options),
+            VisualEffectsStateJson = JsonSerializer.Serialize(visualState, JsonDefaults.Options),
+            NetworkSettingsStateJson = JsonSerializer.Serialize(networkState, JsonDefaults.Options),
         };
     }
 

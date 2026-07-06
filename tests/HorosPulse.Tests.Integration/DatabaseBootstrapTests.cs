@@ -4,6 +4,7 @@ using FluentAssertions;
 using HorosPulse.Core.Models;
 using HorosPulse.Data;
 using HorosPulse.Data.Repositories;
+using Microsoft.Data.Sqlite;
 using Xunit;
 
 public class DatabaseBootstrapTests
@@ -33,6 +34,55 @@ public class DatabaseBootstrapTests
         finally
         {
             DataPaths.TestDatabasePathOverride = null;
+        }
+    }
+
+    [Fact]
+    public async Task InitializeAsync_DoesNotThrow_WhenBackupFileAlreadyExists()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"horospulse-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        var dbPath = Path.Combine(tempDir, "data.db");
+        await using (var connection = new SqliteConnection($"Data Source={dbPath}"))
+        {
+            await connection.OpenAsync();
+        }
+
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+        var existingBackup = $"{dbPath}.backup.{timestamp}";
+        await File.WriteAllTextAsync(existingBackup, "existing backup");
+
+        DataPaths.TestDatabasePathOverride = dbPath;
+
+        try
+        {
+            var bootstrap = new DatabaseBootstrap();
+
+            var act = async () =>
+            {
+                await bootstrap.InitializeAsync();
+                await bootstrap.InitializeAsync();
+            };
+
+            await act.Should().NotThrowAsync();
+        }
+        finally
+        {
+            DataPaths.TestDatabasePathOverride = null;
+            SqliteConnection.ClearAllPools();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            if (Directory.Exists(tempDir))
+            {
+                try
+                {
+                    Directory.Delete(tempDir, recursive: true);
+                }
+                catch (IOException)
+                {
+                    // Best-effort cleanup; temp dir is disposable.
+                }
+            }
         }
     }
 }

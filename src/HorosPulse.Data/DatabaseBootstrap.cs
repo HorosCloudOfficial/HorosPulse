@@ -1,9 +1,12 @@
 namespace HorosPulse.Data;
 
+using System.Diagnostics;
 using Microsoft.Data.Sqlite;
 
 public sealed class DatabaseBootstrap
 {
+    private static int _backupCompleted;
+
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         DataPaths.EnsureDirectories();
@@ -63,13 +66,40 @@ public sealed class DatabaseBootstrap
 
     private static void BackupDatabaseIfExists()
     {
+        // InitializeAsync is invoked from multiple repositories during startup.
+        if (Interlocked.Exchange(ref _backupCompleted, 1) == 1)
+            return;
+
         var dbPath = DataPaths.DatabasePath;
         if (!File.Exists(dbPath))
             return;
 
+        try
+        {
+            var backupPath = ResolveUniqueBackupPath(dbPath);
+            File.Copy(dbPath, backupPath, overwrite: false);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[HorosPulse] WARN: Database backup skipped: {ex.Message}");
+        }
+    }
+
+    private static string ResolveUniqueBackupPath(string dbPath)
+    {
         var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
-        var backupPath = $"{dbPath}.backup.{timestamp}";
-        File.Copy(dbPath, backupPath, overwrite: false);
+        var basePath = $"{dbPath}.backup.{timestamp}";
+        if (!File.Exists(basePath))
+            return basePath;
+
+        for (var i = 1; i < 1000; i++)
+        {
+            var candidate = $"{basePath}_{i}";
+            if (!File.Exists(candidate))
+                return candidate;
+        }
+
+        return $"{dbPath}.backup.{DateTime.UtcNow:yyyyMMdd_HHmmss_fff}";
     }
 
     private static async Task ExecuteAsync(SqliteConnection connection, string sql, CancellationToken cancellationToken)

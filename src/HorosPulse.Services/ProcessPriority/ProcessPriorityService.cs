@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using HorosPulse.Core.Enums;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class ProcessPriorityService : IProcessPriorityService
 {
@@ -156,7 +157,7 @@ public sealed class ProcessPriorityService : IProcessPriorityService
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        var json = JsonSerializer.Serialize(_savedPriorities ?? new Dictionary<int, ProcessPriorityLevel>());
+        var json = JsonSerializer.Serialize(_savedPriorities ?? new Dictionary<int, ProcessPriorityLevel>(), JsonDefaults.Options);
         File.WriteAllText(_statePath, json);
     }
 
@@ -165,7 +166,7 @@ public sealed class ProcessPriorityService : IProcessPriorityService
         if (!File.Exists(_statePath))
             return;
 
-        _savedPriorities = JsonSerializer.Deserialize<Dictionary<int, ProcessPriorityLevel>>(File.ReadAllText(_statePath));
+        _savedPriorities = JsonSerializer.Deserialize<Dictionary<int, ProcessPriorityLevel>>(File.ReadAllText(_statePath), JsonDefaults.Options);
     }
 
     internal static ProcessPriorityClass ToProcessPriorityClass(ProcessPriorityLevel priority) =>

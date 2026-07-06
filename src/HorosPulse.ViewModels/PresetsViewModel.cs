@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using HorosPulse.Core;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class PresetStepOptionViewModel : ObservableObject
 {
@@ -191,7 +192,7 @@ public sealed partial class PresetsViewModel : ViewModelBase
         if (path is null)
             return;
 
-        var json = System.Text.Json.JsonSerializer.Serialize(SelectedPreset, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        var json = System.Text.Json.JsonSerializer.Serialize(SelectedPreset, JsonDefaults.Options);
         await File.WriteAllTextAsync(path, json);
         StatusMessage = $"Preset exportiert: {path}";
     }
@@ -207,7 +208,7 @@ public sealed partial class PresetsViewModel : ViewModelBase
         try
         {
             var json = await File.ReadAllTextAsync(path);
-            var profile = System.Text.Json.JsonSerializer.Deserialize<ProfileDefinition>(json);
+            var profile = System.Text.Json.JsonSerializer.Deserialize<ProfileDefinition>(json, JsonDefaults.Options);
             if (profile is null || string.IsNullOrWhiteSpace(profile.Name))
             {
                 StatusMessage = "Ungültige Preset-Datei.";

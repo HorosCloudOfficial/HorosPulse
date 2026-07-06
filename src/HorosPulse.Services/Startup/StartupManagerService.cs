@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class StartupManagerService : IStartupManagerService
 {
@@ -103,7 +104,7 @@ public sealed class StartupManagerService : IStartupManagerService
             return OptimizationResult.Fail("Kein Startup-Snapshot vorhanden.");
 
         var json = await File.ReadAllTextAsync(_snapshotPath, cancellationToken);
-        var snapshot = JsonSerializer.Deserialize<List<StartupEntry>>(json) ?? [];
+        var snapshot = JsonSerializer.Deserialize<List<StartupEntry>>(json, JsonDefaults.Options) ?? [];
         var restored = new List<string>();
 
         foreach (var entry in snapshot)
@@ -176,6 +177,6 @@ public sealed class StartupManagerService : IStartupManagerService
             .ToList();
 
         Directory.CreateDirectory(Path.GetDirectoryName(_snapshotPath)!);
-        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(entries));
+        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(entries, JsonDefaults.Options));
     }
 }

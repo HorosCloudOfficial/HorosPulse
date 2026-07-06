@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class CursorOptimizerService : ICursorOptimizer
 {
@@ -101,7 +102,7 @@ public sealed class CursorOptimizerService : ICursorOptimizer
             var merged = JsonSettingsMerger.Merge(currentJson, PerformanceTemplate);
             var changedKeys = JsonSettingsMerger.GetChangedKeys(currentJson, merged);
 
-            await File.WriteAllTextAsync(_settingsPath, merged.ToJsonString(new JsonSerializerOptions { WriteIndented = true }), cancellationToken);
+            await File.WriteAllTextAsync(_settingsPath, merged.ToJsonString(JsonDefaults.Options), cancellationToken);
             _logger.LogInformation("Cursor settings.json optimiert ({Count} Schlüssel)", changedKeys.Count);
 
             return OptimizationResult.Ok(changedKeys.Select(k => $"Geändert: {k}").ToArray());

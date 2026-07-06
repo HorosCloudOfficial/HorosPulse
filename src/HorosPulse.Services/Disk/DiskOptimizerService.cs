@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
+using HorosPulse.Data;
 
 public sealed class DiskOptimizerService : IDiskOptimizerService
 {
@@ -152,7 +153,7 @@ public sealed class DiskOptimizerService : IDiskOptimizerService
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(_snapshotPath, JsonSerializer.Serialize(_snapshot, JsonDefaults.Options));
     }
 
     private async Task<DiskOptimizerState?> LoadSnapshotAsync()
@@ -161,7 +162,7 @@ public sealed class DiskOptimizerService : IDiskOptimizerService
             return null;
 
         var json = await File.ReadAllTextAsync(_snapshotPath);
-        return JsonSerializer.Deserialize<DiskOptimizerState>(json);
+        return JsonSerializer.Deserialize<DiskOptimizerState>(json, JsonDefaults.Options);
     }
 
     private static int? ReadRegistryDword(RegistryKey hive, string subKey, string valueName)

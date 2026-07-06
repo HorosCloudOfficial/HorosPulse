@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
 using HorosPulse.Core.Scripts;
+using HorosPulse.Data;
 
 public sealed class IndexerExclusionService : IIndexerExclusionService
 {
@@ -128,7 +129,7 @@ public sealed class IndexerExclusionService : IIndexerExclusionService
         if (!File.Exists(_statePath))
             return Array.Empty<string>();
 
-        return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_statePath)) ?? [];
+        return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_statePath), JsonDefaults.Options) ?? [];
     }
 
     private void SaveAppliedPaths(IReadOnlyList<string> paths)
@@ -137,6 +138,6 @@ public sealed class IndexerExclusionService : IIndexerExclusionService
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        File.WriteAllText(_statePath, JsonSerializer.Serialize(paths, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(_statePath, JsonSerializer.Serialize(paths, JsonDefaults.Options));
     }
 }
