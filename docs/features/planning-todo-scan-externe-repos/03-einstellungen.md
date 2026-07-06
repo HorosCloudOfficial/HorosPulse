@@ -100,7 +100,7 @@ Welches Paket kommt in welches `.csproj`-Projekt?
 Kein NuGet-Paket — ein **Referenz-Architekturmuster** für UAC-Elevation in WPF-Anwendungen:
 
 - Hauptprozess läuft **ohne** `requireAdministrator`-Manifest (Standard-Benutzerrechte).
-- Elevation-Operationen werden an ein separates `ElevationHelper.exe` delegiert (eigenes Manifest: `requireAdministrator`).
+- Elevation-Operationen werden an ein separates `WindowsPerformance.Elevation.exe` delegiert (eigenes Manifest: `requireAdministrator`).
 - Kommunikation via **Named Pipe** (IPC): JSON-kodierte Befehle, JSON-Antworten.
 - Helper beendet sich nach jeder UAC-Session selbst (kein dauerhafter Admin-Prozess).
 

@@ -462,7 +462,7 @@
     <div class="callout">
       <p><strong>Kernprinzip:</strong> Henry++-Repos sind <em>Lese-Referenz</em>, kein vendored Code.
       WindowsPerformance übernimmt die Algorithmen als .NET-Implementierung via
-      <code>Vanara.PInvoke.NtDll</code> und <code>ElevationHelper.exe</code> — kein MSVC, keine native DLL.</p>
+      <code>Vanara.PInvoke.NtDll</code> und <code>WindowsPerformance.Elevation.exe</code> — kein MSVC, keine native DLL.</p>
     </div>
 
     <h2>Abgrenzung</h2>
@@ -474,7 +474,7 @@
         <tbody>
           <tr><td>Sprache</td><td>C (Win32 / NT Native)</td><td>C# / .NET 9 / WPF</td></tr>
           <tr><td>API-Zugriff</td><td>Direkt via <code>ntdll.dll</code></td><td>P/Invoke via <code>Vanara.PInvoke.NtDll</code></td></tr>
-          <tr><td>Elevation</td><td><code>requireAdministrator</code> Manifest</td><td>Nur <code>ElevationHelper.exe</code> hat Admin-Manifest</td></tr>
+          <tr><td>Elevation</td><td><code>requireAdministrator</code> Manifest</td><td>Nur <code>WindowsPerformance.Elevation.exe</code> hat Admin-Manifest</td></tr>
           <tr><td>Build</td><td>MSVC + NSIS + Python</td><td><code>dotnet build</code> / MSBuild</td></tr>
           <tr><td>In Solution?</td><td><strong>Nein</strong> — gitignored</td><td>7 .NET-Projekte in <code>WindowsPerformance.sln</code></td></tr>
         </tbody>
@@ -607,7 +607,7 @@ sequenceDiagram
     participant User as Benutzer
     participant VM as MemoryViewModel
     participant Svc as MemoryOptimizerService
-    participant Elev as ElevationHelper.exe
+    participant Elev as WindowsPerformance.Elevation.exe
     participant Vanara as Vanara.PInvoke.NtDll
     participant NT as ntdll.dll
 
@@ -733,24 +733,24 @@ sequenceDiagram
           <tr>
             <td><code>SeProfileSingleProcessPrivilege</code></td>
             <td>Memory-Flush via <code>SystemMemoryListInformation</code></td>
-            <td><code>ElevationHelper.exe</code> (UAC on-demand)</td>
+            <td><code>WindowsPerformance.Elevation.exe</code> (UAC on-demand)</td>
           </tr>
           <tr>
             <td><code>SeIncreaseQuotaPrivilege</code></td>
             <td><code>SystemFileCacheInformationEx</code></td>
-            <td><code>ElevationHelper.exe</code></td>
+            <td><code>WindowsPerformance.Elevation.exe</code></td>
           </tr>
           <tr>
             <td>Administrator-Rechte</td>
             <td>Registry HKLM-Schreibzugriff</td>
-            <td><code>ElevationHelper.exe</code></td>
+            <td><code>WindowsPerformance.Elevation.exe</code></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="callout warn">
-      <p><strong>Wichtig:</strong> Alle Aufrufe die erhöhte Rechte erfordern werden ausschließlich über <code>ElevationHelper.exe</code> (separates Prozess mit <code>requireAdministrator</code>) ausgeführt. <code>WindowsPerformance.App.exe</code> läuft niemals als Administrator.</p>
+      <p><strong>Wichtig:</strong> Alle Aufrufe die erhöhte Rechte erfordern werden ausschließlich über <code>WindowsPerformance.Elevation.exe</code> (separates Prozess mit <code>requireAdministrator</code>) ausgeführt. <code>WindowsPerformance.App.exe</code> läuft niemals als Administrator.</p>
     </div>
   </section>
 

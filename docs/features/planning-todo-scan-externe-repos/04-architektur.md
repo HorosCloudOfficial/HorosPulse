@@ -80,7 +80,7 @@ flowchart LR
         MML2["Microsoft.ML"]
     end
 
-    subgraph Elev["WindowsPerformance.Elevation\n(ElevationHelper.exe)"]
+    subgraph Elev["WindowsPerformance.Elevation\n(WindowsPerformance.Elevation.exe)"]
         CSW3["CsWin32\n(NativeMethods.txt)"]
     end
 
@@ -128,7 +128,7 @@ Die Chart-Library empfängt nur Daten — sie hat keine Kenntnis von der Datenqu
 MemoryOptimizerService.PurgeStandbyListAsync()
   └── Vanara.PInvoke.NtDll.NtSetSystemInformation
         └── SYSTEM_MEMORY_LIST_COMMAND.MemoryPurgeStandbyList
-              └── ElevationHelper.exe (Named Pipe IPC)
+              └── WindowsPerformance.Elevation.exe (Named Pipe IPC)
                     └── requireAdministrator-Manifest
 ```
 
@@ -175,7 +175,7 @@ Velopack CLI (vpk pack) → Release-Bundle
 
 ## Was sich durch externe Pakete NICHT ändert
 
-- **Elevation-Architektur:** `ElevationHelper.exe` als separater Prozess bleibt — Vanara und CsWin32 ändern *wie* P/Invoke-Calls aussehen, nicht *wo* sie ausgeführt werden.
+- **Elevation-Architektur:** `WindowsPerformance.Elevation.exe` als separater Prozess bleibt — Vanara und CsWin32 ändern *wie* P/Invoke-Calls aussehen, nicht *wo* sie ausgeführt werden.
 - **Snapshot/Rollback:** Kein externes Paket greift in den Snapshot-Mechanismus ein. `SnapshotManager` und `RollbackEngine` bleiben rein intern.
 - **DI-Container:** `Microsoft.Extensions.Hosting` bleibt der alleinige DI-Container. Die externen Pakete registrieren sich als normale Services.
 - **SQLite-Persistenz:** `Microsoft.Data.Sqlite` bleibt der Datenbank-Treiber. ML.NET liest Daten aus dem bestehenden `IPerformanceMetricRepository` — es bekommt kein eigenes Datenbank-Zugriffs-Layer.

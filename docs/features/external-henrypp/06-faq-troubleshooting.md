@@ -104,9 +104,9 @@ Die Repos haben unterschiedliche Lizenzen:
 
 ### F: `NtSetSystemInformation` gibt `STATUS_PRIVILEGE_NOT_HELD` zurück. Was fehlt?
 
-Das Privilege `SeProfileSingleProcessPrivilege` ist nicht aktiviert. In WindowsPerformance bedeutet das, der Aufruf wurde nicht über `ElevationHelper.exe` gesendet.
+Das Privilege `SeProfileSingleProcessPrivilege` ist nicht aktiviert. In WindowsPerformance bedeutet das, der Aufruf wurde nicht über `WindowsPerformance.Elevation.exe` gesendet.
 
-**Lösung:** Sicherstellen, dass der Aufruf über `ElevationService → ElevationHelper.exe` geht. Der ElevationHelper hat `requireAdministrator` im Manifest und kann das Privilege selbst erteilen.
+**Lösung:** Sicherstellen, dass der Aufruf über `ElevationService → WindowsPerformance.Elevation.exe` geht. Der ElevationHelper hat `requireAdministrator` im Manifest und kann das Privilege selbst erteilen.
 
 ---
 

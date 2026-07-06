@@ -83,3 +83,10 @@ logs/
 ## Third-party clones
 external/henrypp/
 
+
+# Local personal script trees (not shipped with the app; keep repo lean)
+SCRIPTS/AUTOHOTKEY/
+SCRIPTS/PWSH & BATCH/
+SCRIPTS/REGISTRY/
+SCRIPTS/.horoscloud-trash/
+_buildverify/

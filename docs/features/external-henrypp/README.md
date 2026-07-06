@@ -61,7 +61,7 @@ ElevationHelper   →  UAC-Brücke für NT-Calls     →  Teil der Solution
 - `external/henrypp/` ist in `.gitignore` Zeile 84 ausgeschlossen
 - WindowsPerformance compiliert **keinen** C-Code aus diesen Repos
 - `simplewall` ist **GPL-3.0** — kein Code kopieren; alle anderen Schlüssel-Repos sind MIT
-- NT-API-Aufrufe erfordern `SeProfileSingleProcessPrivilege` → läuft via `ElevationHelper.exe`
+- NT-API-Aufrufe erfordern `SeProfileSingleProcessPrivilege` → läuft via `WindowsPerformance.Elevation.exe`
 
 ---
 

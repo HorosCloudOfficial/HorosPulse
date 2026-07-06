@@ -10,7 +10,7 @@ WindowsPerformance.sln
 │   ├── WindowsPerformance.Services     # Domänenlogik, IOptimizationModule-Implementierungen
 │   ├── WindowsPerformance.Core         # Interfaces, Modelle, Skript-Bibliothek
 │   ├── WindowsPerformance.Data         # SQLite (Microsoft.Data.Sqlite), Repositories
-│   └── WindowsPerformance.Elevation    # ElevationHelper.exe (requireAdministrator)
+│   └── WindowsPerformance.Elevation    # WindowsPerformance.Elevation.exe (requireAdministrator)
 └── tests/
     ├── WindowsPerformance.Tests.Unit
     └── WindowsPerformance.Tests.Integration
@@ -24,7 +24,7 @@ flowchart LR
     VM --> SVC[Services]
     SVC --> DATA[SQLite Repositories]
     SVC --> PS[PowerShellBridge / powercfg]
-    SVC --> EL[ElevationHelper.exe]
+    SVC --> EL[WindowsPerformance.Elevation.exe]
     METRICS[PerformanceCounterService] --> DATA
     METRICS --> DASH[Dashboard LiveCharts]
 ```
@@ -34,13 +34,23 @@ flowchart LR
 3. **Services** orchestrieren Module (`IOptimizationModule`), Snapshots und Audit-Logging.
 4. **Data** persistiert Snapshots, Audit-Einträge (append-only) und Metrik-Zeitreihen unter `%LOCALAPPDATA%\WindowsPerformance\`.
 
+
+## Elevation-Binary (Namenskonvention)
+
+| Bezeichnung | Bedeutung |
+|-------------|-----------|
+| **WindowsPerformance.Elevation.exe** | Tatsächlicher Build- und Publish-Dateiname (Projekt WindowsPerformance.Elevation) |
+| **Elevation helper** / ElevationHelper* in Code | Konzept bzw. Typen wie ElevationHelperPathResolver — **nicht** der Dateiname auf der Festplatte |
+
+Frühere Docs nannten die EXE fälschlich WindowsPerformance.Elevation.exe; Build (CopyElevationHelper-Target), publish.ps1 und ElevationHelperPathResolver.HelperFileName verwenden durchgängig WindowsPerformance.Elevation.exe.
+
 ## Elevation-Flow
 
 ```mermaid
 sequenceDiagram
     participant App as WindowsPerformance.App
     participant Bridge as PowerShellBridge
-    participant Helper as ElevationHelper.exe
+    participant Helper as WindowsPerformance.Elevation.exe
     participant PS as pwsh.exe
 
     App->>Bridge: RunAsync(script, elevated: true)
@@ -53,7 +63,7 @@ sequenceDiagram
 ```
 
 - Die Haupt-App läuft **niemals** als Administrator (`asInvoker`).
-- Nur `ElevationHelper.exe` fordert UAC an und führt whitelisted Skripte aus.
+- Nur `WindowsPerformance.Elevation.exe` fordert UAC an und führt whitelisted Skripte aus.
 - Defender-, Indexer- und WSearch-Operationen nutzen diesen Pfad.
 
 ## Installer / Updates

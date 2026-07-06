@@ -76,7 +76,7 @@ Zum Leeren: `MinimumWorkingSet = MAXSIZE_T; MaximumWorkingSet = MAXSIZE_T;`
 
 ```csharp
 // Entspricht memreduct/src/main.c Zeilen 419–425
-// Voraussetzung: wird via ElevationHelper.exe ausgeführt
+// Voraussetzung: wird via WindowsPerformance.Elevation.exe ausgeführt
 
 using Vanara.PInvoke;
 
@@ -230,10 +230,10 @@ var threadCount = process.Threads.Count;
 
 | Privilege | Benötigt für | Wie erhalten |
 |-----------|-------------|-------------|
-| `SeProfileSingleProcessPrivilege` | `NtSetSystemInformation` Memory-Flush | `ElevationHelper.exe` (UAC on-demand) |
-| `SeIncreaseQuotaPrivilege` | `SystemFileCacheInformationEx` | `ElevationHelper.exe` |
+| `SeProfileSingleProcessPrivilege` | `NtSetSystemInformation` Memory-Flush | `WindowsPerformance.Elevation.exe` (UAC on-demand) |
+| `SeIncreaseQuotaPrivilege` | `SystemFileCacheInformationEx` | `WindowsPerformance.Elevation.exe` |
 | `SeDebugPrivilege` | Prozess-Handles anderer Benutzer | Nur für Process Inspector (optional) |
-| Administrator-Rechte | Registry HKLM-Schreibzugriff | `ElevationHelper.exe` |
+| Administrator-Rechte | Registry HKLM-Schreibzugriff | `WindowsPerformance.Elevation.exe` |
 
 ---
 

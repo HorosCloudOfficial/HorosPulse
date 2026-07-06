@@ -3,7 +3,7 @@ namespace WindowsPerformance.Core.Interfaces;
 using WindowsPerformance.Core.Models;
 
 /// <summary>
-/// Führt PowerShell-Skripte mit erhöhten Rechten über ElevationHelper.exe aus.
+/// Führt PowerShell-Skripte mit erhöhten Rechten über WindowsPerformance.Elevation.exe aus.
 /// </summary>
 public interface IElevationService
 {
@@ -14,7 +14,7 @@ public interface IElevationService
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Ob ElevationHelper.exe am erwarteten Pfad verfügbar ist.</summary>
+    /// <summary>Ob WindowsPerformance.Elevation.exe am erwarteten Pfad verfügbar ist.</summary>
     bool IsHelperAvailable { get; }
 
     /// <summary>Standby-Speicherliste leeren (erfordert Elevation).</summary>

@@ -166,7 +166,7 @@ public async Task PurgeStandbyListAsync()
 }
 ```
 
-> Diese Operation **muss** durch den `ElevationHelper.exe`-Prozess ausgeführt werden (SE_INCREASE_QUOTA_PRIVILEGE erforderlich).
+> Diese Operation **muss** durch den `WindowsPerformance.Elevation.exe`-Prozess ausgeführt werden (SE_INCREASE_QUOTA_PRIVILEGE erforderlich).
 
 ---
 

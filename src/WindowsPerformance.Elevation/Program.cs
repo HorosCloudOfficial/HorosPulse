@@ -33,7 +33,7 @@ if (args.Length > 0 && string.Equals(args[0], "--purge-standby", StringCompariso
 
 if (args.Length == 0)
 {
-    await Console.Error.WriteLineAsync("Verwendung: ElevationHelper.exe --server | <Base64Script> [--hash <sha256>] [--timeout <ms>]");
+    await Console.Error.WriteLineAsync("Verwendung: WindowsPerformance.Elevation.exe --server | <Base64Script> [--hash <sha256>] [--timeout <ms>]");
     return 1;
 }
 

@@ -84,7 +84,7 @@ sequenceDiagram
     Vanara-->>App: NTStatus (Success/Error)
 ```
 
-**Wichtig:** `NtSetSystemInformation` mit `SystemMemoryListInformation` erfordert das Privilege `SeProfileSingleProcessPrivilege`. In WindowsPerformance wird dies über `ElevationHelper.exe` (UAC on-demand) gehandhabt, nicht durch dauerhaftes `requireAdministrator`.
+**Wichtig:** `NtSetSystemInformation` mit `SystemMemoryListInformation` erfordert das Privilege `SeProfileSingleProcessPrivilege`. In WindowsPerformance wird dies über `WindowsPerformance.Elevation.exe` (UAC on-demand) gehandhabt, nicht durch dauerhaftes `requireAdministrator`.
 
 ---
 
@@ -95,7 +95,7 @@ graph TD
     USER["Benutzer\n(klickt 'Speicher leeren')"]
     VM["MemoryViewModel\n(WindowsPerformance.ViewModels)"]
     SVC["MemoryOptimizerService\n(WindowsPerformance.Services)"]
-    ELEV["ElevationHelper.exe\n(separates Prozess, requireAdministrator)"]
+    ELEV["WindowsPerformance.Elevation.exe\n(separates Prozess, requireAdministrator)"]
     VANARA["Vanara.PInvoke.NtDll"]
     KERNEL["ntdll.dll → NT Kernel"]
 
@@ -117,7 +117,7 @@ graph TD
 
 | Aspekt | Henry++ (z.B. memreduct) | WindowsPerformance |
 |--------|--------------------------|-------------------|
-| Elevation-Strategie | App startet mit `requireAdministrator`-Manifest — immer als Admin | `app.manifest`: `asInvoker`; nur `ElevationHelper.exe` hat Admin-Manifest |
+| Elevation-Strategie | App startet mit `requireAdministrator`-Manifest — immer als Admin | `app.manifest`: `asInvoker`; nur `WindowsPerformance.Elevation.exe` hat Admin-Manifest |
 | Laufzeit | Dauerhaft als Admin | Admin nur für die Dauer der Operation |
 | Security-Prinzip | Vereinfachte Entwicklung; für Desktop-Tools akzeptabel | Principle of Least Privilege; keine dauerhaft erhöhten Rechte |
 

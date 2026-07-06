@@ -13,6 +13,8 @@ WPF desktop application for optimizing Windows system settings for Cursor IDE de
 - **Persistence:** Microsoft.Data.Sqlite (Sprint 2+)
 - **Elevation:** Separate `WindowsPerformance.Elevation` console helper (UAC on-demand)
 
+Built executable: **WindowsPerformance.Elevation.exe** (not ElevationHelper.exe; see [docs/architecture.md](docs/architecture.md#elevation-binary-namenskonvention)).
+
 ## Build & Run
 
 ```bash
@@ -37,7 +39,7 @@ starter.bat Release
 
 Output: `artifacts/WindowsPerformance-<version>-win-x64.zip` (App + ElevationHelper + README).
 
-## ElevationHelper Code Signing (Dev)
+## Elevation helper code signing (Dev)
 
 For local development, sign `WindowsPerformance.Elevation.exe` with a self-signed Authenticode certificate:
 

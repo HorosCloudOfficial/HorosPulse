@@ -138,9 +138,9 @@ xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCor
 
 **Symptom:** Methode wirft Exception oder gibt Fehler-NTSTATUS zurück.
 
-**Ursache:** Die Operation wird nicht durch den `ElevationHelper.exe` ausgeführt, sondern direkt im App-Prozess (ohne Admin-Rechte).
+**Ursache:** Die Operation wird nicht durch den `WindowsPerformance.Elevation.exe` ausgeführt, sondern direkt im App-Prozess (ohne Admin-Rechte).
 
-**Lösung:** `MemoryOptimizerService.PurgeStandbyListAsync()` muss über Named-Pipe-IPC an `ElevationHelper.exe` delegieren — nicht direkt aufgerufen werden. Das Elevation-Helper-Projekt bekommt die Vanara-Abhängigkeit.
+**Lösung:** `MemoryOptimizerService.PurgeStandbyListAsync()` muss über Named-Pipe-IPC an `WindowsPerformance.Elevation.exe` delegieren — nicht direkt aufgerufen werden. Das Elevation-Helper-Projekt bekommt die Vanara-Abhängigkeit.
 
 ---
 

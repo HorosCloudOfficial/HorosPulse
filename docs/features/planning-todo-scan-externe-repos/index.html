@@ -607,7 +607,7 @@
     <p><strong>TODO 4.3 P2</strong> — XPlat Code Coverage für <code>dotnet test</code>. Ausgabe Cobertura XML. Dev-Only (<code>PrivateAssets="all"</code>). Kompatibel mit GitHub Actions Artifact Upload.</p>
 
     <h3>Komurasoft Elevation Pattern</h3>
-    <p><strong>TODO 2.3 P0</strong> — Referenzarchitektur für UAC-Elevation in WPF: Hauptprozess ohne Admin-Rechte, Elevation via separatem <code>ElevationHelper.exe</code> (Named Pipe IPC). <strong>Bereits vollständig implementiert</strong> in <code>WindowsPerformance.Elevation</code>. Dieser Eintrag dient als Qualitäts-Benchmark.</p>
+    <p><strong>TODO 2.3 P0</strong> — Referenzarchitektur für UAC-Elevation in WPF: Hauptprozess ohne Admin-Rechte, Elevation via separatem <code>WindowsPerformance.Elevation.exe</code> (Named Pipe IPC). <strong>Bereits vollständig implementiert</strong> in <code>WindowsPerformance.Elevation</code>. Dieser Eintrag dient als Qualitäts-Benchmark.</p>
   </section>
 
   <!-- ── Phase 2 ── -->
@@ -615,7 +615,7 @@
     <h2>⚡ Phase 2 — W7–14</h2>
 
     <h3>Vanara.PInvoke.NtDll</h3>
-    <p><strong>TODO 5.4</strong> — Memory Optimizer: Standby-Liste leeren via <code>NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)</code>. Erfordert <code>SE_INCREASE_QUOTA_PRIVILEGE</code> → läuft durch <code>ElevationHelper.exe</code>. Vanara liefert typsichere Wrapper ohne manuelles <code>[DllImport]</code>.</p>
+    <p><strong>TODO 5.4</strong> — Memory Optimizer: Standby-Liste leeren via <code>NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)</code>. Erfordert <code>SE_INCREASE_QUOTA_PRIVILEGE</code> → läuft durch <code>WindowsPerformance.Elevation.exe</code>. Vanara liefert typsichere Wrapper ohne manuelles <code>[DllImport]</code>.</p>
 
     <h3>Microsoft.Windows.CsWin32</h3>
     <p><strong>TODO 5.3, 5.5</strong> — Roslyn Source-Generator für Windows-API-Bindings. <code>NativeMethods.txt</code> deklariert benötigte APIs; zur Kompilierzeit werden typsichere C#-Stubs generiert. Kein Runtime-Overhead.</p>

@@ -21,7 +21,7 @@
 
 ## Projektüberblick
 
-WindowsPerformance ist eine WPF .NET 9 Desktop-Applikation mit einem modernen Tokyo-Night-Interface, die Windows-Systemeinstellungen gezielt für Cursor-IDE-Entwicklungsworkflows optimiert. Sie arbeitet mit on-demand-Elevation (separates `ElevationHelper.exe`), persistiert Snapshots in SQLite, führt PowerShell-Skripte als externer Prozess (`pwsh.exe`) aus und stellt jederzeit Rollback-Sicherheit bereit.
+WindowsPerformance ist eine WPF .NET 9 Desktop-Applikation mit einem modernen Tokyo-Night-Interface, die Windows-Systemeinstellungen gezielt für Cursor-IDE-Entwicklungsworkflows optimiert. Sie arbeitet mit on-demand-Elevation (separates `WindowsPerformance.Elevation.exe`), persistiert Snapshots in SQLite, führt PowerShell-Skripte als externer Prozess (`pwsh.exe`) aus und stellt jederzeit Rollback-Sicherheit bereit.
 
 ---
 
@@ -34,7 +34,7 @@ WindowsPerformance ist eine WPF .NET 9 Desktop-Applikation mit einem modernen To
 | Design-System | Tokyo Night Farb-Palette, MaterialDesignInXamlToolkit oder eigene Styles |
 | PowerShell | `pwsh.exe` externer Prozess (keine In-Process-Ausführung) |
 | Persistenz | System.Text.Json (Profiles/Snapshots) + SQLite via EF Core 9 (Trends/Audit) |
-| Elevation | Separates `ElevationHelper.exe` (UAC on-demand, App läuft **nie** als Admin) |
+| Elevation | Separates `WindowsPerformance.Elevation.exe` (UAC on-demand, App läuft **nie** als Admin) |
 | Logging | Microsoft.Extensions.Logging + Serilog-File-Sink |
 | Tests | xUnit, Moq, FluentAssertions |
 | Build/CI | `dotnet build`, `dotnet test` (lokal); GitHub Actions optional |
@@ -51,7 +51,7 @@ WindowsPerformance.sln
 │   ├── WindowsPerformance.ViewModels    # CommunityToolkit.Mvvm ViewModels
 │   ├── WindowsPerformance.Services      # Business-Logik, OS-Interaktion
 │   ├── WindowsPerformance.Data          # EF Core DbContext, Repositories, JSON-IO
-│   ├── WindowsPerformance.Elevation     # ElevationHelper.exe (separates Projekt)
+│   ├── WindowsPerformance.Elevation     # WindowsPerformance.Elevation.exe (separates Projekt)
 │   └── WindowsPerformance.PowerShell   # Wrapper für pwsh.exe-Ausführung
 └── tests/
     ├── WindowsPerformance.Unit          # xUnit Unit-Tests
@@ -178,14 +178,14 @@ WindowsPerformance.sln
 - [x] **P0** `IPowerShellBridge` Interface: `RunAsync(string script, bool elevated, CancellationToken ct)` *(als IPowerShellRunner)*
 - [x] **P0** `PowerShellResult` (record: int ExitCode, string StdOut, string StdErr, bool Success)
 - [x] **P0** `PowerShellBridge` — startet `pwsh.exe -NonInteractive -NoProfile -Command "…"` via `Process.Start`, captured stdout/stderr, Timeout (30s default)
-- [x] **P0** Elevated-Variante: Named-Pipe-IPC an `ElevationHelper.exe --server` (UAC via `runas` beim Start)
+- [x] **P0** Elevated-Variante: Named-Pipe-IPC an `WindowsPerformance.Elevation.exe --server` (UAC via `runas` beim Start)
 - [x] **P0** Skript-Sanitisierung: verbotene Muster blocken (z. B. `rm -rf`, `Format-`, `Remove-Item C:\Windows`)
 - [x] **P0** Startup-Check: `pwsh.exe`-Verfügbarkeit beim App-Start prüfen; Fallback auf `powershell.exe` 5.1 *(ergänzt)*
 - [x] **P1** `PowerShellScriptLibrary` — statische Klasse mit vorkompilierten Skript-Strings (keine `.ps1`-Dateien auf Disk im Produktionsbetrieb)
 - [x] **P1** Timeout konfigurierbar via `PowerShellOptions` *(ohne IOptions-Pattern)*
 - [x] **P1** Logging jedes PS-Aufrufs (Script-Hash, ExitCode, Dauer) via `IAuditLogger` — Sprint 3
 
-### 2.3 ElevationHelper.exe (P0)
+### 2.3 WindowsPerformance.Elevation.exe (P0)
 
 **Abhängigkeit:** 1.1
 
@@ -193,11 +193,11 @@ WindowsPerformance.sln
 - [x] **P0** Eingabe: Base64-kodiertes PowerShell-Skript als `args[0]`, optional `--timeout <ms>` *(+ Named-Pipe-Server-Modus)*
 - [x] **P0** Ausgabe: JSON auf stdout `{ "exitCode": 0, "stdout": "…", "stderr": "…" }`
 - [x] **P0** Fehlerfall: Exit-Code ≠ 0, JSON mit `stderr`-Inhalt
-- [x] **P0** Keine dauerhafte Elevation: ElevationHelper.exe `--server` läuft pro UAC-Session, Einzelaufruf-Modus beendet sich
+- [x] **P0** Keine dauerhafte Elevation: WindowsPerformance.Elevation.exe `--server` läuft pro UAC-Session, Einzelaufruf-Modus beendet sich
 - [x] **P1** Whitelist der erlaubten Skript-Hashes (SHA-256) im ElevationHelper — lehnt unbekannte Skripte ab
-- [x] **P1** Signierung des ElevationHelper.exe (selbstsigniertes Zertifikat für Dev; `scripts/sign-elevation-helper.ps1`; Produktion: echtes Zertifikat)
+- [x] **P1** Signierung des WindowsPerformance.Elevation.exe (selbstsigniertes Zertifikat für Dev; `scripts/sign-elevation-helper.ps1`; Produktion: echtes Zertifikat)
 - [x] **P1** Test: ElevationHelper gibt korrektes JSON zurück für bekanntes Dummy-Skript
-- [x] **P0** Build-Output: `ElevationHelper.exe` bei Build neben `WindowsPerformance.App.exe` kopieren (MSBuild Post-Build-Target) *(ergänzt)*
+- [x] **P0** Build-Output: `WindowsPerformance.Elevation.exe` bei Build neben `WindowsPerformance.App.exe` kopieren (MSBuild Post-Build-Target) *(ergänzt)*
 - [x] **P0** Runtime-Pfad-Auflösung: `ElevationHelperPathResolver` findet EXE relativ zum App-Basisverzeichnis (Dev-Build + portable Deploy) *(ergänzt)*
 
 ### 2.4 PowerPlan-Modul (P1)
@@ -410,7 +410,7 @@ WindowsPerformance.sln
 **Abhängigkeit:** 4.1 Unit Tests grün
 
 - [x] **P2** `AppDbContext` gegen echte SQLite In-Memory-DB testen — ersetzt durch `DatabaseBootstrapTests` (Microsoft.Data.Sqlite, kein EF)
-- [x] **P2** `ElevationHelper.exe` Integration: Build + Start + JSON-Output parsen
+- [x] **P2** `WindowsPerformance.Elevation.exe` Integration: Build + Start + JSON-Output parsen
 - [x] **P2** `SnapshotManager` ↔ `RollbackEngine` End-to-End mit Fake-Modul
 - [x] **P2** `PowerShellRunner` gegen `pwsh.exe` auf CI-Maschine (wenn verfügbar)
 
@@ -560,7 +560,7 @@ Diese Items werden bewusst **nicht** implementiert:
 - [ ] ~~`node_modules`-Verzeichnis als Defender-Exclusion~~ — Sicherheitsrisiko, nicht recommended
 - [ ] ~~`EmptyWorkingSet` für `cursor.exe` / `node.exe`~~ — führt zu Working-Set-Thrashing, verschlechtert Performance
 - [ ] ~~Automatisches Deaktivieren von Windows-Diensten~~ — zu destruktiv; manuelle Opt-in-Kontrolle in Phase 2
-- [ ] ~~App läuft dauerhaft als Administrator~~ — Elevation nur on-demand via ElevationHelper.exe
+- [ ] ~~App läuft dauerhaft als Administrator~~ — Elevation nur on-demand via WindowsPerformance.Elevation.exe
 - [ ] ~~Cloud-Sync von Profilen/Metriken~~ — alle Daten lokal, keine externen API-Calls
 - [ ] ~~Browser-Performance-Tweaks~~ — außerhalb des definierten Scopes
 - [ ] ~~Linux/macOS-Support~~ — Windows-only by design
@@ -586,13 +586,13 @@ Diese Items werden bewusst **nicht** implementiert:
 ## Sicherheit & Elevation-Architektur
 
 - [x] **P0** App läuft **niemals** mit `requireAdministrator`-Manifest — `app.manifest`: `asInvoker`
-- [x] **P0** Nur `ElevationHelper.exe` hat `requireAdministrator`; wird als separater Prozess gestartet — `ElevationService` + separates Projekt
+- [x] **P0** Nur `WindowsPerformance.Elevation.exe` hat `requireAdministrator`; wird als separater Prozess gestartet — `ElevationService` + separates Projekt
 - [x] **P0** Alle elevated Operationen gehen durch Whitelist im ElevationHelper (Script-Hash-Check)
 - [x] **P0** Keine Credentials, Tokens oder Passwörter werden gespeichert
 - [x] **P1** Eingaben für PowerShell-Skripte werden sanitized (keine User-kontrollierten Skript-Inhalte) — `ScriptSanitizer` + `PowerShellBridge`
 - [x] **P1** Snapshot-Checksums verhindern Tampering mit gespeicherten States — `SnapshotCompression.ValidateChecksum`
 - [x] **P1** SQLite-Datei liegt in `%LOCALAPPDATA%` — kein Netzwerk-Zugriff — `DataPaths.DatabasePath`
-- [x] **P2** ElevationHelper.exe signiert (SHA-256 Authenticode) — Dev: `scripts/sign-elevation-helper.ps1`; CI: optional/skipped
+- [x] **P2** WindowsPerformance.Elevation.exe signiert (SHA-256 Authenticode) — Dev: `scripts/sign-elevation-helper.ps1`; CI: optional/skipped
 - [x] **P2** Audit-Log ist append-only (keine Update/Delete-Operationen auf AuditEntries)
 
 ---
