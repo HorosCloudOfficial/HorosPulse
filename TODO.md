@@ -80,7 +80,7 @@ WindowsPerformance.sln
 
 ### 1.1 Solution Setup (P0)
 
-- [~] **P0** Git-Repository initialisieren (`git init`) und initialer Commit nach Solution-Setup *(ergänzt)* — Repo aktiv auf `main`; Solution-Umfang noch uncommitted — **initialer Bulk-Commit = Nutzer-Aktion** (nicht automatisiert)
+- [x] **P0** Git-Repository initialisieren (`git init`) und initialer Commit nach Solution-Setup *(ergänzt)* - Repo auf `main`; initialer Bulk-Commit `f36a228` (MVP + Phase 3, 221 Dateien)
 - [x] **P0** Branch-Strategie festlegen: `main` (stable), Feature-Branches `feature/<name>`, Squash-Merge in `main` *(ergänzt)*
 - [x] **P0** `dotnet new sln -n WindowsPerformance` in `D:\WindowsPerformance` ausführen
 - [x] **P0** Projektordner `src/` und `tests/` anlegen
@@ -597,4 +597,4 @@ Diese Items werden bewusst **nicht** implementiert:
 
 ---
 
-*Zuletzt aktualisiert: 2026-07-06 — MVP + Phase 2–3 vollständig; `dotnet build`/`dotnet test` Release grün (38 Tests: 32 Unit + 6 Integration); `publish.ps1` → `artifacts/WindowsPerformance-0.1.0-win-x64.zip` verifiziert; offen: L83 Bulk-Commit (Nutzer), Out-of-Scope (559–567).*
+*Zuletzt aktualisiert: 2026-07-06 — MVP + Phase 2–3 vollständig; `dotnet build`/`dotnet test` Release grün (38 Tests: 32 Unit + 6 Integration); `publish.ps1` → `artifacts/WindowsPerformance-0.1.0-win-x64.zip` verifiziert; Out-of-Scope (559–567).*
