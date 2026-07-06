@@ -34,19 +34,19 @@ Root (depth 0) — DISPATCHER ONLY
 
 ## Agent Routing
 
-**Model policy:** default **`composer-2.5-fast`** (Composer 2.5, [Auto + Composer pool](https://cursor.com/docs/models-and-pricing.md)); **`claude-opus-4-8-thinking-high`** only for deliberate depth (Sokka, Iroh); **`gemini-3.1-pro`** only for the multimodal stack (Zuko). See [Model Policy](../README.md#model-policy) in the project README.
+**Model policy:** default **`composer-2.5`** (never `composer-2.5-fast`); **`claude-4.6-sonnet-medium-thinking`** for deep planning/docs (Iroh, Sokka). **`claude-opus-4-8-thinking-high`** nur bei expliziter Eskalation — siehe `model-policy.mdc` (teuer, nie Default; nie für Momo/Katara/Toph). Root **must** pass `model` on every `Task` spawn.
 
 | Agent | Model | Fire When |
 |-------|-------|-----------|
-| **Toph** | `composer-2.5-fast` | Any search, exploration, "how does X work", docs lookup; skill discovery ("how do I extend X") |
-| **Momo** | `composer-2.5-fast` | Simple single-file changes, quick focused tasks |
-| **Appa** | `composer-2.5-fast` | Plan exists → executes plan step-by-step, no improvisation |
-| **Katara** | `composer-2.5-fast` | No plan + needs fixing → surgical fix, smallest possible change |
-| **Suki** | `composer-2.5-fast` | Mobile/Expo/iOS/React Native/HorosCloud Backup/`apps/mobile` — builds, fixes, ships mobile app |
-| **Aang** | `composer-2.5-fast` | No plan + needs building → decides approach + builds. Also: 2+ failed executor fixes |
-| **Sokka** | `claude-opus-4-8-thinking-high` | Complex planning, ambiguous scope analysis |
-| **Zuko** | `gemini-3.1-pro` | Images, icons, UI mockups, visual design |
-| **Iroh** | `claude-opus-4-8-thinking-high` | README writes, CHANGELOG updates, any documentation task |
+| **Toph** | `composer-2.5` | Any search, exploration, "how does X work", docs lookup; skill discovery ("how do I extend X") |
+| **Momo** | `composer-2.5` | Simple single-file changes, quick focused tasks |
+| **Appa** | `composer-2.5` | Plan exists → executes plan step-by-step, no improvisation |
+| **Katara** | `composer-2.5` | No plan + needs fixing → surgical fix, smallest possible change |
+| **Suki** | `composer-2.5` | Mobile/Expo/iOS/React Native/HorosCloud Backup/`apps/mobile` — builds, fixes, ships mobile app |
+| **Aang** | `composer-2.5` | No plan + needs building → decides approach + builds. Also: 2+ failed executor fixes |
+| **Sokka** | `claude-4.6-sonnet-medium-thinking` | Complex planning, ambiguous scope analysis; Opus nur nach dokumentiertem Sonnet-Scheitern + User-OK oder expliziter User-Anfrage |
+| **Zuko** | `composer-2.5` | Images, icons, UI mockups, visual design |
+| **Iroh** | `claude-4.6-sonnet-medium-thinking` | README writes, CHANGELOG updates, any documentation task |
 
 **There is NO request type where the root does the work itself.**
 
@@ -75,7 +75,22 @@ When the user activates **Lean Mode** (see `agent-context-modes.mdc`):
 | **Todos** | Skip `TodoWrite` for ≤2 obvious steps; use only when tracking prevents rework. |
 | **Resume** | Prefer `resume` on existing sessions over fresh spawns. |
 
-Lean Mode does **not** relax the root dispatcher rule (still no direct `Read`/`Write`/etc.).
+Lean Mode does **not** relax the root dispatcher rule (still no direct `Read`/`Write`/etc.) and does **not** change model slugs (always `composer-2.5`, never `composer-2.5-fast`).
+
+## Wide Ultra-Logical (`/wide-ultra-logical`, `/wul`, `/wide`, `/ultra-logical`, `/boost:wide`)
+
+When the user activates **Wide Ultra-Logical** (see `agent-context-modes.mdc`, rule `@wide-ultra-logical`):
+
+| Rule | Wide Ultra-Logical behavior |
+|------|------------------------------|
+| **Delegation** | Task prompts **must** state the mode and require end-to-end completion — no partial stubs, no TODO placeholders. |
+| **Executors** | Self-verify (`tsc`/build, tests, lint) **before** reporting success; fix failures, do not hand back broken code. |
+| **Routing** | Multi-file or ambiguous features → prefer **Aang** (build) or **Appa** (plan exists) over **Momo**; **Katara** only for surgical fixes that are still delivered complete. |
+| **Summaries** | May explain trade-offs in more detail; code deliverables remain fully complete. |
+| **Lean conflict** | Wide wins on **implementation depth**; Lean wins on **chat brevity** (no preamble). Both may be active. |
+| **Models** | Always `composer-2.5` — never `composer-2.5-fast`. |
+
+Wide Ultra-Logical does **not** relax the root dispatcher rule (still delegate all work via `Task`).
 
 ## Intent Gate (every request)
 

@@ -1,7 +1,7 @@
 ---
 name: suki is shipping HorosCloud mobile
 description: HorosCloud Backup mobile specialist for Expo/React Native/iOS in apps/mobile. Builds features, fixes bugs, and ships PhotoKit backup, background sync, and mobile UI. Use for mobile, Expo, iOS, React Native, or HorosCloud Backup app work.
-model: composer-2.5-fast
+model: composer-2.5
 ---
 
 # Suki - The Kyoshi Warrior (Mobile Shipper)
@@ -164,8 +164,8 @@ Never shotgun-debug across unrelated modules.
 **Parallel Research** (EXPLORE):
 
 ```
-Task(toph, model: fast, "Search apps/mobile for backup upload flow and ledger usage")
-Task(toph, model: fast, "Find Expo background-fetch and notification patterns in apps/mobile")
+Task(toph, model: composer-2.5, "Search apps/mobile for backup upload flow and ledger usage")
+Task(toph, model: composer-2.5, "Find Expo background-fetch and notification patterns in apps/mobile")
 ```
 
 **Cap**: max **3** `toph` dispatches per task. Batch related queries. After `toph` returns Completed, synthesize — do not re-dispatch same scope.

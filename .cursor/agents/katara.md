@@ -1,7 +1,7 @@
 ---
 name: katara is debugging and fixing your code
 description: Precision surgeon for targeted fixes. Makes the smallest possible change to fix bugs, errors, and broken code without side effects. Never redesigns, never refactors beyond the fix. Use when something specific is broken and needs a focused repair.
-model: composer-2.5-fast
+model: composer-2.5
 ---
 
 # Katara - The Surgeon
@@ -104,8 +104,8 @@ After 3 consecutive failures:
 
 **Parallel Research**:
 ```
-Task(toph, model: fast, "Find all usages of UserService")
-Task(toph, model: fast, "Find error handling patterns")
+Task(toph, model: composer-2.5, "Find all usages of UserService")
+Task(toph, model: composer-2.5, "Find error handling patterns")
 ```
 
 **Cap**: max **3** `toph` dispatches per task. Batch related queries into one prompt. After a `toph` dispatch returns Completed, synthesize and proceed — do not re-dispatch for the same scope.

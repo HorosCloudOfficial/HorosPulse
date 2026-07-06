@@ -25,6 +25,19 @@ If a requested source is missing, state that clearly and continue with the avail
 - `/on`: enable the **Fix · Debug · GUI · Performance Elite Team** plus Deep + Critical context for the current task and follow-up work.
 - `/off`: disable the combined context until re-enabled.
 
+### Modell-Auswahl
+
+**Vollständige Regeln:** `model-policy.mdc` (Hierarchie, Opus-Ausnahmen) und `orchestrator.mdc` (Agent → Modell-Routing).
+
+| Stufe | Slug | Wann |
+|-------|------|------|
+| **Default** | `composer-2.5` | Executors, Exploration, Implementierung — **niemals** `composer-2.5-fast` (außer explizite User-Anfrage) |
+| **Tiefe** | `claude-4.6-sonnet-medium-thinking` | Planung, Docs, komplexe Analyse (Iroh, Sokka) |
+| **Ausnahme** | `claude-opus-4-8-thinking-high` | Nur wenn unbedingt nötig — explizite User-Anfrage oder dokumentiertes Sonnet-Scheitern; teuer, nie Default |
+
+- Opus ist als Task-Slug **erlaubt**, aber nur unter den Bedingungen in `model-policy.mdc` — nicht für Momo/Katara/Toph/Routine-Arbeit.
+- Lean Mode und Wide Ultra-Logical ändern die Modell-Slugs nicht (siehe Tabellen unten).
+
 ### Deep + Critical (from `deep-critical-team.agent.md`)
 
 - `/next`: skip the critical reviewer's clarifying question and proceed directly with the default split (50/50).
@@ -66,6 +79,69 @@ Default to the combined context being enabled for this workspace unless the user
 | **Diffs** | Kleinster sinnvoller Patch; kein Refactoring nebenbei. |
 | **Verifikation** | Lint/Build/Test weiterhin ausführen, aber ohne ausführliche Protokoll-Narration — nur Ergebnis oder Fehler kurz melden. |
 | **Orchestrator** | Siehe `orchestrator.mdc` → Lean Mode (weniger Subagents, kürzere Delegation). |
+| **Modelle** | Immer `composer-2.5` für Worker — **niemals** `composer-2.5-fast`, auch nicht in Lean Mode. |
 | **Konflikt** | Lean Mode **senkt** Ausführlichkeit, ersetzt aber nicht Sicherheits- oder Qualitäts-Mindestanforderungen (kein Commit ohne Anfrage, keine Type-Suppression). |
 
 Examples: `/lean fixe den Login-Bug`, `/tokens:min /stack react …`, `/minimal deploy nur lokal`
+
+### Boost (vollständiger Code)
+
+- `/boost`: Agent liefert **vollständigen, logisch abgeschlossenen Code** — keine halben Snippets, keine „…rest unchanged“, keine fehlenden Imports/Exports; jede Änderung muss direkt kompilierbar und in sich stimmig sein. Gilt für die aktuelle Aufgabe und Follow-ups, bis `/boost:off`.
+- `/boost:wide`: Alias für **Wide Ultra-Logical** (siehe unten) — gleiche Semantik wie `/wide-ultra-logical`.
+
+### Wide Ultra-Logical (vollständige logische Implementierung)
+
+**Formalisiert `/boost` auf Feature-Ebene** — nicht nur kompilierbare Snippets, sondern Ende-zu-Ende-fertige, logisch geschlossene Implementierung. Gilt für die aktuelle Aufgabe und Follow-ups, bis `/wide-ultra-logical:off` (oder `/wul:off`).
+
+- **Primär:** `/wide-ultra-logical`
+- **Aliase:** `/wul`, `/wide`, `/ultra-logical`, `/boost:wide`
+- **Deaktivieren:** `/wide-ultra-logical:off`, `/wul:off`
+- **Regeldatei:** `@wide-ultra-logical` (`.cursor/rules/wide-ultra-logical.mdc`) — bei Aktivierung in Delegation und Executor-Kontext erwähnen.
+
+**Community-Patterns (Cursor/.mdc Best Practices), die dieser Modus übernimmt:**
+
+1. **Keine Platzhalter** — kein `// ... rest of code`, kein `// TODO later`, keine toten Zweige; bei Blocker genau benennen, was fehlt, statt Skelett zu liefern.
+2. **Jeder Schritt vollständig** — große Features in committbare Phasen teilen, aber jede Phase logisch abgeschlossen (nicht halbfertig weiter).
+3. **Edge Cases & Fehlerpfade** — null/undefined, leere Collections, Netzwerk-/Auth-Fehler, exhaustive `switch`/`never` wo Typen es verlangen.
+4. **Selbst-Verifikation vor „fertig“** — `tsc`/Build, relevante Tests, Lint; Ergebnis melden, nicht nur behaupten.
+5. **Konkrete Muster statt Prosa** — bestehende Projekt-Konventionen lesen und spiegeln; Referenzdateien statt erfundener Abstraktionen.
+
+**Wenn Wide Ultra-Logical aktiv ist** (explizit per Parameter oder inline, z. B. `/wul /fix …`):
+
+| Aspect / Bereich | Behavior when active / Verhalten |
+|------------------|----------------------------------|
+| **Scope** | Gesamtes Feature Ende-zu-Ende fertigstellen, bevor gestoppt wird — UI, State, Tests, Typen, Integration mit bestehendem Code. |
+| **Code** | Keine partiellen Stubs, kein „TODO später“, keine ungenutzten Zweige; Imports/Exports vollständig; direkt kompilierbar. |
+| **Logic** | Edge Cases, Fehlerpfade, Typen, Null-Checks, sinnvolle Defaults; keine spekulativen Abstraktionen ohne Nutzung. |
+| **Verification** | `tsc`/Build, Tests (neu oder angepasst), Lint **vor** Meldung „erledigt“; bei Fehlern fixen, nicht abschließen. |
+| **Communication** | Längere Erklärungen bei Trade-offs erlaubt; Code trotzdem vollständig — keine Code-Snippets mit Auslassungen. |
+| **Orchestrator** | Siehe `orchestrator.mdc` → Wide Ultra-Logical; Executors **müssen** Selbst-Verifikation durchführen. |
+| **Modelle** | Immer `composer-2.5` für Worker — **niemals** `composer-2.5-fast`, auch nicht in diesem Modus. |
+| **Konflikt mit `/lean`** | **Code-Tiefe:** Wide Ultra-Logical gewinnt (vollständige Implementierung). **Chat-Kürze:** Lean gewinnt (kein Preamble, knappe Statusmeldungen). Beide gleichzeitig möglich: kurzer Chat, tiefer Code. |
+| **Konflikt mit `/boost`** | Wide Ultra-Logical **umfasst** Boost; bei beiden aktiv reicht Wide Ultra-Logical. |
+
+Examples: `/wide-ultra-logical baue Weather-Widget fertig`, `/wul /stack react …`, `/ultra-logical ohne Stubs`
+
+### Epic Feature Documentation (`/doc-epic`)
+
+**Formalisiert umfassende Feature-Dokumentation** — mehrere zusammengehörige Markdown-Dateien pro Funktion plus eine standalone HTML-Übersicht. Gilt für die aktuelle Aufgabe und Follow-ups, bis `/doc-epic:off`.
+
+- **Primär:** `/doc-epic`
+- **Aliase:** `/feature-docs`, `/doku-episch`, `/doc:function`
+- **Deaktivieren:** `/doc-epic:off`
+- **Skill:** `@doc-epic` (`.cursor/skills/doc-epic/SKILL.md`)
+- **Regeldatei:** `@doc-epic` (`.cursor/rules/doc-epic.mdc`) — bei Aktivierung in Delegation und Executor-Kontext erwähnen.
+
+**Wenn `/doc-epic` aktiv ist** (explizit per Parameter oder inline, z. B. `/doc-epic dokumentiere Canvas-Stil …`):
+
+| Bereich | Verhalten |
+|---------|-----------|
+| **Zuständigkeit** | **Iroh** (oder explizit zugewiesener Doc-Agent) erstellt/aktualisiert Docs unter `HorosCloudV5/docs/features/<feature-slug>/` |
+| **Struktur** | Diataxis-inspiriert: `README.md` (Hub), `01-uebersicht.md` … `06-faq-troubleshooting.md`, optional `07-changelog-feature.md` |
+| **HTML** | `index.html` — dunkles HorosCloud-Theme, Sidebar-Navigation, Mermaid-Diagramme, Screenshot-Platzhalter → `docs/screenshots/...`; kein Build-Schritt |
+| **Slug** | kebab-case, UI-Pfad gespiegelt: `settings/widgets/notizen/bereich-canvas-design` → `docs/features/settings-widgets-notizen-bereich-canvas-design/` |
+| **Sprache** | Deutsch (primär), codegenau mit Dateipfaden |
+| **Quelle** | Zuerst relevante Source-Dateien lesen — keine leeren Platzhalter-Docs |
+| **Verlinkung** | Eintrag in `HorosCloudV5/docs/README.md` (Features-Index) |
+
+Examples: `/doc-epic settings-widgets-notizen-bereich-canvas-design`, `/feature-docs Canvas-Stil Notizen`, `/doku-episch Widget Notizen Bereich`

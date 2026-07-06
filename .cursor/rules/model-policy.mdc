@@ -1,0 +1,52 @@
+---
+description: Preferred AI models — Composer 2.5 default, Sonnet depth, Opus rare (never fast)
+alwaysApply: true
+---
+
+# Model Policy / Modell-Richtlinie
+
+User preference: **Composer 2.5 und Sonnet 4.6 (kein fast) als Standard; Opus High-Thinking nur wenn unbedingt nötig** — Kosten bewusst, Qualität wo sinnvoll.
+
+## Task tool slugs (only these)
+
+| Slug | Use |
+|------|-----|
+| `composer-2.5` | **Default** — alle Executors, Exploration, Implementierung |
+| `claude-4.6-sonnet-medium-thinking` | Tiefe — Planung, Docs, komplexe Analyse (Iroh, Sokka) |
+| `claude-opus-4-8-thinking-high` | **Nur Ausnahme** — siehe Opus-Regeln unten; **teuer, nie Default** |
+| `claude-fable-5-thinking-high` | Nur bei expliziter User-Anfrage |
+| `composer-2.5-fast` | **FORBIDDEN** as default — never use unless user explicitly requests fast |
+
+## Agent → model (Task spawns)
+
+| Agent | Model | Notes |
+|-------|-------|-------|
+| Toph, Momo, Katara, Appa, Aang, Suki, Zuko | `composer-2.5` | Default workers — **nie Opus** |
+| Iroh, Sokka | `claude-4.6-sonnet-medium-thinking` | Planning, docs, ambiguous scope |
+
+Root orchestrator **must** pass `model` on every `Task` spawn. See routing table in `orchestrator.mdc`.
+
+## Opus High-Thinking (`claude-opus-4-8-thinking-high`) — Task erlaubt, selten
+
+> **Kostenwarnung:** Opus High-Thinking ist deutlich teurer als Composer/Sonnet. **Nicht** als Standard oder „zur Sicherheit“ nutzen.
+
+**Wann erlaubt (nur einer davon muss klar zutreffen):**
+
+- User fordert Opus / High-Thinking **explizit** an
+- Sokka-/Sonnet-Planung reicht nicht — eskalieren nach dokumentiertem Scheitern, nicht vorsorglich
+- Security-kritische Architektur-Review ohne bestehenden Plan
+- Multi-System-Architektur ohne Plan, nach Sonnet unzureichend
+
+**Niemals Opus für:** Momo, Katara, Toph, Zuko, einfache Fixes, Screenshots, Lean/Wide-Executors, Routine-Implementierung.
+
+**Vor Opus-Spawn:** Sonnet (`claude-4.6-sonnet-medium-thinking`) oder Composer zuerst; Opus nur bei nachweislich unzureichendem Ergebnis oder expliziter User-Anfrage.
+
+**Main chat:** User kann Opus manuell wählen; Subagent-Policy bleibt wie oben.
+
+## Rules
+
+- **NEVER** default to `composer-2.5-fast` or `claude-opus-4-8-thinking-high`.
+- **NEVER** use Opus for Momo/Katara/simple fixes/screenshots.
+- Coordinators inherit the table above when no override is given.
+- **Lean Mode** reduces verbosity and orchestration only; it does **not** change model slugs.
+- **Wide Ultra-Logical** (`/wide-ultra-logical`, `/wul`, `/wide`, `/ultra-logical`, `/boost:wide`): vollständige Ende-zu-Ende-Implementierung mit Selbst-Verifikation; siehe `agent-context-modes.mdc` und `@wide-ultra-logical`. Erhöht Implementierungstiefe, **nicht** Modell-Geschwindigkeit — weiterhin `composer-2.5`, nie Opus als Default.

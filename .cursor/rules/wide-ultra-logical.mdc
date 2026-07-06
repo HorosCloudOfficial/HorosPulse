@@ -1,0 +1,60 @@
+---
+description: >-
+  Vollständige logische Implementierung — kein Stub-Code, Edge Cases, Selbst-Verifikation.
+  Aktivieren per /wide-ultra-logical, /wul, /wide, /ultra-logical oder @wide-ultra-logical.
+alwaysApply: false
+---
+
+# Wide Ultra-Logical / Vollständige logische Implementierung
+
+Aktiv, wenn der Nutzer `/wide-ultra-logical`, `/wul`, `/wide`, `/ultra-logical` oder `/boost:wide` setzt.
+Parameter-Definition und Konflikte mit `/lean`: siehe `agent-context-modes.mdc`.
+
+## Completion policy
+
+- Implementiere angeforderte Features **vollständig**. Nicht bei der Hälfte stoppen, keine Platzhalter, keine „später“-Ausreden.
+- Wenn ein Hard-Blocker (fehlende Credentials, unklare API) verhindert, dass alles fertig wird: **genau** benennen, was erledigt ist und was blockiert — kein Skelett als Ersatz.
+
+## Code quality
+
+```typescript
+// ❌ BAD — partial stub
+function saveNote(note: Note) {
+  // TODO: validation
+  api.post('/notes', note);
+}
+
+// ✅ GOOD — complete path
+function saveNote(note: Note): Promise<Note> {
+  if (!note.title?.trim()) {
+    throw new ValidationError('title required');
+  }
+  return api.post<Note>('/notes', note);
+}
+```
+
+- Kein `// ... rest unchanged`, keine fehlenden Imports/Exports.
+- Keine ungenutzten `if (false)`-Zweige oder `TODO`-Kommentare statt Implementierung.
+- Discriminated unions / Enums: exhaustive `switch` mit `never` im `default` (TypeScript).
+
+## Logic & edge cases
+
+- Null/undefined, leere Arrays, leere Strings, Netzwerk- und Auth-Fehler explizit behandeln.
+- Bestehende Projekt-Muster lesen und wiederverwenden — keine parallele Erfindung.
+- Scope klein halten pro Schritt ist OK; **jeder** gelieferte Schritt muss logisch abgeschlossen sein.
+
+## Verification (before „done“)
+
+1. Typecheck / Build (`tsc`, `npm run build`, oder projektübliches Kommando).
+2. Relevante Tests ausführen oder ergänzen.
+3. Lint auf geänderte Dateien.
+4. Bei Fehlern: fixen und erneut prüfen — nicht mit bekannten Fehlern abschließen.
+
+## Communication
+
+- Trade-offs und Architekturentscheidungen dürfen ausführlicher erklärt werden.
+- Code in Antworten und Diffs trotzdem **vollständig** — keine Auslassungs-Snippets.
+
+## Models
+
+- **`composer-2.5`** für Ausführung — **niemals** `composer-2.5-fast` als Default (siehe `model-policy.mdc`).

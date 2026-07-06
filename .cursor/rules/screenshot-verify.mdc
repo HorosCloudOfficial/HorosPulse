@@ -1,0 +1,48 @@
+---
+description: Screenshot-Arbeit erst abschließen nach visueller Prüfung (Read auf PNG)
+globs: **/docs/screenshots/**,**/scripts/quality/**
+alwaysApply: false
+---
+
+# Screenshot-Verifikation / Visual Verify
+
+**Gilt für Executors** (Momo, Aang, Katara, …), wenn Screenshots erstellt, ersetzt oder gespeichert werden. Root-Orchestrator delegiert nur; Subagents führen diese Checks aus.
+
+## Pflicht vor „fertig“
+
+1. **Bild lesen** — `Read` auf jede erzeugte/ersetzte `.png` (Tool zeigt das Bild visuell).
+2. **Inhalt prüfen** — richtige Seite/Widget sichtbar? Kein Login, kein Fehler, kein leerer SPA-Shell.
+3. **Datei plausibel** — sinnvolle Größe (>5 KB typisch); Pfad + Dateiname passen zu `docs/screenshots/…`.
+4. **Ersetzen** — wenn alte PNG existiert: altes und neues Bild lesen; sichtbarer Unterschied muss zur Aufgabe passen.
+5. **`/hide`-Redaction** — nach Schwärzen: sensible Bereiche wirklich schwarz und nicht lesbar; kein Klartext in E-Mail, Token, Passwort-Feldern.
+
+## Auth zuerst
+
+Vor Capture: `HorosCloudV5/scripts/quality/screenshot-auth.mjs` nutzen (`HC_SCREENSHOT_PASSWORD` oder gültiges `users.json` / `refreshJti`). Script bricht bei fehlender Auth ab — **nicht** trotzdem speichern und Erfolg melden.
+
+## Fehler = kein Erfolg
+
+| Sichtbar im Bild | Aktion |
+|------------------|--------|
+| Login / Gate / 401 | Auth fixen, Capture wiederholen |
+| Leere Seite, Lade-Spinner, Error-Toast | Seite laden lassen, Selector/URL prüfen, retry |
+| Falsches Widget / falscher Tab | Script oder Navigation korrigieren |
+
+**Niemals** „Screenshot erstellt ✓“ ohne visuelle Bestätigung.
+
+## Automatisiert (Playwright o.ä.)
+
+Nach Lauf: **jede** Output-PNG mit `Read` öffnen, Checkliste oben abarbeiten, erst dann Task abschließen.
+
+## User-Screenshots
+
+Beim Ablegen in `docs/screenshots/`: gespeicherte Kopie lesen — Ordner, Naming-Konvention und sichtbarer Inhalt müssen zur User-Anfrage passen.
+
+## Kurz-Checkliste
+
+- [ ] PNG mit `Read` angesehen
+- [ ] Kein Login / kein Blank-Shell / kein Error
+- [ ] Richtiger UI-Bereich sichtbar
+- [ ] Bei Replace: Alt vs. Neu verglichen
+- [ ] Bei `/hide`: Redaction verifiziert
+- [ ] Erst dann Erfolg melden
