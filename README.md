@@ -34,6 +34,12 @@ tests/
   WindowsPerformance.Tests.Integration
 ```
 
+## Branching
+
+Branch strategy: `main` (stable), `feature/<name>` for work, squash-merge into `main`.
+
+See [docs/BRANCHING.md](docs/BRANCHING.md) for workflow and example commands.
+
 ## Requirements
 
 - .NET 9 SDK

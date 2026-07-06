@@ -81,7 +81,7 @@ WindowsPerformance.sln
 ### 1.1 Solution Setup (P0)
 
 - [~] **P0** Git-Repository initialisieren (`git init`) und initialer Commit nach Solution-Setup *(ergänzt)* — `git init` erledigt, Commit offen
-- [ ] **P0** Branch-Strategie festlegen: `main` (stable), Feature-Branches `feature/<name>`, Squash-Merge in `main` *(ergänzt)*
+- [x] **P0** Branch-Strategie festlegen: `main` (stable), Feature-Branches `feature/<name>`, Squash-Merge in `main` *(ergänzt)*
 - [x] **P0** `dotnet new sln -n WindowsPerformance` in `D:\WindowsPerformance` ausführen
 - [x] **P0** Projektordner `src/` und `tests/` anlegen
 - [x] **P0** `WindowsPerformance.App` (WPF, .NET 9) erstellen: `dotnet new wpf -n WindowsPerformance.App -o src/WindowsPerformance.App`
