@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cursor Shortcuts (Windows) · WindowsPerformance</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    /* ── Reset ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokyo Night palette ─────────────────────────────── */
+    :root {
+      --bg:        #0f172a;
+      --surface:   #1e293b;
+      --surface2:  #263349;
+      --border:    #334155;
+      --fg:        #e2e8f0;
+      --fg-muted:  #94a3b8;
+      --accent:    #f59e0b;   /* amber */
+      --accent2:   #fbbf24;
+      --agent:     #34d399;   /* emerald — Agent */
+      --chat:      #60a5fa;   /* blue — Chat */
+      --inline:    #a78bfa;   /* violet — Inline Edit */
+      --apply:     #f59e0b;   /* amber — Apply/Reject */
+      --sidebar-w: 260px;
+      --header-h:  56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0; left: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header .app-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg);
+      line-height: 1.3;
+    }
+
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+
+    .nav-section {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+      color: var(--fg);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    .sidebar-nav a .icon { width: 16px; text-align: center; font-size: 14px; }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--fg-muted);
+    }
+
+    /* ── Main content ────────────────────────────────────── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      max-width: 980px;
+      padding: 40px 48px 80px;
+    }
+
+    /* ── Sections ────────────────────────────────────────── */
+    section { margin-bottom: 64px; scroll-margin-top: 24px; }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+
+    h1 .tag {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 4px;
+      padding: 2px 8px;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent2);
+      margin: 24px 0 12px;
+    }
+
+    p { color: var(--fg-muted); margin-bottom: 12px; }
+    p strong { color: var(--fg); }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--fg-muted);
+      margin-bottom: 32px;
+    }
+
+    /* ── kbd styling ─────────────────────────────────────── */
+    kbd {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-bottom: 2px solid var(--border);
+      border-radius: 4px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg);
+      white-space: nowrap;
+    }
+
+    /* ── Mode badges ─────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-agent  { background: rgba(52,211,153,0.15); color: var(--agent); border: 1px solid rgba(52,211,153,0.3); }
+    .badge-chat   { background: rgba(96,165,250,0.15); color: var(--chat); border: 1px solid rgba(96,165,250,0.3); }
+    .badge-inline { background: rgba(167,139,250,0.15); color: var(--inline); border: 1px solid rgba(167,139,250,0.3); }
+    .badge-apply  { background: rgba(245,158,11,0.12); color: var(--apply); border: 1px solid rgba(245,158,11,0.25); }
+    .badge-global { background: rgba(148,163,184,0.1); color: var(--fg-muted); border: 1px solid rgba(148,163,184,0.2); }
+
+    /* ── Top-3 mode cards ────────────────────────────────── */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .mode-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 20px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .mode-card:hover { border-color: var(--accent); }
+
+    .mode-card.agent { border-top: 3px solid var(--agent); }
+    .mode-card.chat  { border-top: 3px solid var(--chat); }
+    .mode-card.inl   { border-top: 3px solid var(--inline); }
+
+    .mode-card .mode-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .mode-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: 6px;
+    }
+
+    .mode-card p { font-size: 13px; margin: 0 0 14px; }
+
+    .mode-card .open-key {
+      font-size: 12px;
+      color: var(--fg-muted);
+    }
+
+    /* ── Shortcut row grid ───────────────────────────────── */
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .shortcut-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color 0.15s;
+    }
+
+    .shortcut-row:hover { border-color: var(--accent); background: var(--surface2); }
+
+    .shortcut-row .sr-keys {
+      min-width: 140px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .shortcut-row .sr-desc {
+      font-size: 13px;
+      color: var(--fg-muted);
+      flex: 1;
+    }
+
+    .shortcut-row .sr-badge {
+      flex-shrink: 0;
+    }
+
+    /* ── Shortcut table ──────────────────────────────────── */
+    .sc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .sc-table th {
+      background: var(--surface2);
+      color: var(--fg-muted);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sc-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg-muted);
+      vertical-align: middle;
+    }
+
+    .sc-table tr:last-child td { border-bottom: none; }
+    .sc-table tr:hover td { background: var(--surface2); }
+
+    /* ── Mermaid wrapper ─────────────────────────────────── */
+    .mermaid-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .mermaid { color: var(--fg); }
+
+    /* ── Code ────────────────────────────────────────────── */
+    code {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      background: var(--surface2);
+      color: var(--accent2);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    /* ── Doc links ───────────────────────────────────────── */
+    .doc-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .doc-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .doc-link:hover { border-color: var(--accent); background: var(--surface2); }
+
+    .doc-link .doc-icon { font-size: 18px; }
+
+    .doc-link .doc-info .doc-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--fg);
+      display: block;
+    }
+
+    .doc-link .doc-info .doc-desc {
+      font-size: 11px;
+      color: var(--fg-muted);
+      display: block;
+    }
+
+    /* ── Screenshot placeholder ──────────────────────────── */
+    .screenshot-placeholder {
+      background: var(--surface);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 32px;
+      text-align: center;
+      margin: 16px 0;
+      color: var(--fg-muted);
+      font-size: 13px;
+    }
+
+    .screenshot-placeholder .ph-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+    .screenshot-placeholder code { font-size: 11px; }
+
+    /* ── Info box ────────────────────────────────────────── */
+    .info-box {
+      background: rgba(96,165,250,0.08);
+      border: 1px solid rgba(96,165,250,0.25);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+
+    .info-box strong { color: var(--chat); }
+
+    .warn-box {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+
+    .warn-box strong { color: var(--accent); }
+
+    /* ── Divider ─────────────────────────────────────────── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #main { margin-left: 0; padding: 24px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ──────────────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="app-name">WindowsPerformance</div>
+    <h2>Cursor Shortcuts<br>Windows</h2>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section">Modi</div>
+    <a href="#modes"><span class="icon">🤖</span> Agent · Chat · Inline</a>
+    <a href="#diagram"><span class="icon">🗺</span> Modus-Fluss</a>
+
+    <div class="nav-section">Shortcuts</div>
+    <a href="#agent-chat"><span class="icon">💬</span> Agent &amp; Chat</a>
+    <a href="#inline-edit"><span class="icon">✏️</span> Inline Edit</a>
+    <a href="#apply-reject"><span class="icon">✅</span> Apply / Reject</a>
+    <a href="#modus-modell"><span class="icon">⚙️</span> Modus &amp; Modell</a>
+    <a href="#context"><span class="icon">@</span> Kontext &amp; Prompt</a>
+    <a href="#settings"><span class="icon">🔧</span> Einstellungen</a>
+
+    <div class="nav-section">Referenz</div>
+    <a href="#full-table"><span class="icon">📊</span> Vollständige Tabelle</a>
+    <a href="#faq"><span class="icon">❓</span> FAQ &amp; Änderungen</a>
+    <a href="#docs"><span class="icon">📄</span> Markdown-Suite</a>
+  </div>
+
+  <div class="sidebar-footer">
+    Stand: 2026-07-06<br>
+    Cursor IDE · Windows
+  </div>
+</nav>
+
+<!-- ── Main ─────────────────────────────────────────────── -->
+<main id="main">
+
+  <section id="header">
+    <h1>Cursor IDE Shortcuts <span class="tag">Windows</span></h1>
+    <p class="subtitle">
+      Wichtige KI-Workflow-Tastenkürzel für Cursor IDE auf Windows —
+      Agent, Chat, Inline Edit, Apply/Reject, Modell- &amp; Modusauswahl, Kontext-Eingabe.
+      Kein Code-Navigation (F12, Rename, Multi-Cursor).
+    </p>
+
+    <div class="screenshot-placeholder">
+      <span class="ph-icon">🖼️</span>
+      Screenshot: Cursor IDE Agent-Panel mit aktivem Diff<br>
+      <code>docs/screenshots/features/cursor-shortcuts/01-agent-panel-diff.png</code>
+    </div>
+  </section>
+
+  <!-- ── Modi ── -->
+  <section id="modes">
+    <h2>🤖 Die drei Interaktionsmodi</h2>
+    <p>Cursor IDE bietet drei distinkte KI-Modi. Der Modus bestimmt, wie tief der Agent in den Code eingreift.</p>
+
+    <div class="mode-grid">
+      <div class="mode-card agent">
+        <span class="mode-icon">🤖</span>
+        <h4>Agent</h4>
+        <p>Autonome, mehrstufige Aufgaben. Liest und schreibt Dateien, führt Terminal-Befehle aus, schlägt Diffs vor.</p>
+        <div class="open-key">Öffnen: <kbd>Ctrl</kbd>+<kbd>I</kbd></div>
+      </div>
+
+      <div class="mode-card chat">
+        <span class="mode-icon">💬</span>
+        <h4>Chat / Ask</h4>
+        <p>Konversationell, schreibgeschützt. Erklärt Code, beantwortet Fragen ohne direkte Datei-Änderungen.</p>
+        <div class="open-key">Öffnen: <kbd>Ctrl</kbd>+<kbd>L</kbd></div>
+      </div>
+
+      <div class="mode-card inl">
+        <span class="mode-icon">✏️</span>
+        <h4>Inline Edit</h4>
+        <p>Direkt im Editor. Selektierter Block wird als Kontext übergeben; Diff erscheint sofort in der Datei.</p>
+        <div class="open-key">Öffnen: <kbd>Ctrl</kbd>+<kbd>K</kbd></div>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 20px;">
+      <strong>Modus wechseln:</strong> <kbd>Ctrl</kbd>+<kbd>.</kbd> öffnet das Auswahlmenü.
+      <kbd>Shift</kbd>+<kbd>Tab</kbd> rotiert Agent → Ask → Manual.
+    </div>
+  </section>
+
+  <!-- ── Modus-Fluss Diagramm ── -->
+  <section id="diagram">
+    <h2>🗺 Modus-Entscheidungsfluss</h2>
+    <p>Welcher Modus passt zur aktuellen Aufgabe?</p>
+
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart TD
+    Start([Neue Aufgabe]) --> Q1{Code<br>ändern?}
+
+    Q1 -- Nein --> Chat["💬 Chat / Ask\nCtrl+L\nFragen · Erklärungen · Review"]
+    Q1 -- Ja --> Q2{Scope?}
+
+    Q2 -- Einzelner Block --> Inline["✏️ Inline Edit\nCtrl+K\nGezielter Diff im Editor"]
+    Q2 -- Mehrere Dateien --> Agent["🤖 Agent\nCtrl+I\nAutonome mehrstufige Aufgabe"]
+
+    Agent --> Apply{Diff Review}
+    Inline --> Apply
+
+    Apply -- Übernehmen --> Done(["✅ Ctrl+Enter\n(Accept/Apply)"])
+    Apply -- Ablehnen --> Reject(["❌ Ctrl+Backspace\n(Reject)"])
+    Apply -- Abbrechen --> Cancel(["⏹ Ctrl+Shift+Backspace\n(Cancel Generation)"])
+
+    style Agent  fill:#1e293b,stroke:#34d399,color:#e2e8f0
+    style Chat   fill:#1e293b,stroke:#60a5fa,color:#e2e8f0
+    style Inline fill:#1e293b,stroke:#a78bfa,color:#e2e8f0
+    style Apply  fill:#1e293b,stroke:#f59e0b,color:#e2e8f0
+    style Done   fill:#1e293b,stroke:#34d399,color:#e2e8f0
+    style Reject fill:#1e293b,stroke:#f87171,color:#e2e8f0
+    style Cancel fill:#1e293b,stroke:#94a3b8,color:#e2e8f0
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Agent & Chat ── -->
+  <section id="agent-chat">
+    <h2>💬 Agent &amp; Chat öffnen</h2>
+
+    <div class="shortcut-grid">
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>I</kbd></div>
+        <div class="sr-desc">Agent-Panel öffnen / fokussieren</div>
+        <div class="sr-badge"><span class="badge badge-agent">Agent</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>L</kbd></div>
+        <div class="sr-desc">Chat-Panel öffnen / fokussieren</div>
+        <div class="sr-badge"><span class="badge badge-chat">Chat</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd></div>
+        <div class="sr-desc">Aktuelle Auswahl → Agent hinzufügen</div>
+        <div class="sr-badge"><span class="badge badge-agent">Agent</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd></div>
+        <div class="sr-desc">Aktuelle Auswahl → Chat hinzufügen</div>
+        <div class="sr-badge"><span class="badge badge-chat">Chat</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>N</kbd></div>
+        <div class="sr-desc">Neuen Chat / neue Agent-Session starten</div>
+        <div class="sr-badge"><span class="badge badge-global">Panel</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>R</kbd></div>
+        <div class="sr-desc">Letzte Chat-Sessions (Recent Chats)</div>
+        <div class="sr-badge"><span class="badge badge-global">Panel</span></div>
+      </div>
+    </div>
+
+    <div class="screenshot-placeholder" style="margin-top: 20px;">
+      <span class="ph-icon">🖼️</span>
+      Screenshot: Chat-Panel mit @-Kontext-Selektor geöffnet<br>
+      <code>docs/screenshots/features/cursor-shortcuts/02-chat-context-selector.png</code>
+    </div>
+  </section>
+
+  <!-- ── Inline Edit ── -->
+  <section id="inline-edit">
+    <h2>✏️ Inline Edit</h2>
+
+    <div class="shortcut-grid">
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>K</kbd></div>
+        <div class="sr-desc">Inline-Edit-Leiste öffnen</div>
+        <div class="sr-badge"><span class="badge badge-inline">Inline</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Tab</kbd></div>
+        <div class="sr-desc">Inline-Vorschlag (Copilot++) vollständig übernehmen</div>
+        <div class="sr-badge"><span class="badge badge-inline">Completion</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>→</kbd></div>
+        <div class="sr-desc">Nächstes Wort des Vorschlags übernehmen</div>
+        <div class="sr-badge"><span class="badge badge-inline">Completion</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Escape</kbd></div>
+        <div class="sr-desc">Inline-Edit schließen / Vorschlag verwerfen</div>
+        <div class="sr-badge"><span class="badge badge-inline">Inline</span></div>
+      </div>
+    </div>
+
+    <div class="screenshot-placeholder" style="margin-top: 20px;">
+      <span class="ph-icon">🖼️</span>
+      Screenshot: Inline-Edit-Leiste mit aktivem Diff im Editor<br>
+      <code>docs/screenshots/features/cursor-shortcuts/03-inline-edit-diff.png</code>
+    </div>
+  </section>
+
+  <!-- ── Apply / Reject ── -->
+  <section id="apply-reject">
+    <h2>✅ Apply / Review / Reject</h2>
+
+    <div class="warn-box">
+      <strong>Cursor 0.45+ UI-Änderung:</strong> Der separate „Review"-Schritt mit Häkchen-Icon wurde entfernt.
+      Diffs erscheinen jetzt direkt im Editor. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> übernimmt alle Änderungen,
+      <kbd>Ctrl</kbd>+<kbd>Backspace</kbd> lehnt ab.
+    </div>
+
+    <div class="shortcut-grid">
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>Enter</kbd></div>
+        <div class="sr-desc">Änderungen übernehmen (Accept / Apply) · Prompt absenden</div>
+        <div class="sr-badge"><span class="badge badge-apply">Apply</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>Backspace</kbd></div>
+        <div class="sr-desc">Änderungen ablehnen (Reject)</div>
+        <div class="sr-badge"><span class="badge badge-apply">Reject</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Backspace</kbd></div>
+        <div class="sr-desc">Laufende Generation abbrechen (Cancel)</div>
+        <div class="sr-badge"><span class="badge badge-apply">Cancel</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Modus & Modell ── -->
+  <section id="modus-modell">
+    <h2>⚙️ Modus &amp; Modell</h2>
+
+    <div class="shortcut-grid">
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>.</kbd></div>
+        <div class="sr-desc">KI-Modus-Auswahlmenü öffnen (Agent / Ask / Manual)</div>
+        <div class="sr-badge"><span class="badge badge-global">Modus</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Shift</kbd>+<kbd>Tab</kbd></div>
+        <div class="sr-desc">Durch Modi rotieren: Agent → Ask → Manual</div>
+        <div class="sr-badge"><span class="badge badge-global">Modus</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>/</kbd></div>
+        <div class="sr-desc">Modell wechseln (Schleife durch verfügbare Modelle)</div>
+        <div class="sr-badge"><span class="badge badge-global">Modell</span></div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Hinweis zu Ctrl+/:</strong> Im Editor-Fokus (ohne KI-Panel) kommentiert <kbd>Ctrl</kbd>+<kbd>/</kbd>
+      die aktuelle Zeile aus. Im Panel-Kontext wechselt es das Modell. Konfliktlösung in
+      <a href="06-faq-troubleshooting.md" style="color:var(--accent);">06-faq-troubleshooting.md</a>.
+    </div>
+  </section>
+
+  <!-- ── Kontext & Prompt ── -->
+  <section id="context">
+    <h2>@ Kontext &amp; Prompt-Befehle</h2>
+    <p>Prompt-Syntax-Trigger im Chat- oder Agent-Eingabefeld:</p>
+
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>Eingabe</th>
+          <th>Funktion</th>
+          <th>Beispiel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><kbd>@</kbd></td>
+          <td>Kontext-Selektor öffnen</td>
+          <td>Dateien, Symbole, Docs, Web, Git, Codebase</td>
+        </tr>
+        <tr>
+          <td><kbd>@</kbd><em>Dateiname</em></td>
+          <td>Datei direkt referenzieren</td>
+          <td><code>@MemoryOptimizerService.cs</code></td>
+        </tr>
+        <tr>
+          <td><kbd>@web</kbd></td>
+          <td>Web-Suche als Kontext einbeziehen</td>
+          <td><code>@web WPF DataGrid Performance</code></td>
+        </tr>
+        <tr>
+          <td><kbd>@docs</kbd></td>
+          <td>Dokumentations-Index als Kontext</td>
+          <td><code>@docs Microsoft.Extensions.DI</code></td>
+        </tr>
+        <tr>
+          <td><kbd>/</kbd></td>
+          <td>Befehls-Menü im Prompt öffnen</td>
+          <td><code>/edit</code>, <code>/explain</code>, <code>/fix</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="screenshot-placeholder" style="margin-top: 16px;">
+      <span class="ph-icon">🖼️</span>
+      Screenshot: @-Selektor Dropdown mit Dateiliste<br>
+      <code>docs/screenshots/features/cursor-shortcuts/04-at-context-dropdown.png</code>
+    </div>
+  </section>
+
+  <!-- ── Einstellungen ── -->
+  <section id="settings">
+    <h2>🔧 Einstellungen &amp; Palette</h2>
+
+    <div class="shortcut-grid">
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd></div>
+        <div class="sr-desc">Befehls-Palette öffnen</div>
+        <div class="sr-badge"><span class="badge badge-global">Global</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd></div>
+        <div class="sr-desc">Cursor-Einstellungen öffnen (nicht VS Code Settings)</div>
+        <div class="sr-badge"><span class="badge badge-global">Cursor</span></div>
+      </div>
+      <div class="shortcut-row">
+        <div class="sr-keys"><kbd>Ctrl</kbd>+<kbd>E</kbd></div>
+        <div class="sr-desc">KI-Panel-Layout togglen</div>
+        <div class="sr-badge"><span class="badge badge-global">Layout</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Vollständige Tabelle ── -->
+  <section id="full-table">
+    <h2>📊 Vollständige Shortcut-Tabelle</h2>
+
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Shortcut</th>
+          <th>Kategorie</th>
+          <th>Funktion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><kbd>Ctrl</kbd>+<kbd>I</kbd></td><td><span class="badge badge-agent">Agent</span></td><td>Agent-Panel öffnen</td></tr>
+        <tr><td>2</td><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td><span class="badge badge-chat">Chat</span></td><td>Chat-Panel öffnen</td></tr>
+        <tr><td>3</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd></td><td><span class="badge badge-agent">Agent</span></td><td>Auswahl → Agent</td></tr>
+        <tr><td>4</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd></td><td><span class="badge badge-chat">Chat</span></td><td>Auswahl → Chat</td></tr>
+        <tr><td>5</td><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td><span class="badge badge-global">Panel</span></td><td>Neuer Chat</td></tr>
+        <tr><td>6</td><td><kbd>Ctrl</kbd>+<kbd>R</kbd></td><td><span class="badge badge-global">Panel</span></td><td>Recent Chats</td></tr>
+        <tr><td>7</td><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td><span class="badge badge-inline">Inline</span></td><td>Inline-Edit öffnen</td></tr>
+        <tr><td>8</td><td><kbd>Tab</kbd></td><td><span class="badge badge-inline">Completion</span></td><td>Vorschlag vollständig übernehmen</td></tr>
+        <tr><td>9</td><td><kbd>Ctrl</kbd>+<kbd>→</kbd></td><td><span class="badge badge-inline">Completion</span></td><td>Nächstes Wort übernehmen</td></tr>
+        <tr><td>10</td><td><kbd>Escape</kbd></td><td><span class="badge badge-global">Global</span></td><td>Abbrechen / Schließen</td></tr>
+        <tr><td>11</td><td><kbd>Ctrl</kbd>+<kbd>Enter</kbd></td><td><span class="badge badge-apply">Apply</span></td><td>Änderungen übernehmen / Senden</td></tr>
+        <tr><td>12</td><td><kbd>Ctrl</kbd>+<kbd>Backspace</kbd></td><td><span class="badge badge-apply">Reject</span></td><td>Änderungen ablehnen</td></tr>
+        <tr><td>13</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Backspace</kbd></td><td><span class="badge badge-apply">Cancel</span></td><td>Generation abbrechen</td></tr>
+        <tr><td>14</td><td><kbd>Ctrl</kbd>+<kbd>.</kbd></td><td><span class="badge badge-global">Modus</span></td><td>Modus-Menü öffnen</td></tr>
+        <tr><td>15</td><td><kbd>Shift</kbd>+<kbd>Tab</kbd></td><td><span class="badge badge-global">Modus</span></td><td>Modus rotieren</td></tr>
+        <tr><td>16</td><td><kbd>Ctrl</kbd>+<kbd>/</kbd></td><td><span class="badge badge-global">Modell</span></td><td>Modell wechseln (Panel-Kontext)</td></tr>
+        <tr><td>17</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd></td><td><span class="badge badge-global">Global</span></td><td>Befehls-Palette</td></tr>
+        <tr><td>18</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd></td><td><span class="badge badge-global">Cursor</span></td><td>Cursor-Einstellungen</td></tr>
+        <tr><td>19</td><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td><span class="badge badge-global">Layout</span></td><td>Panel-Layout togglen</td></tr>
+        <tr><td>20</td><td><kbd>@</kbd> im Prompt</td><td><span class="badge badge-global">Prompt</span></td><td>Kontext-Selektor</td></tr>
+        <tr><td>21</td><td><kbd>/</kbd> im Prompt</td><td><span class="badge badge-global">Prompt</span></td><td>Befehls-Menü</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section id="faq">
+    <h2>❓ Häufige Fragen &amp; Änderungen</h2>
+
+    <h3>Cursor 0.45+: Review-Häkchen verschwunden</h3>
+    <p>
+      Der separate „Review"-Checkpoint vor dem Übernehmen von Änderungen wurde in Cursor 0.45 entfernt.
+      Änderungen erscheinen direkt als Diff; <kbd>Ctrl</kbd>+<kbd>Enter</kbd> = Accept, <kbd>Ctrl</kbd>+<kbd>Backspace</kbd> = Reject.
+      Einzelne Diff-Hunks können weiterhin per Gutter-Klick akzeptiert oder abgelehnt werden.
+    </p>
+
+    <h3>Ctrl+/ kommentiert nicht mehr aus</h3>
+    <p>
+      <kbd>Ctrl</kbd>+<kbd>/</kbd> wechselt im Panel-Kontext das Modell. Im Editor (ohne Panel-Fokus) funktioniert
+      es weiterhin als „Zeile auskommentieren". Zur Trennung: <code>keybindings.json</code> mit
+      <code>"when": "editorTextFocus &amp;&amp; !inCursorChat"</code> nutzen.
+      Details: <a href="06-faq-troubleshooting.md" style="color:var(--accent);">06-faq-troubleshooting.md</a>.
+    </p>
+
+    <h3>Ctrl+Shift+J vs. Ctrl+,</h3>
+    <p>
+      <kbd>Ctrl</kbd>+<kbd>,</kbd> öffnet VS-Code-Settings (Editor, Extensions, Theme).
+      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> öffnet Cursor-Settings (KI-Modelle, Privacy, Rules, Beta).
+      Beide UIs sind separat — Cursor-spezifische Einstellungen sind <em>nur</em> in Cursor-Settings zu finden.
+    </p>
+  </section>
+
+  <!-- ── Docs ── -->
+  <section id="docs">
+    <h2>📄 Markdown-Dokumentation</h2>
+    <p>Vollständige Dokumentations-Suite:</p>
+
+    <div class="doc-links">
+      <a class="doc-link" href="README.md">
+        <span class="doc-icon">🏠</span>
+        <span class="doc-info">
+          <span class="doc-title">README.md</span>
+          <span class="doc-desc">Hub · Top-Shortcuts · Übersicht</span>
+        </span>
+      </a>
+      <a class="doc-link" href="01-uebersicht.md">
+        <span class="doc-icon">📖</span>
+        <span class="doc-info">
+          <span class="doc-title">01-uebersicht.md</span>
+          <span class="doc-desc">Was · Warum · Abgrenzung der drei Modi</span>
+        </span>
+      </a>
+      <a class="doc-link" href="02-benutzer-anleitung.md">
+        <span class="doc-icon">🔧</span>
+        <span class="doc-info">
+          <span class="doc-title">02-benutzer-anleitung.md</span>
+          <span class="doc-desc">Tägliche Workflows Schritt für Schritt</span>
+        </span>
+      </a>
+      <a class="doc-link" href="03-einstellungen.md">
+        <span class="doc-icon">⚙️</span>
+        <span class="doc-info">
+          <span class="doc-title">03-einstellungen.md</span>
+          <span class="doc-desc">Keybinding-Anpassung · keybindings.json</span>
+        </span>
+      </a>
+      <a class="doc-link" href="04-architektur.md">
+        <span class="doc-icon">🏗</span>
+        <span class="doc-info">
+          <span class="doc-title">04-architektur.md</span>
+          <span class="doc-desc">Interaktionsmodell · Datenfluss · Persistenz</span>
+        </span>
+      </a>
+      <a class="doc-link" href="05-api-datenmodell.md">
+        <span class="doc-icon">📊</span>
+        <span class="doc-info">
+          <span class="doc-title">05-api-datenmodell.md</span>
+          <span class="doc-desc">Vollständige Referenz-Tabellen nach Kategorie</span>
+        </span>
+      </a>
+      <a class="doc-link" href="06-faq-troubleshooting.md">
+        <span class="doc-icon">❓</span>
+        <span class="doc-info">
+          <span class="doc-title">06-faq-troubleshooting.md</span>
+          <span class="doc-desc">Review vs. Apply · Rebinding · Konflikte</span>
+        </span>
+      </a>
+    </div>
+
+    <hr />
+
+    <p style="font-size:13px;">
+      Zurück zur Projekt-Dokumentation:
+      <a href="../../README.md" style="color:var(--accent);">docs/README.md</a> ·
+      <a href="https://cursor.com/docs/reference/keyboard-shortcuts" target="_blank" style="color:var(--accent);">Offizielle Cursor-Docs</a>
+    </p>
+  </section>
+
+</main>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background: '#1e293b',
+      primaryColor: '#1e293b',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#334155',
+      lineColor: '#f59e0b',
+      secondaryColor: '#263349',
+      tertiaryColor: '#0f172a',
+      edgeLabelBackground: '#1e293b',
+      clusterBkg: '#1e293b',
+      clusterBorder: '#334155',
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+      fontSize: '13px'
+    }
+  });
+
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('#sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`#sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
