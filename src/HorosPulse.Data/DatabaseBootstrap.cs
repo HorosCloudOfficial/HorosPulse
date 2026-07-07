@@ -76,12 +76,28 @@ public sealed class DatabaseBootstrap
 
         try
         {
-            var backupPath = ResolveUniqueBackupPath(dbPath);
-            File.Copy(dbPath, backupPath, overwrite: false);
+            CopyDatabaseBackup(dbPath);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[HorosPulse] WARN: Database backup skipped: {ex.Message}");
+        }
+    }
+
+    private static void CopyDatabaseBackup(string dbPath)
+    {
+        for (var attempt = 0; attempt < 10; attempt++)
+        {
+            var backupPath = ResolveUniqueBackupPath(dbPath);
+            try
+            {
+                File.Copy(dbPath, backupPath, overwrite: false);
+                return;
+            }
+            catch (IOException) when (attempt < 9)
+            {
+                // Another thread/process claimed this name between Exists and Copy.
+            }
         }
     }
 

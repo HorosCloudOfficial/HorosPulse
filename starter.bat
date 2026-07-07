@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 rem Quick launcher: starter.bat [Release]
-rem Uses pre-built exe when present, otherwise dotnet run.
+rem Always rebuilds before launch so code fixes are never skipped.
 
 set "CONFIG=Debug"
 if /I "%~1"=="Release" set "CONFIG=Release"
@@ -21,30 +21,35 @@ if errorlevel 1 (
 
 set "PROJECT=src\HorosPulse.App\HorosPulse.App.csproj"
 set "EXE=src\HorosPulse.App\bin\%CONFIG%\net9.0-windows\HorosPulse.App.exe"
-set "PUBLISHED=artifacts\HorosPulse-0.1.0-win-x64\HorosPulse.App.exe"
 
 echo.
 echo HorosPulse (%CONFIG%)
 echo.
 
-if exist "%EXE%" (
-    echo Launching built app...
-    start "" "%EXE%"
-    exit /b 0
+rem Stop a running instance so locked DLLs do not block rebuild.
+tasklist /FI "IMAGENAME eq HorosPulse.App.exe" 2>nul | find /I "HorosPulse.App.exe" >nul
+if not errorlevel 1 (
+    echo Stopping running HorosPulse instance...
+    taskkill /IM HorosPulse.App.exe /F >nul 2>&1
+    timeout /t 2 /nobreak >nul
 )
 
-if /I "%CONFIG%"=="Release" if exist "%PUBLISHED%" (
-    echo Launching published portable build...
-    start "" "%PUBLISHED%"
-    exit /b 0
-)
-
-echo No build found — starting via dotnet run...
-echo.
-dotnet run --project "%PROJECT%" -c %CONFIG%
+echo Building...
+dotnet build "%PROJECT%" -c %CONFIG%
 if errorlevel 1 (
     echo.
-    echo [ERROR] Failed to start HorosPulse.
+    echo [ERROR] Build failed.
     pause
     exit /b 1
 )
+
+if not exist "%EXE%" (
+    echo.
+    echo [ERROR] Expected executable not found: %EXE%
+    pause
+    exit /b 1
+)
+
+echo Launching...
+start "" "%EXE%"
+exit /b 0
