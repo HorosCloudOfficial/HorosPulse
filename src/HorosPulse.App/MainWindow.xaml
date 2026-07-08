@@ -280,6 +280,17 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+                        <Button Content="Dev-Cache" Command="{Binding NavigateToDevTempCleanupCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Dev-Cache">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Content="Trends" Command="{Binding NavigateToTrendsCommand}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">

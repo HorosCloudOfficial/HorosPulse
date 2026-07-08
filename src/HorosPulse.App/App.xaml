@@ -74,6 +74,9 @@
             <DataTemplate DataType="{x:Type vm:WslDockerTuningViewModel}">
                 <views:WslDockerTuningView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DevTempCleanupViewModel}">
+                <views:DevTempCleanupView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

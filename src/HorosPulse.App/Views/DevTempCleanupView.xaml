@@ -1,0 +1,95 @@
+<UserControl x:Class="HorosPulse.App.Views.DevTempCleanupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="Sicheres Aufräumen von Dev-Caches (npm, TEMP, NuGet HTTP-Cache, pnpm, Cargo). HorosPulse zeigt Größen und löscht nur nach Ihrer Bestätigung — niemals node_modules oder NuGet-Pakete ohne Extra-Warnung."
+                               Foreground="{StaticResource TextMutedBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding SummaryText}" Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,16">
+                        <Run Text="Freigebbar (sicher): " Foreground="{StaticResource TextMutedBrush}" />
+                        <Run Text="{Binding TotalReclaimableDisplay, Mode=OneWay}" FontWeight="SemiBold" />
+                    </TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Scannen" Command="{Binding RefreshCommand}" Margin="0,0,8,0" />
+                        <Button Content="Ausgewählte bereinigen"
+                                Command="{Binding CleanupSelectedCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="Alle sicheren wählen"
+                                Command="{Binding SelectAllSafeCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="Auswahl aufheben"
+                                Command="{Binding DeselectAllCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Foreground="{StaticResource AccentOrangeBrush}"
+                               Margin="0,12,0,0"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Cache-Kategorien" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12" />
+                    <ItemsControl ItemsSource="{Binding Entries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource TertiaryDarkBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="0,0,0,12"
+                                        Margin="0,0,0,4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="32" />
+                                            <ColumnDefinition Width="160" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="90" />
+                                            <ColumnDefinition Width="120" />
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0"
+                                                  IsChecked="{Binding IsSelected}"
+                                                  IsEnabled="{Binding CanSelect}"
+                                                  VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding DisplayName}"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Path}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="11"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Path}" />
+                                            <TextBlock Text="{Binding SafetyReason}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="10"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,2,0,0" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding SizeDisplay}"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="SemiBold" />
+                                        <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DeletableLabel}"
+                                                       Foreground="{StaticResource AccentBlueBrush}"
+                                                       FontSize="11" />
+                                            <TextBlock Text="{Binding ExistsLabel}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="10" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

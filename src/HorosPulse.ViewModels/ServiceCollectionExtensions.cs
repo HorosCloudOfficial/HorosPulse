@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DevDriveAdvisorViewModel>();
         services.AddSingleton<CodingBoostViewModel>();
         services.AddSingleton<WslDockerTuningViewModel>();
+        services.AddSingleton<DevTempCleanupViewModel>();
         services.AddSingleton<CompactWindowViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         return services;

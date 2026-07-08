@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **WSL2 / Docker** (Sidebar): `.wslconfig`-Advisor/Tuner — WSL2/Docker-Erkennung, Ressourcen-Limits vs. System, Dev-Empfehlungen, Apply mit Backup/Rollback, `wsl --shutdown`, Verweis auf Build-Schutz
 - **Coding-Boost** (Sidebar): Game Mode, HAGS und Fenster-Optimierung (Win11) für Dev-/GPU-Workflows — Apply mit Tracking + Rollback, `IOptimizationModule`-Integration
 - **Dev Drive Advisor** (Sidebar): ReFS/Dev-Drive-Erkennung, Prüfung typischer Dev-Pfade (source, npm, NuGet, pnpm, Cargo, Cursor/VS Code, Temp), deutsche Migrations-Empfehlungen ohne Auto-Moves, Dashboard-Status, Unit-Tests
+- **Dev-Cache** (Sidebar): Sicheres Aufräumen von Dev-Temp-Caches (npm, TEMP, NuGet HTTP-Cache, pnpm, Cargo) mit Größenanzeige, Sicherheitsklassifikation und Bestätigungsdialog; `IOptimizationModule`-Preset für sichere Caches
 - Kompakt-Fenster (Mem-Reduct-Style): Live RAM/CPU/Disk-Stats, Schnellaktionen, Tray-Eintrag, Einstellungen-Tab
 - `IElevationUiInvoker` / `ElevationUiInvoker`: UAC-Helper-Start auf UI-Thread; `SyncElevationUiInvoker` für Headless-Tests
 - Screenshot-Skripte `SCRIPTS/capture-horospulse-*.ps1` inkl. optionalem Kompakt-Fenster-Capture

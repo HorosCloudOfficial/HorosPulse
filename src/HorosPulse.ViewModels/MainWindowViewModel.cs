@@ -108,6 +108,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void NavigateToWslDockerTuning() =>
         _navigation.Navigate(typeof(WslDockerTuningViewModel), "WSL2 / Docker");
 
+    [RelayCommand]
+    private void NavigateToDevTempCleanup() =>
+        _navigation.Navigate(typeof(DevTempCleanupViewModel), "Dev-Cache");
+
     private void OnNavigated(object? sender, EventArgs e)
     {
         OnPropertyChanged(nameof(CurrentViewModel));
