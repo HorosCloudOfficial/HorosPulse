@@ -58,6 +58,24 @@ public class DashboardViewModelTests
         recommendations.Setup(r => r.GetRecommendationsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PerformanceRecommendation { Title = "Test", Message = "OK" }]);
 
+        var indexer = new Mock<IIndexerExclusionService>();
+        indexer.Setup(s => s.GetAvailableEntriesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<IndexerExcludeEntry>());
+
+        var defender = new Mock<IDefenderExclusionService>();
+        defender.Setup(s => s.GetExclusionSetAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DefenderExclusionSet());
+
+        var windowsServices = new Mock<IWindowsServiceManager>();
+        windowsServices.Setup(s => s.GetServicesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<WindowsServiceInfo>());
+
+        var settings = new Mock<IAppSettingsService>();
+        settings.SetupGet(s => s.Current).Returns(new AppSettings());
+
+        var processPriority = new Mock<IProcessPriorityService>();
+        processPriority.Setup(s => s.GetCursorProcessStatus()).Returns((string?)null);
+
         var module = new Mock<IOptimizationModule>();
         module.SetupGet(m => m.ModuleName).Returns("Test");
         module.SetupGet(m => m.CanApply).Returns(true);
@@ -72,6 +90,11 @@ public class DashboardViewModelTests
             powerPlan.Object,
             health.Object,
             recommendations.Object,
+            indexer.Object,
+            defender.Object,
+            windowsServices.Object,
+            settings.Object,
+            processPriority.Object,
             [module.Object]);
     }
 }

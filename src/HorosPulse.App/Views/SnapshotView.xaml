@@ -53,9 +53,9 @@
                                                 <StackPanel>
                                                     <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
                                                     <TextBlock Foreground="{StaticResource TextMutedBrush}" FontSize="12">
-                                                        <Run Text="{Binding CreatedAtDisplay}" />
+                                                        <Run Text="{Binding CreatedAtDisplay, Mode=OneWay}" />
                                                         <Run Text=" · " />
-                                                        <Run Text="{Binding Module}" />
+                                                        <Run Text="{Binding Module, Mode=OneWay}" />
                                                     </TextBlock>
                                                 </StackPanel>
                                                 <Border Grid.Column="1" Padding="8,2" CornerRadius="10" Margin="8,0,0,0">
@@ -76,7 +76,7 @@
                                                 </Border>
                                             </Grid>
                                         </Expander.Header>
-                                        <TextBox Text="{Binding PrettyStateJson}"
+                                        <TextBox Text="{Binding PrettyStateJson, Mode=OneWay}"
                                                  IsReadOnly="True"
                                                  TextWrapping="Wrap"
                                                  AcceptsReturn="True"

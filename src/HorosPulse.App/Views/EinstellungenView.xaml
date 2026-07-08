@@ -102,6 +102,85 @@
                     </Border>
                 </TabItem>
 
+                <TabItem Header="Kompakt-Fenster">
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,8,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Kompakt-Fenster"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,8" />
+                            <TextBlock Text="Digi-Pet Mini-Fenster (Tamagotchi/Digimon-Stil) mit Mem-Reduct-Funktionen und Schnellaktionen."
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,16" />
+
+                            <TextBlock Text="Anzeige" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <CheckBox Content="RAM-Statistik anzeigen"
+                                      IsChecked="{Binding CompactShowRamStats}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="CPU-Statistik anzeigen"
+                                      IsChecked="{Binding CompactShowCpuStats}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Festplatten-Statistik anzeigen"
+                                      IsChecked="{Binding CompactShowDiskStats}"
+                                      Margin="0,0,0,16" />
+
+                            <TextBlock Text="Schnellaktionen" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <CheckBox Content="Speicher reinigen"
+                                      IsChecked="{Binding CompactShowMemoryCleanAction}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Cursor Dev Mode"
+                                      IsChecked="{Binding CompactShowCursorDevModeAction}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Festplatte optimieren"
+                                      IsChecked="{Binding CompactShowDiskOptimizeAction}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Visuelle Effekte (Performance)"
+                                      IsChecked="{Binding CompactShowVisualEffectsAction}"
+                                      Margin="0,0,0,16" />
+
+                            <TextBlock Text="Speicher-Bereiche (Standard für Kompakt-Fenster)"
+                                       FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <CheckBox Content="Working set"
+                                      IsChecked="{Binding CompactPurgeWorkingSet}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="System file cache"
+                                      IsChecked="{Binding CompactPurgeSystemFileCache}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Modified page list"
+                                      IsChecked="{Binding CompactPurgeModifiedPageList}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Standby list"
+                                      IsChecked="{Binding CompactPurgeStandbyList}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Standby ohne Priorität"
+                                      IsChecked="{Binding CompactPurgeLowPriorityStandby}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Registry cache"
+                                      IsChecked="{Binding CompactPurgeRegistryCache}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="Combine memory lists (Win10+)"
+                                      IsChecked="{Binding CompactPurgeCombineMemoryLists}"
+                                      Margin="0,0,0,16" />
+
+                            <CheckBox Content="Kompakt-Fenster beim Start öffnen"
+                                      IsChecked="{Binding CompactOpenOnStartup}"
+                                      Margin="0,0,0,16" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <Button Content="Kompakt-Fenster öffnen"
+                                        Command="{Binding OpenCompactWindowCommand}"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Einstellungen speichern"
+                                        Command="{Binding SaveSettingsCommand}" />
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       Foreground="{StaticResource AccentGreenBrush}" />
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+
                 <TabItem Header="Über">
                     <Border Style="{StaticResource CardBorderStyle}" Margin="0,8,0,0">
                         <StackPanel>

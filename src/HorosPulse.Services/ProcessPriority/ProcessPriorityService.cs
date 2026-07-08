@@ -56,7 +56,7 @@ public sealed class ProcessPriorityService : IProcessPriorityService
         }
 
         if (changes.Count == 0)
-            return Task.FromResult(OptimizationResult.Fail("Keine Cursor-Prozesse gefunden. Bitte Cursor starten."));
+            return Task.FromResult(OptimizationResult.Ok("Keine Cursor-Prozesse gefunden — Prioritäten werden beim Start angewendet."));
 
         PersistState();
         _logger.LogInformation("Prozessprioritäten angewendet: {Count}", changes.Count);

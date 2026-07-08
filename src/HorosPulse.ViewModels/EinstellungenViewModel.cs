@@ -15,19 +15,22 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
     private readonly IStartupRegistrationService _startupRegistration;
     private readonly ISettingsApplyService _settingsApplyService;
     private readonly IVelopackUpdateService _velopackUpdateService;
+    private readonly ICompactWindowCoordinator _compactWindowCoordinator;
 
     public EinstellungenViewModel(
         IAppSettingsService appSettingsService,
         IAuditRepository auditRepository,
         IStartupRegistrationService startupRegistration,
         ISettingsApplyService settingsApplyService,
-        IVelopackUpdateService velopackUpdateService)
+        IVelopackUpdateService velopackUpdateService,
+        ICompactWindowCoordinator compactWindowCoordinator)
     {
         _appSettingsService = appSettingsService;
         _auditRepository = auditRepository;
         _startupRegistration = startupRegistration;
         _settingsApplyService = settingsApplyService;
         _velopackUpdateService = velopackUpdateService;
+        _compactWindowCoordinator = compactWindowCoordinator;
         AppVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.1.0";
         _ = LoadAsync();
     }
@@ -73,6 +76,51 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
     private bool _reapplyCursorPrioritiesOnRestart;
 
     [ObservableProperty]
+    private bool _compactShowRamStats = true;
+
+    [ObservableProperty]
+    private bool _compactShowCpuStats = true;
+
+    [ObservableProperty]
+    private bool _compactShowDiskStats = true;
+
+    [ObservableProperty]
+    private bool _compactShowMemoryCleanAction = true;
+
+    [ObservableProperty]
+    private bool _compactShowCursorDevModeAction = true;
+
+    [ObservableProperty]
+    private bool _compactShowDiskOptimizeAction;
+
+    [ObservableProperty]
+    private bool _compactShowVisualEffectsAction;
+
+    [ObservableProperty]
+    private bool _compactOpenOnStartup;
+
+    [ObservableProperty]
+    private bool _compactPurgeWorkingSet = true;
+
+    [ObservableProperty]
+    private bool _compactPurgeSystemFileCache = true;
+
+    [ObservableProperty]
+    private bool _compactPurgeModifiedPageList = true;
+
+    [ObservableProperty]
+    private bool _compactPurgeStandbyList = true;
+
+    [ObservableProperty]
+    private bool _compactPurgeLowPriorityStandby = true;
+
+    [ObservableProperty]
+    private bool _compactPurgeRegistryCache;
+
+    [ObservableProperty]
+    private bool _compactPurgeCombineMemoryLists = true;
+
+    [ObservableProperty]
     private string? _statusMessage;
 
     [ObservableProperty]
@@ -100,6 +148,23 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
         ReapplyCursorPrioritiesOnRestart = current.ReapplyCursorPrioritiesOnRestart;
         AutoStartWithWindows = _startupRegistration.IsRegistered;
 
+        var compact = current.CompactWindow;
+        CompactShowRamStats = compact.ShowRamStats;
+        CompactShowCpuStats = compact.ShowCpuStats;
+        CompactShowDiskStats = compact.ShowDiskStats;
+        CompactShowMemoryCleanAction = compact.ShowMemoryCleanAction;
+        CompactShowCursorDevModeAction = compact.ShowCursorDevModeAction;
+        CompactShowDiskOptimizeAction = compact.ShowDiskOptimizeAction;
+        CompactShowVisualEffectsAction = compact.ShowVisualEffectsAction;
+        CompactOpenOnStartup = compact.OpenOnStartup;
+        CompactPurgeWorkingSet = compact.PurgeWorkingSet;
+        CompactPurgeSystemFileCache = compact.PurgeSystemFileCache;
+        CompactPurgeModifiedPageList = compact.PurgeModifiedPageList;
+        CompactPurgeStandbyList = compact.PurgeStandbyList;
+        CompactPurgeLowPriorityStandby = compact.PurgeLowPriorityStandby;
+        CompactPurgeRegistryCache = compact.PurgeRegistryCache;
+        CompactPurgeCombineMemoryLists = compact.PurgeCombineMemoryLists;
+
         await LoadAuditLogAsync();
     }
 
@@ -122,8 +187,25 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
         current.ReapplyCursorPrioritiesOnRestart = ReapplyCursorPrioritiesOnRestart;
         current.AutoStartWithWindows = AutoStartWithWindows;
 
+        current.CompactWindow.ShowRamStats = CompactShowRamStats;
+        current.CompactWindow.ShowCpuStats = CompactShowCpuStats;
+        current.CompactWindow.ShowDiskStats = CompactShowDiskStats;
+        current.CompactWindow.ShowMemoryCleanAction = CompactShowMemoryCleanAction;
+        current.CompactWindow.ShowCursorDevModeAction = CompactShowCursorDevModeAction;
+        current.CompactWindow.ShowDiskOptimizeAction = CompactShowDiskOptimizeAction;
+        current.CompactWindow.ShowVisualEffectsAction = CompactShowVisualEffectsAction;
+        current.CompactWindow.OpenOnStartup = CompactOpenOnStartup;
+        current.CompactWindow.PurgeWorkingSet = CompactPurgeWorkingSet;
+        current.CompactWindow.PurgeSystemFileCache = CompactPurgeSystemFileCache;
+        current.CompactWindow.PurgeModifiedPageList = CompactPurgeModifiedPageList;
+        current.CompactWindow.PurgeStandbyList = CompactPurgeStandbyList;
+        current.CompactWindow.PurgeLowPriorityStandby = CompactPurgeLowPriorityStandby;
+        current.CompactWindow.PurgeRegistryCache = CompactPurgeRegistryCache;
+        current.CompactWindow.PurgeCombineMemoryLists = CompactPurgeCombineMemoryLists;
+
         await _appSettingsService.SaveAsync();
         _settingsApplyService.ApplyCurrent();
+        _compactWindowCoordinator.ReloadCompactSettings();
 
         if (AutoStartWithWindows)
         {
@@ -152,6 +234,13 @@ public sealed partial class EinstellungenViewModel : ViewModelBase
             { AvailableVersion: not null } => $"Update {result.AvailableVersion} heruntergeladen. App neu starten zum Anwenden.",
             _ => $"Update-Prüfung fehlgeschlagen: {result.ErrorMessage ?? "Unbekannter Fehler"}",
         };
+    }
+
+    [RelayCommand]
+    private void OpenCompactWindow()
+    {
+        _compactWindowCoordinator.ShowCompactWindow();
+        StatusMessage = "Kompakt-Fenster geöffnet.";
     }
 
     [RelayCommand]

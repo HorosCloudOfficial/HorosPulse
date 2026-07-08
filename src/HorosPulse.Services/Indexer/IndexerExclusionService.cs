@@ -60,36 +60,50 @@ public sealed class IndexerExclusionService : IIndexerExclusionService
         if (paths.Count == 0)
             return OptimizationResult.Fail("Keine Ordner ausgewählt.");
 
-        var applied = new List<string>();
+        var previouslyApplied = LoadAppliedPaths()
+            .Select(NormalizePath)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var applied = new List<string>(previouslyApplied);
+        var indexerTimeout = TimeSpan.FromSeconds(
+            Math.Clamp(_appSettingsService.Current.PowerShellTimeoutSeconds * 2, 60, 600));
+
         foreach (var path in paths)
         {
             if (!Directory.Exists(path))
             {
-                _logger.LogWarning("Indexer-Pfad existiert nicht: {Path}", path);
+                _logger.LogWarning("Indexer-Pfad existiert nicht, übersprungen: {Path}", path);
                 continue;
             }
 
             var normalized = NormalizePath(path);
+            if (previouslyApplied.Contains(normalized))
+            {
+                _logger.LogInformation("Indexer-Ausschluss bereits angewendet: {Path}", normalized);
+                continue;
+            }
+
             var script = PowerShellScriptLibrary.BuildIndexerExclusionScript(normalized);
-            var result = await _powerShellBridge.RunAsync(script, elevated: true, cancellationToken: cancellationToken);
+            var result = await RunIndexerScriptWithRetryAsync(script, indexerTimeout, cancellationToken);
             if (result.Success)
             {
                 applied.Add(normalized);
+                previouslyApplied.Add(normalized);
                 _logger.LogInformation("Indexer-Ausschluss: {Path}", normalized);
             }
             else
             {
-                return OptimizationResult.Fail($"Indexer-Ausschluss fehlgeschlagen für {path}: {result.StdErr}");
+                return OptimizationResult.Fail(FormatIndexerFailure(path, result.StdErr));
             }
         }
 
-        SaveAppliedPaths(applied);
+        SaveAppliedPaths(applied.Distinct(StringComparer.OrdinalIgnoreCase).ToList());
 
         if (_appSettingsService.Current.RestartSearchServiceAfterIndexerChange && applied.Count > 0)
         {
             var restart = await _powerShellBridge.RunAsync(
                 PowerShellScriptLibrary.RestartSearchService,
                 elevated: true,
+                timeout: indexerTimeout,
                 cancellationToken: cancellationToken);
             if (!restart.Success)
             {
@@ -102,6 +116,38 @@ public sealed class IndexerExclusionService : IIndexerExclusionService
         }
 
         return OptimizationResult.Ok(applied.Select(p => $"Ausgeschlossen: {p}").ToArray());
+    }
+
+    private async Task<PowerShellResult> RunIndexerScriptWithRetryAsync(
+        string script,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        var result = await _powerShellBridge.RunAsync(script, elevated: true, timeout: timeout, cancellationToken: cancellationToken);
+        if (result.Success || !IsTransientElevationFailure(result.StdErr))
+            return result;
+
+        _logger.LogWarning("Indexer-Skript Zeitüberschreitung, einmaliger Wiederholungsversuch…");
+        await Task.Delay(1500, cancellationToken);
+        return await _powerShellBridge.RunAsync(script, elevated: true, timeout: timeout, cancellationToken: cancellationToken);
+    }
+
+    private static bool IsTransientElevationFailure(string? stderr) =>
+        !string.IsNullOrWhiteSpace(stderr) &&
+        (stderr.Contains("timed out", StringComparison.OrdinalIgnoreCase) ||
+         stderr.Contains("Zeitüberschreitung", StringComparison.OrdinalIgnoreCase) ||
+         stderr.Contains("Timeout", StringComparison.OrdinalIgnoreCase) ||
+         stderr.Contains("nicht erreichbar", StringComparison.OrdinalIgnoreCase));
+
+    private static string FormatIndexerFailure(string path, string? stderr)
+    {
+        if (IsTransientElevationFailure(stderr))
+        {
+            return $"Indexer-Ausschluss für {path} fehlgeschlagen (Elevation-Timeout). " +
+                   "Bitte HorosPulse neu starten, UAC bestätigen und erneut versuchen.";
+        }
+
+        return $"Indexer-Ausschluss fehlgeschlagen für {path}: {stderr}";
     }
 
     public async Task<OptimizationResult> RollbackExclusionsAsync(CancellationToken cancellationToken = default)

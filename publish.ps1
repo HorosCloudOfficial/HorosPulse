@@ -50,12 +50,18 @@ else {
 Write-Host "Publishing app to $stagingDir..."
 dotnet @publishArgs
 
-$elevationSource = Join-Path $repoRoot "src\HorosPulse.Elevation\bin\$Configuration\net9.0\HorosPulse.Elevation.exe"
-if (-not (Test-Path $elevationSource)) {
+$elevationDir = Join-Path $repoRoot "src\HorosPulse.Elevation\bin\$Configuration\net9.0"
+if (-not (Test-Path (Join-Path $elevationDir "HorosPulse.Elevation.exe"))) {
     dotnet build "src\HorosPulse.Elevation\HorosPulse.Elevation.csproj" -c $Configuration
 }
 
-Copy-Item -Path $elevationSource -Destination (Join-Path $stagingDir "HorosPulse.Elevation.exe") -Force
+foreach ($file in @(
+        "HorosPulse.Elevation.exe",
+        "HorosPulse.Elevation.dll",
+        "HorosPulse.Elevation.deps.json",
+        "HorosPulse.Elevation.runtimeconfig.json")) {
+    Copy-Item -Path (Join-Path $elevationDir $file) -Destination (Join-Path $stagingDir $file) -Force
+}
 
 $readmeSource = Join-Path $repoRoot "README.md"
 if (Test-Path $readmeSource) {

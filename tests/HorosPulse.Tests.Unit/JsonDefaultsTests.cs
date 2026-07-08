@@ -53,4 +53,52 @@ public class JsonDefaultsTests
     {
         JsonDefaults.SanitizeMetric(value).Should().Be(0);
     }
+
+    [Fact]
+    public void Serialize_AppSettings_WithCompactWindow_PreservesNestedSettings()
+    {
+        var settings = new AppSettings
+        {
+            CompactWindow = new CompactWindowSettings
+            {
+                ShowRamStats = false,
+                ShowCpuStats = true,
+                ShowDiskStats = false,
+                ShowMemoryCleanAction = true,
+                ShowCursorDevModeAction = false,
+                ShowDiskOptimizeAction = true,
+                ShowVisualEffectsAction = true,
+                OpenOnStartup = true,
+                WindowWidth = 400,
+                WindowHeight = 500,
+                WindowLeft = 120,
+                WindowTop = 80,
+            },
+        };
+
+        var json = JsonSerializer.Serialize(settings, JsonDefaults.Options);
+        json.Should().Contain("compactWindow");
+        json.Should().Contain("openOnStartup");
+
+        var restored = JsonSerializer.Deserialize<AppSettings>(json, JsonDefaults.Options);
+        restored.Should().NotBeNull();
+        restored!.CompactWindow.ShowRamStats.Should().BeFalse();
+        restored.CompactWindow.OpenOnStartup.Should().BeTrue();
+        restored.CompactWindow.WindowWidth.Should().Be(400);
+        restored.CompactWindow.WindowLeft.Should().Be(120);
+    }
+
+    [Fact]
+    public void Serialize_CompactWindowSettings_WithNaNPosition_DoesNotThrow()
+    {
+        var settings = new CompactWindowSettings
+        {
+            WindowLeft = double.NaN,
+            WindowTop = double.NaN,
+        };
+
+        var act = () => JsonSerializer.Serialize(settings, JsonDefaults.Options);
+
+        act.Should().NotThrow();
+    }
 }

@@ -92,6 +92,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void NavigateToRegistryTuner() =>
         _navigation.Navigate(typeof(RegistryTunerViewModel), "Registry");
 
+    [RelayCommand]
+    private void NavigateToBuildToolDefender() =>
+        _navigation.Navigate(typeof(BuildToolDefenderViewModel), "Build-Schutz");
+
     private void OnNavigated(object? sender, EventArgs e)
     {
         OnPropertyChanged(nameof(CurrentViewModel));

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using HorosPulse.Core.Interfaces;
 using HorosPulse.ViewModels;
 
 namespace HorosPulse.App;
@@ -9,11 +10,13 @@ namespace HorosPulse.App;
 public partial class MainWindow : Window
 {
     private bool _isExiting;
+    private readonly ICompactWindowCoordinator _compactWindowCoordinator;
 
-    public MainWindow(MainWindowViewModel viewModel)
+    public MainWindow(MainWindowViewModel viewModel, ICompactWindowCoordinator compactWindowCoordinator)
     {
         InitializeComponent();
         DataContext = viewModel;
+        _compactWindowCoordinator = compactWindowCoordinator;
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
     }
 
@@ -80,11 +83,16 @@ public partial class MainWindow : Window
         TrayIcon.Visibility = Visibility.Collapsed;
     }
 
+    public void RestoreFromTrayOrShow() => RestoreFromTray();
+
     private void TrayIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e) =>
         RestoreFromTray();
 
     private void TrayOpen_Click(object sender, RoutedEventArgs e) =>
         RestoreFromTray();
+
+    private void TrayOpenCompact_Click(object sender, RoutedEventArgs e) =>
+        _compactWindowCoordinator.ShowCompactWindow();
 
     private void TrayExit_Click(object sender, RoutedEventArgs e)
     {

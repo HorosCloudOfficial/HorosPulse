@@ -7,10 +7,20 @@ using HorosPulse.Core.Scripts;
 
 const string PipeName = "HorosPulse.Elevation.v1";
 const int SystemMemoryListInformation = 0x50;
-const int MemoryPurgeStandbyListCommand = 4;
+const int SystemFileCacheInformationEx = 0x54;
+const int SystemRegistryReconciliationInformation = 0x9B;
+const int SystemCombinePhysicalMemoryInformation = 0x82;
+
+const int MemoryEmptyWorkingSets = 2;
+const int MemoryFlushModifiedList = 3;
+const int MemoryPurgeStandbyList = 4;
+const int MemoryPurgeLowPriorityStandbyList = 5;
+
+const ulong MaxSizeT = ulong.MaxValue;
+const uint MemoryCombinePagesOnly = 1;
 
 [DllImport("ntdll.dll")]
-static extern int NtSetSystemInformation(int systemInformationClass, ref int systemInformation, int systemInformationLength);
+static extern int NtSetSystemInformation(int systemInformationClass, IntPtr systemInformation, int systemInformationLength);
 
 var jsonOptions = new JsonSerializerOptions
 {
@@ -25,7 +35,7 @@ if (args.Length > 0 && string.Equals(args[0], "--server", StringComparison.Ordin
 
 if (args.Length > 0 && string.Equals(args[0], "--purge-standby", StringComparison.OrdinalIgnoreCase))
 {
-    var purgeResult = PurgeStandbyList();
+    var purgeResult = PurgeMemoryAreas([3]);
     var purgeJson = JsonSerializer.Serialize(purgeResult, jsonOptions);
     await Console.Out.WriteLineAsync(purgeJson);
     return purgeResult.Success ? 0 : 1;
@@ -110,9 +120,16 @@ static async Task RunServerAsync(JsonSerializerOptions jsonOptions)
             continue;
         }
 
-        var response = string.Equals(request?.Operation, "purge-standby", StringComparison.OrdinalIgnoreCase)
-            ? PurgeStandbyList()
-            : await ExecuteScriptAsync(request?.Script ?? string.Empty, request?.ScriptHash ?? string.Empty, request?.TimeoutMs ?? 30000);
+        ElevationResponse response;
+        if (string.Equals(request?.Operation, "ping", StringComparison.OrdinalIgnoreCase))
+            response = new ElevationResponse { ExitCode = 0, Stdout = "pong", Success = true };
+        else if (string.Equals(request?.Operation, "purge-standby", StringComparison.OrdinalIgnoreCase))
+            response = PurgeMemoryAreas([3]);
+        else if (string.Equals(request?.Operation, "purge-memory", StringComparison.OrdinalIgnoreCase))
+            response = PurgeMemoryAreas(request?.PurgeAreas ?? []);
+        else
+            response = await ExecuteScriptAsync(request?.Script ?? string.Empty, request?.ScriptHash ?? string.Empty, request?.TimeoutMs ?? 30000);
+
         await writer.WriteLineAsync(JsonSerializer.Serialize(response, jsonOptions));
     }
 }
@@ -196,22 +213,159 @@ static string? FindPowerShell()
     return null;
 }
 
-static ElevationResponse PurgeStandbyList()
+static ElevationResponse PurgeMemoryAreas(IReadOnlyList<int> areas)
+{
+    if (areas.Count == 0)
+        return new ElevationResponse { ExitCode = -1, Stderr = "Keine Speicherbereiche angegeben.", Success = false };
+
+    var messages = new List<string>();
+    foreach (var area in areas)
+    {
+        var result = area switch
+        {
+            0 => PurgeMemoryListCommand(MemoryEmptyWorkingSets, "Working Sets"),
+            1 => PurgeSystemFileCache(),
+            2 => PurgeMemoryListCommand(MemoryFlushModifiedList, "Modified Page List"),
+            3 => PurgeMemoryListCommand(MemoryPurgeStandbyList, "Standby-Liste"),
+            4 => PurgeMemoryListCommand(MemoryPurgeLowPriorityStandbyList, "Standby Priority-0"),
+            5 => PurgeRegistryCache(),
+            6 => PurgeCombineMemoryLists(),
+            _ => new PurgeStepResult(false, $"Unbekannter Bereich: {area}"),
+        };
+
+        if (!result.Success)
+            return new ElevationResponse { ExitCode = -1, Stderr = result.Message, Success = false };
+
+        messages.Add(result.Message);
+    }
+
+    return new ElevationResponse
+    {
+        ExitCode = 0,
+        Stdout = string.Join("; ", messages),
+        Success = true,
+    };
+}
+
+static PurgeStepResult PurgeMemoryListCommand(int command, string label)
 {
     try
     {
-        var command = MemoryPurgeStandbyListCommand;
-        var status = NtSetSystemInformation(SystemMemoryListInformation, ref command, sizeof(int));
-
-        if (status != 0)
-            return new ElevationResponse { ExitCode = status, Stderr = $"NtSetSystemInformation fehlgeschlagen: 0x{status:X8}", Success = false };
-
-        return new ElevationResponse { ExitCode = 0, Stdout = "Standby-Liste geleert", Success = true };
+        var size = sizeof(int);
+        var ptr = Marshal.AllocHGlobal(size);
+        try
+        {
+            Marshal.WriteInt32(ptr, command);
+            var status = NtSetSystemInformation(SystemMemoryListInformation, ptr, size);
+            return status == 0
+                ? new PurgeStepResult(true, $"{label} geleert")
+                : new PurgeStepResult(false, $"{label}: NtSetSystemInformation 0x{status:X8}");
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(ptr);
+        }
     }
     catch (Exception ex)
     {
-        return new ElevationResponse { ExitCode = -1, Stderr = ex.Message, Success = false };
+        return new PurgeStepResult(false, $"{label}: {ex.Message}");
     }
+}
+
+static PurgeStepResult PurgeSystemFileCache()
+{
+    try
+    {
+        var info = new SystemFileCacheInformation
+        {
+            MinimumWorkingSet = MaxSizeT,
+            MaximumWorkingSet = MaxSizeT,
+        };
+
+        var size = Marshal.SizeOf<SystemFileCacheInformation>();
+        var ptr = Marshal.AllocHGlobal(size);
+        try
+        {
+            Marshal.StructureToPtr(info, ptr, false);
+            var status = NtSetSystemInformation(SystemFileCacheInformationEx, ptr, size);
+            return status == 0
+                ? new PurgeStepResult(true, "System File Cache geleert")
+                : new PurgeStepResult(false, $"System File Cache: NtSetSystemInformation 0x{status:X8}");
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(ptr);
+        }
+    }
+    catch (Exception ex)
+    {
+        return new PurgeStepResult(false, $"System File Cache: {ex.Message}");
+    }
+}
+
+static PurgeStepResult PurgeRegistryCache()
+{
+    try
+    {
+        var status = NtSetSystemInformation(SystemRegistryReconciliationInformation, IntPtr.Zero, 0);
+        return status == 0
+            ? new PurgeStepResult(true, "Registry-Cache geleert")
+            : new PurgeStepResult(false, $"Registry-Cache: NtSetSystemInformation 0x{status:X8}");
+    }
+    catch (Exception ex)
+    {
+        return new PurgeStepResult(false, $"Registry-Cache: {ex.Message}");
+    }
+}
+
+static PurgeStepResult PurgeCombineMemoryLists()
+{
+    try
+    {
+        var info = new MemoryCombineInformationEx { Flags = MemoryCombinePagesOnly };
+        var size = Marshal.SizeOf<MemoryCombineInformationEx>();
+        var ptr = Marshal.AllocHGlobal(size);
+        try
+        {
+            Marshal.StructureToPtr(info, ptr, false);
+            var status = NtSetSystemInformation(SystemCombinePhysicalMemoryInformation, ptr, size);
+            return status == 0
+                ? new PurgeStepResult(true, "Speicherlisten kombiniert")
+                : new PurgeStepResult(false, $"Combine Memory: NtSetSystemInformation 0x{status:X8}");
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(ptr);
+        }
+    }
+    catch (Exception ex)
+    {
+        return new PurgeStepResult(false, $"Combine Memory: {ex.Message}");
+    }
+}
+
+file readonly record struct PurgeStepResult(bool Success, string Message);
+
+[StructLayout(LayoutKind.Sequential)]
+file struct SystemFileCacheInformation
+{
+    public ulong CurrentSize;
+    public ulong PeakSize;
+    public uint PageFaultCount;
+    public ulong MinimumWorkingSet;
+    public ulong MaximumWorkingSet;
+    public ulong CurrentSizeIncludingTransitionInPages;
+    public ulong PeakSizeIncludingTransitionInPages;
+    public uint TransitionRePurposeCount;
+    public uint Flags;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+file struct MemoryCombineInformationEx
+{
+    public IntPtr Section;
+    public UIntPtr PagesCombined;
+    public uint Flags;
 }
 
 file sealed class ElevationRequest
@@ -220,6 +374,7 @@ file sealed class ElevationRequest
     public string Script { get; init; } = string.Empty;
     public string ScriptHash { get; init; } = string.Empty;
     public int TimeoutMs { get; init; } = 30000;
+    public int[] PurgeAreas { get; init; } = [];
 }
 
 file sealed class ElevationResponse

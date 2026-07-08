@@ -24,6 +24,11 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
     private readonly IPowerPlanService _powerPlanService;
     private readonly IHealthScorerService _healthScorerService;
     private readonly IRecommendationEngine _recommendationEngine;
+    private readonly IIndexerExclusionService _indexerExclusionService;
+    private readonly IDefenderExclusionService _defenderExclusionService;
+    private readonly IWindowsServiceManager _windowsServiceManager;
+    private readonly IAppSettingsService _appSettingsService;
+    private readonly IProcessPriorityService _processPriorityService;
     private readonly IEnumerable<IOptimizationModule> _modules;
     private readonly ObservableCollection<double> _cpuHistory = new();
     private readonly ObservableCollection<double> _ramHistory = new();
@@ -39,6 +44,11 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
         IPowerPlanService powerPlanService,
         IHealthScorerService healthScorerService,
         IRecommendationEngine recommendationEngine,
+        IIndexerExclusionService indexerExclusionService,
+        IDefenderExclusionService defenderExclusionService,
+        IWindowsServiceManager windowsServiceManager,
+        IAppSettingsService appSettingsService,
+        IProcessPriorityService processPriorityService,
         IEnumerable<IOptimizationModule> modules)
     {
         _metricsCollector = metricsCollector;
@@ -50,6 +60,11 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
         _powerPlanService = powerPlanService;
         _healthScorerService = healthScorerService;
         _recommendationEngine = recommendationEngine;
+        _indexerExclusionService = indexerExclusionService;
+        _defenderExclusionService = defenderExclusionService;
+        _windowsServiceManager = windowsServiceManager;
+        _appSettingsService = appSettingsService;
+        _processPriorityService = processPriorityService;
         _modules = modules;
 
         CpuSeries = [CreateSparklineSeries(_cpuHistory, "#7AA2F7")];
@@ -231,6 +246,17 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
         HealthFactors.Clear();
         foreach (var factor in result.Factors)
             HealthFactors.Add(factor);
+
+        AdjustHealthHintForOptimizationScore();
+    }
+
+    private void AdjustHealthHintForOptimizationScore()
+    {
+        if (HealthScore >= 50)
+            return;
+
+        if (HealthHint.StartsWith("✓ System wirkt entspannt", StringComparison.Ordinal))
+            HealthHint = $"Optimierungs-Score {HealthScore}/100 — Faktoren und Empfehlungen prüfen.";
     }
 
     private async Task RefreshModuleStatusesAsync()
@@ -247,8 +273,7 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
             case "PowerPlan":
             {
                 var active = await _powerPlanService.GetActivePlanAsync();
-                var isHigh = active?.Name.Contains("High", StringComparison.OrdinalIgnoreCase) == true ||
-                    active?.Name.Contains("Höchst", StringComparison.OrdinalIgnoreCase) == true;
+                var isHigh = PowerPlanNames.IsHighPerformance(active?.Name);
                 return new ModuleStatusItemViewModel(
                     module.ModuleName,
                     isHigh ? StatusBadgeKind.Active : StatusBadgeKind.Neutral,
@@ -259,11 +284,60 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
                     module.ModuleName,
                     _cursorOptimizer.HasBackup ? StatusBadgeKind.Active : StatusBadgeKind.Neutral,
                     _cursorOptimizer.HasBackup ? "Backup vorhanden" : "Kein Backup");
+            case "DefenderExclusions":
+            {
+                if (!_appSettingsService.Current.DefenderOptIn)
+                {
+                    return new ModuleStatusItemViewModel(
+                        module.ModuleName,
+                        StatusBadgeKind.Neutral,
+                        "Opt-in nicht aktiv");
+                }
+
+                var defenderSet = await _defenderExclusionService.GetExclusionSetAsync();
+                var defenderCount = defenderSet.AddedByApp.Count;
+                return new ModuleStatusItemViewModel(
+                    module.ModuleName,
+                    defenderCount > 0 ? StatusBadgeKind.Active : StatusBadgeKind.Neutral,
+                    $"{defenderCount} Ausschlüsse angewendet");
+            }
+            case "SearchIndexer":
+            {
+                var entries = await _indexerExclusionService.GetAvailableEntriesAsync();
+                var applied = entries.Count(e => e.IsApplied);
+                return new ModuleStatusItemViewModel(
+                    module.ModuleName,
+                    applied >= 2 ? StatusBadgeKind.Active : applied == 1 ? StatusBadgeKind.Neutral : StatusBadgeKind.Warning,
+                    $"{applied} Ausschlüsse angewendet");
+            }
+            case "Services":
+            {
+                var services = await _windowsServiceManager.GetServicesAsync();
+                var sysMain = services.FirstOrDefault(s =>
+                    s.Name.Equals("SysMain", StringComparison.OrdinalIgnoreCase));
+                var wSearch = services.FirstOrDefault(s =>
+                    s.Name.Equals("WSearch", StringComparison.OrdinalIgnoreCase));
+                var optimized =
+                    (sysMain?.StartupType is "Manual" or "Disabled" ? 1 : 0) +
+                    (wSearch?.StartupType is "Manual" or "Disabled" ? 1 : 0);
+                return new ModuleStatusItemViewModel(
+                    module.ModuleName,
+                    optimized == 2 ? StatusBadgeKind.Active : StatusBadgeKind.Neutral,
+                    $"SysMain: {sysMain?.StartupType ?? "—"}, WSearch: {wSearch?.StartupType ?? "—"}");
+            }
+            case "ProcessPriority":
+            {
+                var cursorStatus = _processPriorityService.GetCursorProcessStatus();
+                return new ModuleStatusItemViewModel(
+                    module.ModuleName,
+                    cursorStatus is not null ? StatusBadgeKind.Active : StatusBadgeKind.Neutral,
+                    cursorStatus ?? "Keine Cursor-Prozesse");
+            }
             default:
                 return new ModuleStatusItemViewModel(
                     module.ModuleName,
-                    module.CanApply ? StatusBadgeKind.Neutral : StatusBadgeKind.Warning,
-                    module.CanApply ? "Bereit" : "Nicht verfügbar");
+                    StatusBadgeKind.Neutral,
+                    module.CanApply ? "Bereit" : "Manuelle Bestätigung nötig");
         }
     }
 

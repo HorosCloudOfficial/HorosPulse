@@ -42,6 +42,9 @@
                 <MenuItem Header="Fenster öffnen"
                           Click="TrayOpen_Click"
                           Style="{StaticResource TrayMenuItemStyle}" />
+                <MenuItem Header="Kompakt-Fenster öffnen"
+                          Click="TrayOpenCompact_Click"
+                          Style="{StaticResource TrayMenuItemStyle}" />
                 <Separator Style="{StaticResource TrayMenuSeparatorStyle}" />
                 <MenuItem Header="Beenden"
                           Click="TrayExit_Click"
@@ -108,7 +111,10 @@
                                Margin="16,12"
                                HorizontalAlignment="Left" />
 
-                    <StackPanel Margin="0,12,0,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Margin="0,12,0,0">
+                        <StackPanel>
                         <Button Content="Dashboard" Command="{Binding NavigateToDashboardCommand}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
@@ -230,6 +236,17 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+                        <Button Content="Build-Schutz" Command="{Binding NavigateToBuildToolDefenderCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Build-Schutz">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Content="Trends" Command="{Binding NavigateToTrendsCommand}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
@@ -296,7 +313,8 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
                 </DockPanel>
             </Border>
 

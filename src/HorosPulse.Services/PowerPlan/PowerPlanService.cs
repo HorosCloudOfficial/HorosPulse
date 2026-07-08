@@ -3,6 +3,7 @@ namespace HorosPulse.Services.PowerPlan;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using HorosPulse.Core;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
 
@@ -48,8 +49,7 @@ public sealed partial class PowerPlanService : IPowerPlanService
     {
         var plans = await GetAvailablePlansAsync(cancellationToken);
         var highPerf = plans.FirstOrDefault(p =>
-            p.Name.Contains("High performance", StringComparison.OrdinalIgnoreCase) ||
-            p.Name.Contains("Höchstleistung", StringComparison.OrdinalIgnoreCase) ||
+            PowerPlanNames.IsHighPerformance(p.Name) ||
             p.Guid == HighPerformanceGuid);
 
         if (highPerf is not null)
@@ -97,7 +97,7 @@ public sealed partial class PowerPlanService : IPowerPlanService
         var plans = new List<PowerPlanInfo>();
         foreach (var line in output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
-            var match = PlanLineRegex().Match(line);
+            var match = PlanLineRegex().Match(line.Trim());
             if (!match.Success)
                 continue;
 
@@ -122,16 +122,20 @@ public sealed partial class PowerPlanService : IPowerPlanService
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
+            StandardOutputEncoding = Console.OutputEncoding,
+            StandardErrorEncoding = Console.OutputEncoding,
         };
 
         using var process = Process.Start(psi) ?? throw new InvalidOperationException("powercfg.exe konnte nicht gestartet werden.");
-        var stdout = await process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var stderr = await process.StandardError.ReadToEndAsync(cancellationToken);
+        var stdoutTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
+        var stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
         await process.WaitForExitAsync(cancellationToken);
+        var stdout = await stdoutTask;
+        var stderr = await stderrTask;
         return string.IsNullOrWhiteSpace(stdout) ? stderr : stdout;
     }
 
-    [GeneratedRegex(@"Power Scheme GUID:\s*([0-9a-fA-F-]{36})\s+\((.+?)\)(\s+\*)?", RegexOptions.Compiled)]
+    [GeneratedRegex(@"([0-9a-fA-F-]{36})\s+\((.+?)\)(\s+\*)?", RegexOptions.Compiled)]
     private static partial Regex PlanLineRegex();
 
     [GeneratedRegex(@"GUID:\s*([0-9a-fA-F-]{36})", RegexOptions.Compiled)]

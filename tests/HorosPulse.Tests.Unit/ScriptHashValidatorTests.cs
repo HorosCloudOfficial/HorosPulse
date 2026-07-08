@@ -34,6 +34,15 @@ public class ScriptHashValidatorTests
     }
 
     [Fact]
+    public void IsAllowed_AcceptsParameterizedDefenderProcessScript()
+    {
+        var script = PowerShellScriptLibrary.AddDefenderProcessExclusion("MSBuild.exe");
+        var hash = ScriptHashValidator.ComputeHash(script);
+
+        ScriptHashValidator.IsAllowed(script, hash).Should().BeTrue();
+    }
+
+    [Fact]
     public void IsAllowed_RejectsHashMismatch()
     {
         var script = PowerShellScriptLibrary.ElevationTestScript;

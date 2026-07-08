@@ -39,10 +39,19 @@
   </ItemGroup>
 
   <Target Name="CopyElevationHelper" AfterTargets="Build">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\HorosPulse.Elevation\bin\$(Configuration)\net9.0\HorosPulse.Elevation.exe"
+    <PropertyGroup>
+      <ElevationOutputDir>$(MSBuildProjectDirectory)\..\HorosPulse.Elevation\bin\$(Configuration)\net9.0</ElevationOutputDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <ElevationHelperFiles Include="$(ElevationOutputDir)\HorosPulse.Elevation.exe" />
+      <ElevationHelperFiles Include="$(ElevationOutputDir)\HorosPulse.Elevation.dll" />
+      <ElevationHelperFiles Include="$(ElevationOutputDir)\HorosPulse.Elevation.deps.json" />
+      <ElevationHelperFiles Include="$(ElevationOutputDir)\HorosPulse.Elevation.runtimeconfig.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ElevationHelperFiles)"
           DestinationFolder="$(OutputPath)"
           SkipUnchangedFiles="true"
-          Condition="Exists('$(MSBuildProjectDirectory)\..\HorosPulse.Elevation\bin\$(Configuration)\net9.0\HorosPulse.Elevation.exe')" />
+          Condition="Exists('$(ElevationOutputDir)\HorosPulse.Elevation.exe')" />
   </Target>
 
 </Project>

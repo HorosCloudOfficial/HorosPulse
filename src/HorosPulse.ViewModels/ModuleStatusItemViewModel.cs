@@ -24,6 +24,6 @@ public sealed partial class ModuleStatusItemViewModel : ObservableObject
         StatusBadgeKind.Active => "Aktiv",
         StatusBadgeKind.Warning => "Warnung",
         StatusBadgeKind.Error => "Fehler",
-        _ => "Unbekannt",
+        _ => "Bereit",
     };
 }

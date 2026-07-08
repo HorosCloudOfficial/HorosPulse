@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Kompakt-Fenster (Mem-Reduct-Style): Live RAM/CPU/Disk-Stats, Schnellaktionen, Tray-Eintrag, Einstellungen-Tab
+- `IElevationUiInvoker` / `ElevationUiInvoker`: UAC-Helper-Start auf UI-Thread; `SyncElevationUiInvoker` für Headless-Tests
+- Screenshot-Skripte `SCRIPTS/capture-horospulse-*.ps1` inkl. optionalem Kompakt-Fenster-Capture
+
 ### Changed
 
 - Rebrand cleanup: removed stale `WindowsPerformance.*` tree; migrated PowerShell module to `HorosPulse.PowerShell`

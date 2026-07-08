@@ -26,6 +26,9 @@ public sealed partial class DiskOptimizerViewModel : ViewModelBase
     [ObservableProperty]
     private string? _statusMessage;
 
+    [ObservableProperty]
+    private bool? _isStatusSuccess;
+
     [RelayCommand]
     private async Task RefreshAsync()
     {
@@ -41,10 +44,22 @@ public sealed partial class DiskOptimizerViewModel : ViewModelBase
     private async Task ApplyAsync()
     {
         IsBusy = true;
+        StatusMessage = null;
+        IsStatusSuccess = null;
         try
         {
             var result = await _diskOptimizer.ApplyOptimizationsAsync();
-            StatusMessage = result.Success ? string.Join("; ", result.Changes ?? []) : result.ErrorMessage;
+            if (result.Success)
+            {
+                StatusMessage = "Festplatten-Optimierung angewendet.";
+                IsStatusSuccess = true;
+            }
+            else
+            {
+                StatusMessage = result.ErrorMessage;
+                IsStatusSuccess = false;
+            }
+
             await RefreshAsync();
         }
         finally
@@ -57,10 +72,22 @@ public sealed partial class DiskOptimizerViewModel : ViewModelBase
     private async Task RollbackAsync()
     {
         IsBusy = true;
+        StatusMessage = null;
+        IsStatusSuccess = null;
         try
         {
             var result = await _diskOptimizer.RollbackAsync();
-            StatusMessage = result.Success ? "Zurückgesetzt" : result.ErrorMessage;
+            if (result.Success)
+            {
+                StatusMessage = "Festplatten-Einstellungen zurückgesetzt.";
+                IsStatusSuccess = true;
+            }
+            else
+            {
+                StatusMessage = result.ErrorMessage;
+                IsStatusSuccess = false;
+            }
+
             await RefreshAsync();
         }
         finally

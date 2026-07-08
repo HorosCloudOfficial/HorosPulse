@@ -20,9 +20,15 @@ public class HealthScorerServiceTests
             .ReturnsAsync(new PowerPlanInfo { Name = "High performance", Guid = Guid.NewGuid(), IsActive = true });
 
         var processPriority = new Mock<IProcessPriorityService>();
+        processPriority.Setup(s => s.GetCursorProcessStatus()).Returns("Cursor (PID 1, High)");
+
         var indexer = new Mock<IIndexerExclusionService>();
         indexer.Setup(s => s.GetAvailableEntriesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<IndexerExcludeEntry>());
+            .ReturnsAsync(new List<IndexerExcludeEntry>
+            {
+                new() { Path = "a", IsApplied = true },
+                new() { Path = "b", IsApplied = true },
+            });
 
         var defender = new Mock<IDefenderExclusionService>();
         defender.Setup(s => s.GetExclusionSetAsync(It.IsAny<CancellationToken>()))
@@ -51,6 +57,7 @@ public class HealthScorerServiceTests
         result.Score.Should().BeInRange(0, 100);
         result.Factors.Should().HaveCount(5);
         result.Factors.First(f => f.Name == "Energieplan").EarnedPoints.Should().Be(25);
+        result.Factors.First(f => f.Name == "Suchindexer-Ausschlüsse").EarnedPoints.Should().Be(20);
     }
 }
 

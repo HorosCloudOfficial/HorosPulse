@@ -30,12 +30,14 @@ using HorosPulse.Services.Disk;
 using HorosPulse.Services.ScheduledTasks;
 using HorosPulse.Services.Ml;
 using HorosPulse.Services.RegistryTuner;
+using HorosPulse.Services.BuildToolDefender;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddHorosPulseServices(this IServiceCollection services)
     {
         services.AddSingleton<PowerShellOptions>();
+        services.AddSingleton<IElevationUiInvoker, SyncElevationUiInvoker>();
         services.AddSingleton<IElevationService, ElevationService>();
         services.AddSingleton<IPowerShellBridge, PowerShellBridge>();
 
@@ -63,6 +65,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IRecommendationEngine, RecommendationEngine>();
         services.AddSingleton<IRegistryTunerService, RegistryTunerService>();
         services.AddSingleton<ICursorProcessWatchService, CursorProcessWatchService>();
+        services.AddSingleton<IBuildToolDefenderService, BuildToolDefenderService>();
 
         services.AddSingleton<PowerPlanOptimizationModule>();
         services.AddSingleton<CursorOptimizationModule>();
@@ -76,6 +79,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DiskOptimizerOptimizationModule>();
         services.AddSingleton<TaskSchedulerOptimizationModule>();
         services.AddSingleton<RegistryTunerOptimizationModule>();
+        services.AddSingleton<BuildToolDefenderOptimizationModule>();
 
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<PowerPlanOptimizationModule>());
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<CursorOptimizationModule>());
@@ -89,6 +93,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<DiskOptimizerOptimizationModule>());
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<TaskSchedulerOptimizationModule>());
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<RegistryTunerOptimizationModule>());
+        services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<BuildToolDefenderOptimizationModule>());
 
         services.AddSingleton<ISnapshotManager, SnapshotManager>();
         services.AddSingleton<IRollbackEngine, RollbackEngine>();

@@ -55,4 +55,7 @@ public sealed class AppSettings
 
     /// <summary>Cursor-Prioritäten bei neuem cursor.exe-Prozess automatisch anwenden.</summary>
     public bool ReapplyCursorPrioritiesOnRestart { get; set; }
+
+    /// <summary>Kompakt-Fenster (Mem-Reduct-Style Mini-UI).</summary>
+    public CompactWindowSettings CompactWindow { get; set; } = new();
 }

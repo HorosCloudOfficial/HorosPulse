@@ -6,6 +6,8 @@ public static partial class PowerShellScriptLibrary
 {
     public const string GetDefenderExclusions = "(Get-MpPreference).ExclusionPath | ConvertTo-Json -Compress";
 
+    public const string GetDefenderProcessExclusions = "(Get-MpPreference).ExclusionProcess | ConvertTo-Json -Compress";
+
     public const string IndexerExclusionRollback = """
         $regBase = 'HKLM:\SOFTWARE\Microsoft\Windows Search\Gather\Windows\SystemIndex\ExcludePaths'
         if (Test-Path $regBase) {
@@ -35,6 +37,20 @@ public static partial class PowerShellScriptLibrary
         return $"Remove-MpPreference -ExclusionPath '{escaped}'";
     }
 
+    public static string AddDefenderProcessExclusion(string processName)
+    {
+        ValidateProcessNameArgument(processName);
+        var escaped = processName.Replace("'", "''", StringComparison.Ordinal);
+        return $"Add-MpPreference -ExclusionProcess '{escaped}'";
+    }
+
+    public static string RemoveDefenderProcessExclusion(string processName)
+    {
+        ValidateProcessNameArgument(processName);
+        var escaped = processName.Replace("'", "''", StringComparison.Ordinal);
+        return $"Remove-MpPreference -ExclusionProcess '{escaped}'";
+    }
+
     public static string BuildIndexerExclusionScript(string path)
     {
         ValidatePathArgument(path);
@@ -56,6 +72,12 @@ public static partial class PowerShellScriptLibrary
 
     public static bool TryMatchRemoveDefenderExclusion(string script, out string path) =>
         TryMatchPathScript(script, RemoveDefenderExclusionPattern(), out path);
+
+    public static bool TryMatchAddDefenderProcessExclusion(string script, out string processName) =>
+        TryMatchPathScript(script, AddDefenderProcessExclusionPattern(), out processName);
+
+    public static bool TryMatchRemoveDefenderProcessExclusion(string script, out string processName) =>
+        TryMatchPathScript(script, RemoveDefenderProcessExclusionPattern(), out processName);
 
     public static bool TryMatchIndexerExclusion(string script, out string path) =>
         TryMatchPathScript(script, IndexerExclusionPattern(), out path);
@@ -82,11 +104,29 @@ public static partial class PowerShellScriptLibrary
             throw new ArgumentException("Pfad enthält ungültige Zeichen.", nameof(path));
     }
 
+    private static void ValidateProcessNameArgument(string processName)
+    {
+        if (string.IsNullOrWhiteSpace(processName))
+            throw new ArgumentException("Prozessname darf nicht leer sein.", nameof(processName));
+
+        if (processName.Contains('\n', StringComparison.Ordinal) || processName.Contains('\r', StringComparison.Ordinal))
+            throw new ArgumentException("Prozessname enthält ungültige Zeichen.", nameof(processName));
+
+        if (processName.Contains('\\', StringComparison.Ordinal) || processName.Contains('/', StringComparison.Ordinal))
+            throw new ArgumentException("Prozessname darf keinen Pfad enthalten.", nameof(processName));
+    }
+
     [GeneratedRegex(@"^Add-MpPreference -ExclusionPath '(?<path>(?:''|[^'])*)'$", RegexOptions.Singleline)]
     private static partial Regex AddDefenderExclusionPattern();
 
     [GeneratedRegex(@"^Remove-MpPreference -ExclusionPath '(?<path>(?:''|[^'])*)'$", RegexOptions.Singleline)]
     private static partial Regex RemoveDefenderExclusionPattern();
+
+    [GeneratedRegex(@"^Add-MpPreference -ExclusionProcess '(?<path>(?:''|[^'])*)'$", RegexOptions.Singleline)]
+    private static partial Regex AddDefenderProcessExclusionPattern();
+
+    [GeneratedRegex(@"^Remove-MpPreference -ExclusionProcess '(?<path>(?:''|[^'])*)'$", RegexOptions.Singleline)]
+    private static partial Regex RemoveDefenderProcessExclusionPattern();
 
     [GeneratedRegex(
         @"^\$regBase = 'HKLM:\\SOFTWARE\\Microsoft\\Windows Search\\Gather\\Windows\\SystemIndex\\ExcludePaths'[\s\S]*Set-ItemProperty -Path \$key -Name 'Path' -Value '(?<path>(?:''|[^'])*)'[\s\S]*Set-ItemProperty -Path \$key -Name 'Type' -Value 0 -Type DWord\s*$",

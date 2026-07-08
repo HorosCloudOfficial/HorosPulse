@@ -11,6 +11,6 @@ public enum AppTheme
     /// <summary>Tokyo Night Farbpalette.</summary>
     TokyoNight,
 
-    /// <summary>Helles Theme (Skeleton — Voreinstellung gespeichert, UI folgt).</summary>
+    /// <summary>Helles Theme (<c>Resources/Themes/Light.xaml</c>).</summary>
     Light,
 }

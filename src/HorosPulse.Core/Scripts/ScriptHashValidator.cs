@@ -8,6 +8,7 @@ public static class ScriptHashValidator
     private static readonly HashSet<string> StaticAllowedHashes = new(StringComparer.OrdinalIgnoreCase)
     {
         ComputeHash(PowerShellScriptLibrary.GetDefenderExclusions),
+        ComputeHash(PowerShellScriptLibrary.GetDefenderProcessExclusions),
         ComputeHash(PowerShellScriptLibrary.IndexerExclusionRollback),
         ComputeHash(PowerShellScriptLibrary.ElevationTestScript),
         ComputeHash(PowerShellScriptLibrary.RestartSearchService),
@@ -38,6 +39,14 @@ public static class ScriptHashValidator
 
         if (PowerShellScriptLibrary.TryMatchRemoveDefenderExclusion(script, out var removePath) &&
             removePath.Length > 0)
+            return true;
+
+        if (PowerShellScriptLibrary.TryMatchAddDefenderProcessExclusion(script, out var addProcess) &&
+            addProcess.Length > 0)
+            return true;
+
+        if (PowerShellScriptLibrary.TryMatchRemoveDefenderProcessExclusion(script, out var removeProcess) &&
+            removeProcess.Length > 0)
             return true;
 
         if (PowerShellScriptLibrary.TryMatchIndexerExclusion(script, out var indexerPath) &&

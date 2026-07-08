@@ -19,4 +19,9 @@ public interface IElevationService
 
     /// <summary>Standby-Speicherliste leeren (erfordert Elevation).</summary>
     Task<OptimizationResult> PurgeStandbyListAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Mem-Reduct-kompatible Speicherbereiche leeren (erfordert Elevation).</summary>
+    Task<OptimizationResult> PurgeMemoryAsync(
+        MemoryPurgeOptions options,
+        CancellationToken cancellationToken = default);
 }

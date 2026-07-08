@@ -23,6 +23,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DiskOptimizerViewModel>();
         services.AddSingleton<TaskSchedulerViewModel>();
         services.AddSingleton<RegistryTunerViewModel>();
+        services.AddSingleton<BuildToolDefenderViewModel>();
+        services.AddSingleton<CompactWindowViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         return services;
     }

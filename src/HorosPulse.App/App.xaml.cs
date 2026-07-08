@@ -49,6 +49,12 @@ public partial class App : Application
         RestoreWindowGeometry(mainWindow, settingsService.Current);
         mainWindow.Show();
 
+        if (settingsService.Current.CompactWindow.OpenOnStartup)
+        {
+            var compactCoordinator = _host.Services.GetRequiredService<ICompactWindowCoordinator>();
+            compactCoordinator.ShowCompactWindow();
+        }
+
         var cursorWatch = _host.Services.GetRequiredService<ICursorProcessWatchService>();
         cursorWatch.Start();
 
@@ -122,6 +128,9 @@ public partial class App : Application
                     _host.Services.GetRequiredService<IAppSettingsService>());
             }
 
+            if (_host.Services.GetRequiredService<ICompactWindowCoordinator>() is CompactWindowCoordinator coordinator)
+                await coordinator.SaveCompactGeometryIfOpenAsync();
+
             _host.Services.GetRequiredService<ICursorProcessWatchService>().Stop();
             await _host.StopAsync();
             _host.Dispose();
@@ -146,6 +155,7 @@ public partial class App : Application
                 services.Configure<VelopackUpdateOptions>(context.Configuration.GetSection("Velopack"));
                 services.AddHorosPulseData();
                 services.AddHorosPulseServices();
+                services.AddSingleton<IElevationUiInvoker, ElevationUiInvoker>();
                 services.AddHorosPulseViewModels();
                 services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<IVelopackUpdateService, VelopackUpdateService>();
@@ -154,6 +164,8 @@ public partial class App : Application
                 services.AddSingleton<INavigationService, Services.NavigationService>();
                 services.AddSingleton<IUserConfirmationService, Services.UserConfirmationService>();
                 services.AddSingleton<IFilePickerService, FilePickerService>();
+                services.AddSingleton<ICompactWindowCoordinator, CompactWindowCoordinator>();
+                services.AddSingleton<CompactWindow>();
                 services.AddSingleton<MainWindow>();
             });
 

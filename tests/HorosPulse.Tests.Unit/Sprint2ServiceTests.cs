@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using HorosPulse.Services.Cursor;
 using HorosPulse.Services.PowerPlan;
 using HorosPulse.Services.PowerShell;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 public class PowerShellBridgeTests
@@ -211,5 +212,33 @@ public class PowerPlanServiceTests
         plans[1].Name.Should().Be("High performance");
         plans[1].IsActive.Should().BeTrue();
         plans[1].Guid.Should().Be(Guid.Parse("8c5e7fda-e8bf-4a96-9a85-a6e23a67c135"));
+    }
+
+    [Fact]
+    public void ParsePowerPlans_ParsesGermanPowerCfgOutput()
+    {
+        const string sample = """
+            Bestehende Energieschemen (* Aktiv)
+            -----------------------------------
+            GUID des Energieschemas: 381b4222-f694-41f0-9685-ff5bb260df2e  (Ausbalanciert)
+            GUID des Energieschemas: a696777e-2756-4b73-b75e-5f3d138ec41c  (Ultimative Leistung) *
+            """;
+
+        var plans = PowerPlanService.ParsePowerPlans(sample);
+
+        plans.Should().HaveCount(2);
+        plans[1].Name.Should().Be("Ultimative Leistung");
+        plans[1].IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetAvailablePlansAsync_ParsesLivePowerCfgOutput()
+    {
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        var service = new PowerPlanService(NullLogger<PowerPlanService>.Instance);
+        var plans = await service.GetAvailablePlansAsync();
+        plans.Should().NotBeEmpty("powercfg /list sollte mindestens einen Energieplan liefern");
     }
 }

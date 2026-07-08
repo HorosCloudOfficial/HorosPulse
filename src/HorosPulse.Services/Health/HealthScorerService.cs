@@ -1,5 +1,6 @@
 namespace HorosPulse.Services.Health;
 
+using HorosPulse.Core;
 using HorosPulse.Core.Interfaces;
 using HorosPulse.Core.Models;
 
@@ -72,8 +73,7 @@ public sealed class HealthScorerService : IHealthScorerService
     {
         const int max = 25;
         var active = await _powerPlanService.GetActivePlanAsync(cancellationToken);
-        var isHigh = active?.Name.Contains("High", StringComparison.OrdinalIgnoreCase) == true ||
-            active?.Name.Contains("Höchst", StringComparison.OrdinalIgnoreCase) == true;
+        var isHigh = PowerPlanNames.IsHighPerformance(active?.Name);
 
         return new HealthScoreFactor
         {
@@ -93,12 +93,14 @@ public sealed class HealthScorerService : IHealthScorerService
             "HorosPulse", "process-priority-state.json");
 
         var hasState = File.Exists(statePath);
+        var cursorActive = _processPriorityService.GetCursorProcessStatus() is not null;
+        var applied = hasState || cursorActive;
         return new HealthScoreFactor
         {
             Name = "Cursor-Priorität",
             MaxPoints = max,
-            EarnedPoints = hasState ? max : 0,
-            Detail = hasState ? "Prioritäten angewendet" : "Nicht angewendet",
+            EarnedPoints = applied ? max : 0,
+            Detail = hasState ? "Prioritäten angewendet" : cursorActive ? "Cursor aktiv" : "Nicht angewendet",
         };
     }
 
@@ -106,15 +108,15 @@ public sealed class HealthScorerService : IHealthScorerService
     {
         const int max = 20;
         var entries = await _indexerExclusionService.GetAvailableEntriesAsync(cancellationToken);
-        var selected = entries.Count(e => e.IsSelected);
-        var earned = selected >= 2 ? max : selected == 1 ? max / 2 : 0;
+        var applied = entries.Count(e => e.IsApplied);
+        var earned = applied >= 2 ? max : applied == 1 ? max / 2 : 0;
 
         return new HealthScoreFactor
         {
             Name = "Suchindexer-Ausschlüsse",
             MaxPoints = max,
             EarnedPoints = earned,
-            Detail = $"{selected} Ausschlüsse aktiv",
+            Detail = $"{applied} Ausschlüsse angewendet",
         };
     }
 
@@ -169,10 +171,10 @@ public sealed class HealthScorerService : IHealthScorerService
 
         return new HealthScoreFactor
         {
-            Name = "Dienste (Dev-Preset)",
+            Name = "Dienste (SysMain/WSearch)",
             MaxPoints = max,
             EarnedPoints = earned,
-            Detail = $"SysMain: {sysMain?.StartupType ?? "—"}, WSearch: {wSearch?.StartupType ?? "—"}",
+            Detail = $"SysMain: {sysMain?.StartupType ?? "—"}, WSearch: {wSearch?.StartupType ?? "—"} (nicht Teil von Cursor Dev Mode)",
         };
     }
 
