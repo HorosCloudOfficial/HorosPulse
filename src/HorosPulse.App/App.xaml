@@ -65,6 +65,15 @@
             <DataTemplate DataType="{x:Type vm:BuildToolDefenderViewModel}">
                 <views:BuildToolDefenderView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DevDriveAdvisorViewModel}">
+                <views:DevDriveAdvisorView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CodingBoostViewModel}">
+                <views:CodingBoostView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:WslDockerTuningViewModel}">
+                <views:WslDockerTuningView />
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

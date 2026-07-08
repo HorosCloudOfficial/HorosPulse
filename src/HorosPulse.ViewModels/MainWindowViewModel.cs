@@ -96,6 +96,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void NavigateToBuildToolDefender() =>
         _navigation.Navigate(typeof(BuildToolDefenderViewModel), "Build-Schutz");
 
+    [RelayCommand]
+    private void NavigateToDevDriveAdvisor() =>
+        _navigation.Navigate(typeof(DevDriveAdvisorViewModel), "Dev Drive");
+
+    [RelayCommand]
+    private void NavigateToCodingBoost() =>
+        _navigation.Navigate(typeof(CodingBoostViewModel), "Coding-Boost");
+
+    [RelayCommand]
+    private void NavigateToWslDockerTuning() =>
+        _navigation.Navigate(typeof(WslDockerTuningViewModel), "WSL2 / Docker");
+
     private void OnNavigated(object? sender, EventArgs e)
     {
         OnPropertyChanged(nameof(CurrentViewModel));

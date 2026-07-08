@@ -76,6 +76,10 @@ public class DashboardViewModelTests
         var processPriority = new Mock<IProcessPriorityService>();
         processPriority.Setup(s => s.GetCursorProcessStatus()).Returns((string?)null);
 
+        var devDriveAdvisor = new Mock<IDevDriveAdvisorService>();
+        devDriveAdvisor.Setup(s => s.GetAssessmentAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DevDriveAdvisorState { HasDevDrive = false });
+
         var module = new Mock<IOptimizationModule>();
         module.SetupGet(m => m.ModuleName).Returns("Test");
         module.SetupGet(m => m.CanApply).Returns(true);
@@ -95,6 +99,7 @@ public class DashboardViewModelTests
             windowsServices.Object,
             settings.Object,
             processPriority.Object,
+            devDriveAdvisor.Object,
             [module.Object]);
     }
 }

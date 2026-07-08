@@ -29,6 +29,7 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
     private readonly IWindowsServiceManager _windowsServiceManager;
     private readonly IAppSettingsService _appSettingsService;
     private readonly IProcessPriorityService _processPriorityService;
+    private readonly IDevDriveAdvisorService _devDriveAdvisorService;
     private readonly IEnumerable<IOptimizationModule> _modules;
     private readonly ObservableCollection<double> _cpuHistory = new();
     private readonly ObservableCollection<double> _ramHistory = new();
@@ -49,6 +50,7 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
         IWindowsServiceManager windowsServiceManager,
         IAppSettingsService appSettingsService,
         IProcessPriorityService processPriorityService,
+        IDevDriveAdvisorService devDriveAdvisorService,
         IEnumerable<IOptimizationModule> modules)
     {
         _metricsCollector = metricsCollector;
@@ -65,6 +67,7 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
         _windowsServiceManager = windowsServiceManager;
         _appSettingsService = appSettingsService;
         _processPriorityService = processPriorityService;
+        _devDriveAdvisorService = devDriveAdvisorService;
         _modules = modules;
 
         CpuSeries = [CreateSparklineSeries(_cpuHistory, "#7AA2F7")];
@@ -332,6 +335,18 @@ public sealed partial class DashboardViewModel : ViewModelBase, IDisposable
                     module.ModuleName,
                     cursorStatus is not null ? StatusBadgeKind.Active : StatusBadgeKind.Neutral,
                     cursorStatus ?? "Keine Cursor-Prozesse");
+            }
+            case "DevDriveAdvisor":
+            {
+                var devState = await _devDriveAdvisorService.GetAssessmentAsync();
+                return new ModuleStatusItemViewModel(
+                    module.ModuleName,
+                    devState.HasDevDrive && devState.PathsNeedingMigration == 0
+                        ? StatusBadgeKind.Active
+                        : devState.HasDevDrive
+                            ? StatusBadgeKind.Warning
+                            : StatusBadgeKind.Neutral,
+                    devState.SummaryText);
             }
             default:
                 return new ModuleStatusItemViewModel(

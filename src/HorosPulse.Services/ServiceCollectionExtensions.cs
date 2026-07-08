@@ -31,6 +31,9 @@ using HorosPulse.Services.ScheduledTasks;
 using HorosPulse.Services.Ml;
 using HorosPulse.Services.RegistryTuner;
 using HorosPulse.Services.BuildToolDefender;
+using HorosPulse.Services.DevDrive;
+using HorosPulse.Services.CodingBoost;
+using HorosPulse.Services.WslDocker;
 
 public static class ServiceCollectionExtensions
 {
@@ -66,6 +69,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IRegistryTunerService, RegistryTunerService>();
         services.AddSingleton<ICursorProcessWatchService, CursorProcessWatchService>();
         services.AddSingleton<IBuildToolDefenderService, BuildToolDefenderService>();
+        services.AddSingleton<IDevDriveVolumeProbe, DevDriveVolumeProbe>();
+        services.AddSingleton<IDevDriveAdvisorService, DevDriveAdvisorService>();
+        services.AddSingleton<ICodingBoostService, CodingBoostService>();
+        services.AddSingleton<IWslDockerTuningService, WslDockerTuningService>();
 
         services.AddSingleton<PowerPlanOptimizationModule>();
         services.AddSingleton<CursorOptimizationModule>();
@@ -80,6 +87,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<TaskSchedulerOptimizationModule>();
         services.AddSingleton<RegistryTunerOptimizationModule>();
         services.AddSingleton<BuildToolDefenderOptimizationModule>();
+        services.AddSingleton<DevDriveAdvisorOptimizationModule>();
+        services.AddSingleton<CodingBoostOptimizationModule>();
+        services.AddSingleton<WslDockerTuningOptimizationModule>();
 
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<PowerPlanOptimizationModule>());
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<CursorOptimizationModule>());
@@ -94,6 +104,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<TaskSchedulerOptimizationModule>());
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<RegistryTunerOptimizationModule>());
         services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<BuildToolDefenderOptimizationModule>());
+        services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<DevDriveAdvisorOptimizationModule>());
+        services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<CodingBoostOptimizationModule>());
+        services.AddSingleton<IOptimizationModule>(sp => sp.GetRequiredService<WslDockerTuningOptimizationModule>());
 
         services.AddSingleton<ISnapshotManager, SnapshotManager>();
         services.AddSingleton<IRollbackEngine, RollbackEngine>();

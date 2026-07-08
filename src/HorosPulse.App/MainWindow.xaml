@@ -247,6 +247,39 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+                        <Button Content="Coding-Boost" Command="{Binding NavigateToCodingBoostCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Coding-Boost">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="WSL2 / Docker" Command="{Binding NavigateToWslDockerTuningCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="WSL2 / Docker">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Dev Drive" Command="{Binding NavigateToDevDriveAdvisorCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedNavItem}" Value="Dev Drive">
+                                            <Setter Property="Tag" Value="Selected" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Content="Trends" Command="{Binding NavigateToTrendsCommand}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">

@@ -1,0 +1,97 @@
+<UserControl x:Class="HorosPulse.App.Views.CodingBoostView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="Game Mode, HAGS und Fenster-Optimierung für bessere Foreground-Performance beim Coden und bei GPU-lastigen Apps — dokumentierte Microsoft-Einstellungen."
+                               Foreground="{StaticResource TextMutedBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding RecommendationSummary}" TextWrapping="Wrap" Margin="0,0,0,16" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Dev-Setup anwenden" Command="{Binding ApplyCommand}" Margin="0,0,8,0" />
+                        <Button Content="Rollback" Command="{Binding RollbackCommand}" Margin="0,0,8,0"
+                                IsEnabled="{Binding HasHorosPulseChanges}" />
+                        <Button Content="Aktualisieren" Command="{Binding RefreshCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AccentOrangeBrush}"
+                               Margin="0,12,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16"
+                    DataContext="{Binding GameMode}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="{Binding StatusText}" Margin="16,0"
+                                   Foreground="{StaticResource AccentBlueBrush}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="{Binding RecommendationText}" Margin="8,0,0,0"
+                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextMutedBrush}"
+                               TextWrapping="Wrap" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding DetailText}" FontSize="11"
+                               Foreground="{StaticResource TextMutedBrush}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16"
+                    DataContext="{Binding Hags}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Text=" · Neustart empfohlen" Foreground="{StaticResource AccentOrangeBrush}"
+                                       FontSize="11" Margin="8,4,0,0"
+                                       Visibility="{Binding RequiresReboot, Converter={StaticResource BoolToVis}}" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding StatusText}" Margin="16,0"
+                                   Foreground="{StaticResource AccentBlueBrush}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="{Binding RecommendationText}" Margin="8,0,0,0"
+                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextMutedBrush}"
+                               TextWrapping="Wrap" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding DetailText}" FontSize="11"
+                               Foreground="{StaticResource TextMutedBrush}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}"
+                    DataContext="{Binding WindowedOptimization}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="{Binding StatusText}" Margin="16,0"
+                                   Foreground="{StaticResource AccentBlueBrush}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="{Binding RecommendationText}" Margin="8,0,0,0"
+                                   Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextMutedBrush}"
+                               TextWrapping="Wrap" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding DetailText}" FontSize="11"
+                               Foreground="{StaticResource TextMutedBrush}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

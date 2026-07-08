@@ -24,6 +24,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<TaskSchedulerViewModel>();
         services.AddSingleton<RegistryTunerViewModel>();
         services.AddSingleton<BuildToolDefenderViewModel>();
+        services.AddSingleton<DevDriveAdvisorViewModel>();
+        services.AddSingleton<CodingBoostViewModel>();
+        services.AddSingleton<WslDockerTuningViewModel>();
         services.AddSingleton<CompactWindowViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         return services;
