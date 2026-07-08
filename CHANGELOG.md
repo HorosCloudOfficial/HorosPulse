@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-08
+
 ### Added
 
+- **Speicher** (Sidebar): Volle Mem-Reduct-Purge-UI mit allen `MemoryPurgeOptions`-Bereichen (Working Set, System File Cache, Standby, Registry Cache, etc.), Apply-Button und Speicherstatus-Anzeige
 - **WSL2 / Docker** (Sidebar): `.wslconfig`-Advisor/Tuner — WSL2/Docker-Erkennung, Ressourcen-Limits vs. System, Dev-Empfehlungen, Apply mit Backup/Rollback, `wsl --shutdown`, Verweis auf Build-Schutz
 - **Coding-Boost** (Sidebar): Game Mode, HAGS und Fenster-Optimierung (Win11) für Dev-/GPU-Workflows — Apply mit Tracking + Rollback, `IOptimizationModule`-Integration
 - **Dev Drive Advisor** (Sidebar): ReFS/Dev-Drive-Erkennung, Prüfung typischer Dev-Pfade (source, npm, NuGet, pnpm, Cargo, Cursor/VS Code, Temp), deutsche Migrations-Empfehlungen ohne Auto-Moves, Dashboard-Status, Unit-Tests
@@ -35,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 3: Velopack-Installer-Skeleton, Registry Tuner (opt-in, dokumentierte Tweaks)
 - Dokumentation: `docs/architecture.md`, `docs/presets.md`
 
-### Changed
+### Changed (prior)
 
 - `publish.ps1` erweitert um Velopack-Hinweise und Installer-Dokumentation
 
@@ -47,5 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cursor Dev Mode Preset, Snapshot/Rollback, HorosPulse.Elevation.exe
 - Phase-2-Module: Dienste, Startup, Visuell, Speicher, Netzwerk, Trends, Prozesse
 
-[Unreleased]: https://github.com/HorosCloudOfficial/HorosPulse/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/HorosCloudOfficial/HorosPulse/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/HorosCloudOfficial/HorosPulse/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/HorosCloudOfficial/HorosPulse/releases/tag/v0.1.0

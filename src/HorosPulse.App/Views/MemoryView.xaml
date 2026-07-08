@@ -8,6 +8,29 @@
                     <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,8" />
                     <TextBlock Text="{Binding WarningText}" Foreground="{StaticResource AccentOrangeBrush}"
                                TextWrapping="Wrap" Margin="0,0,0,16" />
+
+                    <TextBlock Text="Speicherstatus" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <UniformGrid Columns="3" Margin="0,0,0,16">
+                        <StackPanel Margin="0,0,8,0">
+                            <TextBlock Text="Physisch" Foreground="{StaticResource TextMutedBrush}" FontSize="12" />
+                            <TextBlock Text="{Binding RamDisplay}" FontSize="14" FontWeight="SemiBold" Margin="0,4,0,0" />
+                            <ProgressBar Value="{Binding PhysicalUsedPercent, Mode=OneWay}"
+                                         Maximum="100" Height="6" Margin="0,6,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="4,0">
+                            <TextBlock Text="Ausgelagerte Dateien" Foreground="{StaticResource TextMutedBrush}" FontSize="12" />
+                            <TextBlock Text="{Binding PageFileDisplay}" FontSize="14" FontWeight="SemiBold" Margin="0,4,0,0" />
+                            <ProgressBar Value="{Binding PageFileUsedPercent, Mode=OneWay}"
+                                         Maximum="100" Height="6" Margin="0,6,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="8,0,0,0">
+                            <TextBlock Text="Systemreserviert" Foreground="{StaticResource TextMutedBrush}" FontSize="12" />
+                            <TextBlock Text="{Binding SystemReservedDisplay}" FontSize="14" FontWeight="SemiBold" Margin="0,4,0,0" />
+                            <ProgressBar Value="{Binding SystemReservedUsedPercent, Mode=OneWay}"
+                                         Maximum="100" Height="6" Margin="0,6,0,0" />
+                        </StackPanel>
+                    </UniformGrid>
+
                     <UniformGrid Columns="2" Margin="0,0,0,16">
                         <StackPanel Margin="0,0,8,0">
                             <TextBlock Text="RAM vorher (verfügbar)" Foreground="{StaticResource TextMutedBrush}" />
@@ -24,9 +47,72 @@
                             </TextBlock>
                         </StackPanel>
                     </UniformGrid>
-                    <Button Content="Standby-Speicher leeren (Flush)" Command="{Binding FlushCommand}" HorizontalAlignment="Left" />
-                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AccentOrangeBrush}"
-                               Margin="0,12,0,0" TextWrapping="Wrap" />
+
+                    <Button Content="Aktualisieren" Command="{Binding RefreshMemoryCommand}"
+                            HorizontalAlignment="Left" Margin="0,0,0,16" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Speicher-Bereiche leeren"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8" />
+                    <TextBlock Text="Mem-Reduct-kompatible Bereiche. Mindestens ein Bereich muss ausgewählt sein."
+                               Foreground="{StaticResource TextMutedBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,16" />
+
+                    <CheckBox Content="Working set"
+                              IsChecked="{Binding PurgeWorkingSet}"
+                              Margin="0,0,0,8" />
+                    <CheckBox Content="System file cache"
+                              IsChecked="{Binding PurgeSystemFileCache}"
+                              Margin="0,0,0,8" />
+                    <CheckBox Content="Modified page list"
+                              IsChecked="{Binding PurgeModifiedPageList}"
+                              Margin="0,0,0,8" />
+                    <CheckBox Content="Standby list"
+                              IsChecked="{Binding PurgeStandbyList}"
+                              Margin="0,0,0,8" />
+                    <CheckBox Content="Standby ohne Priorität"
+                              IsChecked="{Binding PurgeLowPriorityStandby}"
+                              Margin="0,0,0,8" />
+                    <CheckBox Content="Registry cache"
+                              IsChecked="{Binding PurgeRegistryCache}"
+                              Margin="0,0,0,8" />
+                    <CheckBox Content="Combine memory lists (Win10+)"
+                              IsChecked="{Binding PurgeCombineMemoryLists}"
+                              Margin="0,0,0,16" />
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Speicher leeren"
+                                Command="{Binding ApplyPurgeCommand}"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,8,0" />
+                        <Button Content="Standard aus Einstellungen"
+                                Command="{Binding LoadDefaultsFromSettingsCommand}"
+                                HorizontalAlignment="Left" />
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Margin="0,12,0,0"
+                               TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource AccentOrangeBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStatusSuccess}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource AccentGreenBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsStatusSuccess}" Value="False">
+                                        <Setter Property="Foreground" Value="{StaticResource AccentOrangeBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
             </Border>
         </StackPanel>
